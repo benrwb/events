@@ -29,6 +29,9 @@
         [v-cloak] {
             display: none;
         }
+        .emoji {
+            font-family: 'Segoe UI Emoji';
+        }
     </style>
 </head>
 <body>
@@ -60,8 +63,10 @@
                 <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
                 <div class="text-muted" v-if="item.location">{{ item.location }}</div>
                 <div class="text-muted">
-                    {{ item.status == "Going" ? "✅" : "" }}
-                    {{ item.status == "Interested" ? "⭐" : "" }}
+                    <span class="emoji">
+                        {{ item.status == "Going" ? "✔" : "" }}
+                        {{ item.status == "Interested" ? "⭐" : "" }}
+                    </span>
                     {{ item.status }}
                 </div>
                 
