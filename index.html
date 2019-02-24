@@ -59,6 +59,11 @@
                 <div style="font-weight: bold">
                     {{ eventTypes[item.type] }} 
                     {{ item.name}}
+                    
+                    <a v-if="item.link"
+                       v-bind:href="item.link"
+                       class="emoji"
+                       target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
                 <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
                 <div class="text-muted" v-if="item.location">{{ item.location }}</div>

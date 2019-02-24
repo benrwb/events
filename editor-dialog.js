@@ -33,11 +33,11 @@ Vue.component('editor-dialog', {
                                 </div>
                             </div>
                             <div class="form-group">
-                                    <label class="col-sm-2 control-label">Location</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" v-model="dbitem.location">
-                                    </div>
+                                <label class="col-sm-2 control-label">Location</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" v-model="dbitem.location">
                                 </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Date</label>
                                 <div class="col-sm-5">
@@ -52,6 +52,18 @@ Vue.component('editor-dialog', {
                                         <option value="Interested">⭐ Interested</option>
                                         <option value="Going">✅ Going</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Link</label>
+                                <div class="col-sm-8">
+                                    <div v-bind:class="{ 'input-group': !!dbitem.link }">
+                                        <input type="text" class="form-control" v-model="dbitem.link">
+        
+                                        <a v-show="!!dbitem.link"
+                                            v-bind:href="dbitem.link"
+                                            class="input-group-addon emoji"
+                                            target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
                                 </div>
                             </div>
                         </form>
@@ -84,7 +96,8 @@ Vue.component('editor-dialog', {
                 name: '',
                 location: '',
                 date: null,
-                status: ''
+                status: '',
+                link: ''
             };
         },
         openDialog: function (item) { // called by parent via $refs
