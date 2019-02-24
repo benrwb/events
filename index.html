@@ -48,22 +48,26 @@
 
 
         <div v-for="item in orderedTimeline"
-             class="well">
-
-            <div style="font-weight: bold">
-                {{ eventTypes[item.type] }} 
-                {{ item.name}}
-            </div>
-            <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
-            <div class="text-muted" v-if="item.location">{{ item.location }}</div>
-            <div class="text-muted">
-                {{ item.status == "Going" ? "✅" : "" }}
-                {{ item.status == "Interested" ? "⭐" : "" }}
-                {{ item.status }}
-            </div>
-            
-            <button class="btn btn-sm btn-default"
-                    v-on:click="editEvent(item.id)">Edit</button>
+             class="panel"
+             v-bind:class="{ 'panel-success': item.status == 'Going',
+                             'panel-default': item.status == 'Interested',
+                             'panel-warning': !item.status }">
+            <div class="panel-heading">
+                <div style="font-weight: bold">
+                    {{ eventTypes[item.type] }} 
+                    {{ item.name}}
+                </div>
+                <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
+                <div class="text-muted" v-if="item.location">{{ item.location }}</div>
+                <div class="text-muted">
+                    {{ item.status == "Going" ? "✅" : "" }}
+                    {{ item.status == "Interested" ? "⭐" : "" }}
+                    {{ item.status }}
+                </div>
+                
+                <button class="btn btn-sm btn-default"
+                        v-on:click="editEvent(item.id)">Edit</button>
+            </div><!-- /panel-heading -->
         </div>
 
         <editor-dialog ref="editor"
