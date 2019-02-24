@@ -1,5 +1,5 @@
 Vue.component('bootstrap-datepicker', {
-    template: "<input class='form-control' type='text' />",
+    template: "<input type='text' class='form-control' readonly='true' />",
     props: {
         value: String // accept a value prop (for use with v-model)
     },
