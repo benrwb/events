@@ -1,22 +1,34 @@
 Vue.component('dropbox-sync', {
-    template: `
-    
-    <div v-show="dropboxSyncStatus">
-        Dropbox sync status: {{ dropboxSyncStatus }}
+    template: html`
+    <div>
+        <div v-show="dropboxSyncStatus">
+            Dropbox sync status: {{ dropboxSyncStatus }}
+        </div>
+        
+        <div v-show="!dropboxAccessToken">
+            Dropbox <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
+            <input type="text" v-model="editAccessToken" class="form-control" />
+            <button class="btn btn-default" v-on:click="saveAccessToken">Set</button>
+        </div>
     </div>
-    
     `,
     props: {
         'filename': String, // user needs to create this file manually, initial contents should be an empty array []
     },
     data: function() {
         return {
+            'editAccessToken': '',
             'dropboxAccessToken': localStorage['dropboxAccessToken'] || '',
             'dropboxSyncStatus': '',
             'dropboxLastSyncTimestamp': null,
         }
     },
     methods: {
+        saveAccessToken: function() {
+            localStorage["dropboxAccessToken"] = this.editAccessToken;
+            this.dropboxAccessToken = this.editAccessToken; // hide "enter access token" controls
+            this.dropboxSyncStatus = "Please refresh the page to continue";
+        },
         loadData: function(onComplete) { // called by parent
             // Dropbox sync stage 1 - Load existing data from Dropbox
             if (!this.dropboxAccessToken) return;
@@ -83,7 +95,6 @@ Vue.component('dropbox-sync', {
                     mode: { '.tag': 'overwrite' }
                 })
                 .then(function(response) {
-                    localStorage["dropboxAccessToken"] = self.dropboxAccessToken;
                     self.dropboxSyncStatus = "";
                     self.dropboxLastSyncTimestamp = new Date();
                     if (onComplete)

@@ -37,10 +37,11 @@
          class="container">
 
         <dropbox-sync ref="dropbox"
-                      filename="events/events.json"
+                      filename="json/events.json"
         ></dropbox-sync>
 
         <button class="btn btn-success"
+                v-show="connectedToDropbox"
                 v-on:click="addEvent">Add Event</button>
 
         <!-- Possible future development: Auto-import events from external source(s) -->
@@ -86,11 +87,13 @@
                     "Music": "🎵",
                     "Excursion": "🚶‍",
                     "Holiday": "🌞"
-                }
+                },
+                connectedToDropbox: false
             },
             mounted: function() {
                 var self = this;
                 this.$refs.dropbox.loadData(function(dropboxData) {
+                    self.connectedToDropbox = true; // show "Add event" button
                     self.timeline = dropboxData;
                 });
             },
