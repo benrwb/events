@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Events</title>
+    
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.7/dist/vue.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.standalone.css">
+
+    <script type="text/javascript" src="bootstrap-datepicker.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/4.0.1/Dropbox-sdk.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+
+    <style type="text/css">
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="vueDiv" v-cloak
+         class="container">
+
+        <dropbox-sync ref="dropbox"
+                      filename="events/events.json"
+        ></dropbox-sync>
+
+        <button class="btn btn-success"
+                v-on:click="addEvent">Add Event</button>
+
+        <!-- Possible future development: Auto-import events from external source(s) -->
+
+
+        <div v-for="item in orderedTimeline"
+             class="well">
+
+            <div style="font-weight: bold">
+                {{ eventTypes[item.type] }} 
+                {{ item.name}}
+            </div>
+            <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
+            <div class="text-muted" v-if="item.location">{{ item.location }}</div>
+            <div class="text-muted">
+                {{ item.status == "Going" ? "✅" : "" }}
+                {{ item.status == "Interested" ? "⭐" : "" }}
+                {{ item.status }}
+            </div>
+            
+            <button class="btn btn-sm btn-default"
+                    v-on:click="editEvent(item.id)">Edit</button>
+        </div>
+
+        <editor-dialog ref="editor"
+                       v-bind:event-types="eventTypes"
+                       v-on:save="editorSave"></editor-dialog>
+    </div>
+    
+    <script type="text/javascript" src="editor-dialog.js"></script>
+    <script type="text/javascript" src="dropbox-sync.js"></script>
+
+    <script type="text/javascript">
+ 
+        new Vue({
+            el: "#vueDiv",
+            data: {
+                timeline: [],//sessionStorage['eventsTimeline'] ? JSON.parse(sessionStorage['eventsTimeline']) : [],
+                eventTypes: {
+                    "Birthday": "🎂",
+                    "Film": "🎬",
+                    "Comedy": "🎭",
+                    "Music": "🎵",
+                    "Excursion": "🚶‍",
+                    "Holiday": "🌞"
+                }
+            },
+            mounted: function() {
+                var self = this;
+                this.$refs.dropbox.loadData(function(dropboxData) {
+                    self.timeline = dropboxData;
+                });
+            },
+            methods: {
+                addEvent: function () {
+                    this.$refs.editor.openDialog();
+                },
+                editEvent: function(itemId) {
+                    var idx = this.timeline.findIndex(z => z.id === itemId);
+                    var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
+                    this.$refs.editor.openDialog(copy);
+                },
+                editorSave: function(item) {
+                    var self = this;
+
+                    if (item.id == -1) {
+                        // add new item
+                        item.id = this.uuidv4();
+                        this.$refs.dropbox.addItem(item, function(dropboxData) {
+                            self.timeline = dropboxData;
+                        });
+                    } else {
+                        // edit existing item
+                        //Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
+                        this.$refs.dropbox.editItem(item, function(dropboxData) {
+                            self.timeline = dropboxData;
+                        });
+                    }
+                    //sessionStorage['eventsTimeline'] = JSON.stringify(this.timeline); // update local storage
+                },
+                uuidv4: function () {
+                    // from https://stackoverflow.com/a/2117523
+                    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                    )
+                }
+            },
+            computed: {
+                orderedTimeline: function() {
+                    return _.orderBy(this.timeline, ["date"]);
+                }
+            },
+            filters: {
+                formatDate: function (datestr, dateformat) {
+                    if (!datestr) return "";
+                    if (!dateformat) dateformat = "DD/MM/YYYY";
+                    return moment(datestr).format(dateformat);
+                }
+            }
+        });
+
+    </script>
+
+</body>
+</html>
