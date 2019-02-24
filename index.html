@@ -62,12 +62,14 @@
                 </div>
                 <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
                 <div class="text-muted" v-if="item.location">{{ item.location }}</div>
-                <div class="text-muted">
+                <div>
                     <span class="emoji">
                         {{ item.status == "Going" ? "✔" : "" }}
                         {{ item.status == "Interested" ? "⭐" : "" }}
                     </span>
-                    {{ item.status }}
+                    <span class="text-muted">
+                        {{ item.status }}
+                    </span>
                 </div>
                 
                 <button class="btn btn-sm btn-default"
