@@ -48,9 +48,8 @@ Vue.component('editor-dialog', {
                                 <label class="col-sm-2 control-label">Status</label>
                                 <div class="col-sm-5">
                                     <select class="form-control" v-model="dbitem.status">
-                                        <option></option>
-                                        <option value="Interested">⭐ Interested</option>
-                                        <option value="Going">✅ Going</option>
+                                        <option v-for="(value, key) in levelsOfInterest"
+                                                v-bind:value="key">{{ value }} {{ key }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -81,7 +80,8 @@ Vue.component('editor-dialog', {
 
     `,
     props: {
-        'eventTypes': Object
+        'eventTypes': Object,
+        'levelsOfInterest': Object
     },
     data: function() {
         return {
