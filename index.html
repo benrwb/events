@@ -54,6 +54,7 @@
              class="panel"
              v-bind:class="{ 'panel-success': item.status == 'Going',
                              'panel-default': item.status == 'Interested',
+                             'panel-danger': item.status == 'Need tickets',
                              'panel-warning': !item.status }">
             <div class="panel-heading">
                 <div style="font-weight: bold">
@@ -68,8 +69,7 @@
                 <div class="text-muted" v-if="item.location">{{ item.location }}</div>
                 <div>
                     <span class="emoji">
-                        {{ item.status == "Going" ? "✔" : "" }}
-                        {{ item.status == "Interested" ? "⭐" : "" }}
+                        {{ levelsOfInterest[item.status] }}
                     </span>
                     <span class="text-muted">
                         {{ item.status }}
@@ -83,6 +83,7 @@
 
         <editor-dialog ref="editor"
                        v-bind:event-types="eventTypes"
+                       v-bind:levels-of-interest="levelsOfInterest"
                        v-on:save="editorSave"></editor-dialog>
     </div>
     
@@ -102,6 +103,11 @@
                     "Music": "🎵",
                     "Excursion": "🚶‍",
                     "Holiday": "🌞"
+                },
+                levelsOfInterest: {
+                    "Going": "✔",
+                    "Interested": "⭐",
+                    "Need tickets": "🎟"
                 },
                 connectedToDropbox: false
             },
