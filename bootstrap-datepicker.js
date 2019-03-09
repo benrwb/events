@@ -1,5 +1,5 @@
 Vue.component('bootstrap-datepicker', {
-    template: "<input type='text' class='form-control' readonly='true' style='background-color: #fff' />",
+    template: "<input class='form-control' type='text' />",
     props: {
         value: String // accept a value prop (for use with v-model)
     },
@@ -15,7 +15,8 @@ Vue.component('bootstrap-datepicker', {
         $(this.$el).datepicker({
             format: "dd/mm/yyyy", // UK date format
             autoclose: true,
-            todayHighlight: true
+            todayHighlight: true,
+            disableTouchKeyboard: true //  hide keyboard on mobile devices
         });
         
         // Register event
