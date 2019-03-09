@@ -54,7 +54,7 @@
              class="panel"
              v-bind:class="{ 'panel-success': item.status == 'Going',
                              'panel-default': item.status == 'Interested',
-                             'panel-danger': item.status == 'Need tickets',
+                             'panel-danger': item.status == 'Need to book',
                              'panel-warning': !item.status }">
             <div class="panel-heading">
                 <div style="font-weight: bold">
@@ -107,7 +107,9 @@
                 levelsOfInterest: {
                     "Going": "✔",
                     "Interested": "⭐",
-                    "Need tickets": "🎟"
+                    "Need to book": "🎟",
+                    "Went":"🙂",
+                    "Didn't go": "🙁"
                 },
                 connectedToDropbox: false
             },
@@ -154,7 +156,10 @@
             },
             computed: {
                 orderedTimeline: function() {
-                    return _.orderBy(this.timeline, ["date"]);
+                    var filteredTimeline = this.timeline.filter(function(item) {
+                        return item.status != "Went" && item.status != "Didn't go";
+                    });
+                    return _.orderBy(filteredTimeline, ["date"]);
                 }
             },
             filters: {
