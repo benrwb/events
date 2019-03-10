@@ -63,6 +63,7 @@
                     <a v-if="item.link"
                        v-bind:href="item.link"
                        class="emoji"
+                       style="text-decoration: none"
                        target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
                 <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
