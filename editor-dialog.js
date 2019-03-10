@@ -17,6 +17,7 @@ Vue.component('editor-dialog', {
                     <div class="modal-body">
         
                         <form class="form-horizontal">
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Type</label>
                                 <div class="col-sm-5">
@@ -26,24 +27,28 @@ Vue.component('editor-dialog', {
                                     </select>
                                 </div>
                             </div>
+                            
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Name</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" v-model="dbitem.name">
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Location</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" v-model="dbitem.location">
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Date</label>
                                 <div class="col-sm-5">
                                     <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Status</label>
                                 <div class="col-sm-5">
@@ -53,6 +58,7 @@ Vue.component('editor-dialog', {
                                     </select>
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Link</label>
                                 <div class="col-sm-8">
@@ -63,6 +69,14 @@ Vue.component('editor-dialog', {
                                             v-bind:href="dbitem.link"
                                             class="input-group-addon emoji"
                                             target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Notes</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" v-model="dbitem.notes"></textarea>
                                 </div>
                             </div>
                         </form>
@@ -97,7 +111,8 @@ Vue.component('editor-dialog', {
                 location: '',
                 date: null,
                 status: '',
-                link: ''
+                link: '',
+                notes: ''
             };
         },
         openDialog: function (item) { // called by parent via $refs
