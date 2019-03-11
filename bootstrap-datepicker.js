@@ -16,7 +16,8 @@ Vue.component('bootstrap-datepicker', {
             format: "dd/mm/yyyy", // UK date format
             autoclose: true,
             todayHighlight: true,
-            disableTouchKeyboard: true //  hide keyboard on mobile devices
+            disableTouchKeyboard: true, //  hide keyboard on mobile devices
+            weekStart: 1 // week starts on Monday
         });
         
         // Register event
