@@ -68,9 +68,7 @@
                              'panel-warning': !item.status }">
             <div class="panel-heading">
                 <div class="pull-right text-muted">
-                    <span v-show="item.isCollapsed" style="padding-right: 10px">{{ item.date | formatDate('D/MMM') }}</span>
-                    <span v-show="!item.isCollapsed" v-on:click="collapseItem(item, true)" class="glyphicon glyphicon-chevron-up"></span>
-                    <span v-show="item.isCollapsed" v-on:click="collapseItem(item, false)" class="glyphicon glyphicon-chevron-down"></span>
+                    <span v-show="isCollapsed(item)">{{ item.date | formatDate('D/MMM') }}</span>
                 </div>
                 <div style="font-weight: bold">
                     
@@ -86,12 +84,12 @@
                        style="text-decoration: none"
                        target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
-                <div v-show="!item.isCollapsed">
+                <div v-show="!isCollapsed(item)">
                     <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
                     <div class="text-muted" v-if="item.location">{{ item.location }}</div>
                     <div>
                         <span class="emoji">
-                            {{ levelsOfInterest[item.status] }}
+                            {{ statusList[item.status] }}
                         </span>
                         <span class="text-muted">
                             {{ item.status }}
@@ -106,7 +104,7 @@
 
         <editor-dialog ref="editor"
                        v-bind:event-types="eventTypes"
-                       v-bind:levels-of-interest="levelsOfInterest"
+                       v-bind:status-list="statusList"
                        v-on:save="editorSave"></editor-dialog>
     </div>
     
@@ -127,7 +125,7 @@
                     "Excursion": "🚶‍",
                     "Holiday": "🌞"
                 },
-                levelsOfInterest: {
+                statusList: {
                     "Going": "✔",
                     "Interested": "⭐",
                     "Need to book": "🎟",
@@ -171,14 +169,8 @@
                     }
                     //sessionStorage['eventsTimeline'] = JSON.stringify(this.timeline); // update local storage
                 },
-                collapseItem: function(item, value) {
-                    Vue.set(item, "isCollapsed", value);
-                    
-                    // save changes
-                    var self = this;
-                    this.$refs.dropbox.editItem(item, function(dropboxData) {
-                        self.timeline = dropboxData;
-                    });
+                isCollapsed: function(item) { 
+                    return item.status == "Interested";
                 },
                 uuidv4: function () {
                     // from https://stackoverflow.com/a/2117523
