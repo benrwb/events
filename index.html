@@ -46,7 +46,7 @@
          class="container">
 
          <div v-show="!!dropboxSyncStatus"
-              class="alert alert-info syncdiv">Dropbox sync: {{ dropboxSyncStatus }}</div>
+              class="alert alert-warning syncdiv">Dropbox sync: {{ dropboxSyncStatus }}</div>
 
         <dropbox-sync ref="dropbox"
                       filename="json/events.json"
@@ -73,7 +73,12 @@
                     <span v-show="item.isCollapsed" v-on:click="collapseItem(item, false)" class="glyphicon glyphicon-chevron-down"></span>
                 </div>
                 <div style="font-weight: bold">
-                    {{ eventTypes[item.type] }} 
+                    
+                    <span v-on:click="editEvent(item.id)"
+                          style="cursor: pointer">
+                        {{ eventTypes[item.type] }} 
+                    </span>
+                    
                     {{ item.name}}
                     <a v-if="item.link"
                        v-bind:href="item.link"
