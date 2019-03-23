@@ -32,6 +32,12 @@
         .emoji {
             font-family: 'Segoe UI Emoji';
         }
+        .syncdiv {
+            position: fixed;
+            top: 5px;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
     </style>
 </head>
 <body>
@@ -39,8 +45,12 @@
     <div id="vueDiv" v-cloak
          class="container">
 
+         <div v-show="!!dropboxSyncStatus"
+              class="alert alert-info syncdiv">Dropbox sync: {{ dropboxSyncStatus }}</div>
+
         <dropbox-sync ref="dropbox"
                       filename="json/events.json"
+                      v-on:sync-status-change="dropboxSyncStatus = $event"
         ></dropbox-sync>
 
         <button class="btn btn-success"
@@ -57,6 +67,11 @@
                              'panel-danger': item.status == 'Need to book',
                              'panel-warning': !item.status }">
             <div class="panel-heading">
+                <div class="pull-right text-muted">
+                    <span v-show="item.isCollapsed" style="padding-right: 10px">{{ item.date | formatDate('D/MMM') }}</span>
+                    <span v-show="!item.isCollapsed" v-on:click="collapseItem(item, true)" class="glyphicon glyphicon-chevron-up"></span>
+                    <span v-show="item.isCollapsed" v-on:click="collapseItem(item, false)" class="glyphicon glyphicon-chevron-down"></span>
+                </div>
                 <div style="font-weight: bold">
                     {{ eventTypes[item.type] }} 
                     {{ item.name}}
@@ -66,19 +81,21 @@
                        style="text-decoration: none"
                        target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
-                <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
-                <div class="text-muted" v-if="item.location">{{ item.location }}</div>
-                <div>
-                    <span class="emoji">
-                        {{ levelsOfInterest[item.status] }}
-                    </span>
-                    <span class="text-muted">
-                        {{ item.status }}
-                    </span>
+                <div v-show="!item.isCollapsed">
+                    <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
+                    <div class="text-muted" v-if="item.location">{{ item.location }}</div>
+                    <div>
+                        <span class="emoji">
+                            {{ levelsOfInterest[item.status] }}
+                        </span>
+                        <span class="text-muted">
+                            {{ item.status }}
+                        </span>
+                    </div>
+                    
+                    <button class="btn btn-sm btn-default"
+                            v-on:click="editEvent(item.id)">Edit</button>
                 </div>
-                
-                <button class="btn btn-sm btn-default"
-                        v-on:click="editEvent(item.id)">Edit</button>
             </div><!-- /panel-heading -->
         </div>
 
@@ -112,7 +129,8 @@
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
-                connectedToDropbox: false
+                connectedToDropbox: false,
+                dropboxSyncStatus: ""
             },
             mounted: function() {
                 var self = this;
@@ -147,6 +165,15 @@
                         });
                     }
                     //sessionStorage['eventsTimeline'] = JSON.stringify(this.timeline); // update local storage
+                },
+                collapseItem: function(item, value) {
+                    Vue.set(item, "isCollapsed", value);
+                    
+                    // save changes
+                    var self = this;
+                    this.$refs.dropbox.editItem(item, function(dropboxData) {
+                        self.timeline = dropboxData;
+                    });
                 },
                 uuidv4: function () {
                     // from https://stackoverflow.com/a/2117523

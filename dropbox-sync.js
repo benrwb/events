@@ -1,9 +1,9 @@
 Vue.component('dropbox-sync', {
     template: html`
     <div>
-        <div v-show="dropboxSyncStatus">
+        <!-- <div v-show="dropboxSyncStatus">
             Dropbox sync status: {{ dropboxSyncStatus }}
-        </div>
+        </div> -->
         
         <div v-show="!dropboxAccessToken">
             Dropbox <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
@@ -24,15 +24,19 @@ Vue.component('dropbox-sync', {
         }
     },
     methods: {
+        setSyncStatus: function(newStatus) {
+            this.dropboxSyncStatus = newStatus;
+            this.$emit("sync-status-change", newStatus);
+        },
         saveAccessToken: function() {
             localStorage["dropboxAccessToken"] = this.editAccessToken;
             this.dropboxAccessToken = this.editAccessToken; // hide "enter access token" controls
-            this.dropboxSyncStatus = "Please refresh the page to continue";
+            this.setSyncStatus("Please refresh the page to continue");
         },
         loadData: function(onComplete) { // called by parent
             // Dropbox sync stage 1 - Load existing data from Dropbox
             if (!this.dropboxAccessToken) return;
-            this.dropboxSyncStatus = "Loading";
+            this.setSyncStatus("Loading");
 
             // See https://dropbox.github.io/dropbox-sdk-js/Dropbox.html#filesDownload__anchor
             var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
@@ -43,7 +47,7 @@ Vue.component('dropbox-sync', {
                     reader.addEventListener("loadend", function() {
                         var dropboxData = JSON.parse(reader.result);
                         //self.dropboxSyncStage2(dataToSync, dropboxData);
-                        self.dropboxSyncStatus = "";
+                        self.setSyncStatus("");
                         if (onComplete)
                             onComplete(dropboxData);
                     });
@@ -85,7 +89,7 @@ Vue.component('dropbox-sync', {
         saveData: function(dropboxData, onComplete) {
             // Dropbox sync stage 3 - Save data back to Dropbox
             if (!this.dropboxAccessToken ) return;
-            this.dropboxSyncStatus = "Saving";
+            this.setSyncStatus("Saving");
             // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
             var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
             var self = this;
@@ -95,7 +99,7 @@ Vue.component('dropbox-sync', {
                     mode: { '.tag': 'overwrite' }
                 })
                 .then(function(response) {
-                    self.dropboxSyncStatus = "";
+                    self.setSyncStatus("");
                     self.dropboxLastSyncTimestamp = new Date();
                     if (onComplete)
                         onComplete(dropboxData);
@@ -103,7 +107,7 @@ Vue.component('dropbox-sync', {
                 .catch(function(error) {
                     console.error(error);
                     alert("Failed to upload " + self.dropboxFilename + " to Dropbox - " + error.message);
-                    self.dropboxSyncStatus = "Error";
+                    self.setSyncStatus("Error");
                     self.dropboxLastSyncTimestamp = "";
                 });
         }
