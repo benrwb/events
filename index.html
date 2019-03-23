@@ -70,7 +70,8 @@
                 <div class="pull-right text-muted">
                     <span v-show="isCollapsed(item)">{{ item.date | formatDate('D/MMM') }}</span>
                 </div>
-                <div style="font-weight: bold">
+                <div style="font-weight: bold"
+                     v-bind:class="{ 'text-muted': isCollapsed(item) }">
                     
                     <span v-on:click="editEvent(item.id)"
                           style="cursor: pointer">
@@ -78,6 +79,7 @@
                     </span>
                     
                     {{ item.name}}
+
                     <a v-if="item.link"
                        v-bind:href="item.link"
                        class="emoji"
