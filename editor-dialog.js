@@ -52,7 +52,7 @@ Vue.component('editor-dialog', {
 
                             <div class="form-group">
                                 <label class="col-xs-3 control-label">Status</label>
-                                <div class="col-xs-6">
+                                <div class="col-xs-7">
                                     <select class="form-control" v-model="dbitem.status">
                                         <option v-for="(value, key) in statusList"
                                                 v-bind:value="key">{{ value }} {{ key }}</option>
