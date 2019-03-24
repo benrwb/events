@@ -19,8 +19,8 @@ Vue.component('editor-dialog', {
                         <form class="form-horizontal">
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Type</label>
-                                <div class="col-sm-5">
+                                <label class="col-xs-2 control-label">Type</label>
+                                <div class="col-xs-5">
                                     <select class="form-control" v-model="dbitem.type">
                                         <option v-for="(value, key) in eventTypes"
                                                 v-bind:value="key">{{ value }} {{ key }}</option>
@@ -29,29 +29,29 @@ Vue.component('editor-dialog', {
                             </div>
                             
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Name</label>
-                                <div class="col-sm-8">
+                                <label class="col-xs-2 control-label">Name</label>
+                                <div class="col-xs-8">
                                     <input type="text" class="form-control" v-model="dbitem.name">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Location</label>
-                                <div class="col-sm-8">
+                                <label class="col-xs-2 control-label">Location</label>
+                                <div class="col-xs-8">
                                     <input type="text" class="form-control" v-model="dbitem.location">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Date</label>
-                                <div class="col-sm-5">
+                                <label class="col-xs-2 control-label">Date</label>
+                                <div class="col-xs-5">
                                     <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Status</label>
-                                <div class="col-sm-5">
+                                <label class="col-xs-2 control-label">Status</label>
+                                <div class="col-xs-5">
                                     <select class="form-control" v-model="dbitem.status">
                                         <option v-for="(value, key) in statusList"
                                                 v-bind:value="key">{{ value }} {{ key }}</option>
@@ -60,8 +60,8 @@ Vue.component('editor-dialog', {
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Link</label>
-                                <div class="col-sm-8">
+                                <label class="col-xs-2 control-label">Link</label>
+                                <div class="col-xs-8">
                                     <div v-bind:class="{ 'input-group': !!dbitem.link }">
                                         <input type="text" class="form-control" v-model="dbitem.link">
         
@@ -74,8 +74,8 @@ Vue.component('editor-dialog', {
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Notes</label>
-                                <div class="col-sm-8">
+                                <label class="col-xs-2 control-label">Notes</label>
+                                <div class="col-xs-8">
                                     <textarea class="form-control" v-model="dbitem.notes"></textarea>
                                 </div>
                             </div>
