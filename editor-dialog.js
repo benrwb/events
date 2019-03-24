@@ -14,13 +14,14 @@ Vue.component('editor-dialog', {
                                 aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="myModalLabel">Event details</h4>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body"
+                    style="padding-bottom: 0">
         
                         <form class="form-horizontal">
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Type</label>
-                                <div class="col-xs-5">
+                                <label class="col-xs-3 control-label">Type</label>
+                                <div class="col-xs-6">
                                     <select class="form-control" v-model="dbitem.type">
                                         <option v-for="(value, key) in eventTypes"
                                                 v-bind:value="key">{{ value }} {{ key }}</option>
@@ -29,29 +30,29 @@ Vue.component('editor-dialog', {
                             </div>
                             
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Name</label>
-                                <div class="col-xs-8">
+                                <label class="col-xs-3 control-label">Name</label>
+                                <div class="col-xs-9">
                                     <input type="text" class="form-control" v-model="dbitem.name">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Location</label>
-                                <div class="col-xs-8">
+                                <label class="col-xs-3 control-label">Location</label>
+                                <div class="col-xs-9">
                                     <input type="text" class="form-control" v-model="dbitem.location">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Date</label>
+                                <label class="col-xs-3 control-label">Date</label>
                                 <div class="col-xs-5">
                                     <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Status</label>
-                                <div class="col-xs-5">
+                                <label class="col-xs-3 control-label">Status</label>
+                                <div class="col-xs-6">
                                     <select class="form-control" v-model="dbitem.status">
                                         <option v-for="(value, key) in statusList"
                                                 v-bind:value="key">{{ value }} {{ key }}</option>
@@ -60,8 +61,8 @@ Vue.component('editor-dialog', {
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Link</label>
-                                <div class="col-xs-8">
+                                <label class="col-xs-3 control-label">Link</label>
+                                <div class="col-xs-9">
                                     <div v-bind:class="{ 'input-group': !!dbitem.link }">
                                         <input type="text" class="form-control" v-model="dbitem.link">
         
@@ -74,8 +75,8 @@ Vue.component('editor-dialog', {
                             </div>
 
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">Notes</label>
-                                <div class="col-xs-8">
+                                <label class="col-xs-3 control-label">Notes</label>
+                                <div class="col-xs-9">
                                     <textarea class="form-control" v-model="dbitem.notes"></textarea>
                                 </div>
                             </div>
