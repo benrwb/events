@@ -58,7 +58,7 @@
              class="navbar navbar-default">
             <div class="container-fluid">
                 <p class="navbar-text pull-right">
-                    {{ todaysDate | formatDate('dddd D MMMM') }}
+                    {{ currentTime | formatDate('dddd D MMMM') }}
                 </p>
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">
@@ -152,14 +152,18 @@
                     "Didn't go": "🙁"
                 },
                 connectedToDropbox: false,
-                dropboxSyncStatus: ""
+                dropboxSyncStatus: "",
+                currentTime: new Date()
             },
             mounted: function() {
                 var self = this;
                 this.$refs.dropbox.loadData(function(dropboxData) {
-                    self.connectedToDropbox = true; // show "Add event" button
+                    self.connectedToDropbox = true; // show navbar & "Add event" button
                     self.timeline = dropboxData;
                 });
+                setInterval(function() {
+                    self.currentTime = new Date()
+                }, 60000); // update currentTime every minute
             },
             methods: {
                 addEvent: function () {
@@ -204,9 +208,6 @@
                         return item.status != "Went" && item.status != "Didn't go";
                     });
                     return _.orderBy(filteredTimeline, ["date"]);
-                },
-                todaysDate: function() { 
-                    return new Date();
                 }
             },
             filters: {
