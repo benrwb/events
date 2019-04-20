@@ -17,7 +17,7 @@ Vue.component('editor-dialog', {
                     <div class="modal-body"
                     style="padding-bottom: 0">
         
-                        <form class="form-horizontal">
+                        <div class="form-horizontal">
 
                             <div class="form-group">
                                 <label class="col-xs-3 control-label">Type</label>
@@ -46,8 +46,13 @@ Vue.component('editor-dialog', {
                             <div class="form-group">
                                 <label class="col-xs-3 control-label">Date</label>
                                 <div class="col-xs-5">
-                                    <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
-                                </div>
+                                    <div class="input-group">
+                                        <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" v-on:click="clearDate">x</button>
+                                        </span>
+                                    </div><!-- /input-group -->
+                                </div> 
                             </div>
 
                             <div class="form-group">
@@ -129,6 +134,11 @@ Vue.component('editor-dialog', {
         save: function () {
             this.$emit('save', this.dbitem);
             $('#myModal').modal('hide');
+        },
+        clearDate: function() {
+            //if (confirm("Clear the date?")) {
+                this.dbitem.date = null;
+            //}
         }
     }
 });
