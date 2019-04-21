@@ -45,7 +45,7 @@ Vue.component('editor-dialog', {
 
                             <div class="form-group">
                                 <label class="col-xs-3 control-label">Date</label>
-                                <div class="col-xs-5">
+                                <div class="col-xs-6">
                                     <div class="input-group">
                                         <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
                                         <span class="input-group-btn">
