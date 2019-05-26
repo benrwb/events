@@ -39,6 +39,9 @@
             transform: translate(-50%, 0);
             z-index: 1; /* display in front of navbar */
         }
+        .faded {
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +86,8 @@
              v-bind:class="{ 'panel-success': item.status == 'Going',
                              'panel-default': item.status == 'Interested',
                              'panel-danger': item.status == 'Need to book',
-                             'panel-warning': !item.status }">
+                             'panel-warning': !item.status,
+                             'faded': item.id == itemBeingUpdated }">
             <div class="panel-heading">
                 <div class="pull-right text-muted">
                     <span v-show="isCollapsed(item)">{{ item.date | formatDate('D/MMM') }}</span>
@@ -117,6 +121,7 @@
                     </div>
                     
                     <button class="btn btn-sm btn-default"
+                            v-bind:disabled="item.id == itemBeingUpdated"
                             v-on:click="editEvent(item.id)">Edit</button>
                 </div>
             </div><!-- /panel-heading -->
@@ -154,7 +159,8 @@
                 },
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
-                currentTime: new Date()
+                currentTime: new Date(),
+                itemBeingUpdated: '' // id (guid) of item currently being saved
             },
             mounted: function() {
                 var self = this;
@@ -187,8 +193,10 @@
                     } else {
                         // edit existing item
                         //Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
+                        this.itemBeingUpdated = item.id;
                         this.$refs.dropbox.editItem(item, function(dropboxData) {
                             self.timeline = dropboxData;
+                            self.itemBeingUpdated = '';
                         });
                     }
                     //sessionStorage['eventsTimeline'] = JSON.stringify(this.timeline); // update local storage
