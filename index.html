@@ -78,7 +78,8 @@
 
 
             <timeline-page v-bind:timeline="timeline"
-                           v-on:update-timeline-item="updateTimelineItem($event)">
+                           v-on:update-timeline-item="updateTimelineItem($event)"
+                           v-bind:item-being-updated="itemBeingUpdated">
             </timeline-page>
 
 
@@ -113,7 +114,8 @@
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 currentTime: new Date(),
-                timeline: []
+                timeline: [],
+                itemBeingUpdated: '' // id (guid) of item currently being saved
             },
             mounted: function() {
                 var self = this;
@@ -137,10 +139,10 @@
                     } else {
                         // edit existing item
                         ////Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
-                        //this.itemBeingUpdated = item.id;
+                        this.itemBeingUpdated = item.id;
                         this.$refs.dropbox.editItem(item, function(dropboxData) {
                             self.timeline = dropboxData;
-                            //self.itemBeingUpdated = '';
+                            self.itemBeingUpdated = '';
                         });
                     }
                 },

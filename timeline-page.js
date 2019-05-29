@@ -70,7 +70,8 @@ export default Vue.extend({
     </div>
     `,
     props: {
-        timeline: Array
+        timeline: Array,
+        itemBeingUpdated: String // id (guid) of item currently being saved
     },
     data: function() {
         return {
@@ -88,8 +89,7 @@ export default Vue.extend({
                 "Need to book": "🎟",
                 "Went":"🙂",
                 "Didn't go": "🙁"
-            },
-            itemBeingUpdated: '' // id (guid) of item currently being saved
+            }
         }
     },
     methods: {
