@@ -77,6 +77,7 @@ export default Vue.extend({
         return {
             eventTypes: {
                 "Birthday": "🎂",
+                "Restaurent": "🍽️",
                 "Film": "🎬",
                 "Comedy": "🎭",
                 "Music": "🎵",
