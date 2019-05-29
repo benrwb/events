@@ -1,4 +1,4 @@
-Vue.component('bootstrap-datepicker', {
+export default Vue.extend({
     template: "<input class='form-control' type='text' />",
     props: {
         value: String // accept a value prop (for use with v-model)

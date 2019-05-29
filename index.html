@@ -19,8 +19,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.standalone.css">
 
-    <script type="text/javascript" src="bootstrap-datepicker.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/4.0.1/Dropbox-sdk.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
@@ -46,7 +44,7 @@
 </head>
 <body>
 
-    <div id="vueDiv" v-cloak
+    <div id="app" v-cloak
          class="container">
 
          <div v-show="!!dropboxSyncStatus"
@@ -57,110 +55,65 @@
                       v-on:sync-status-change="dropboxSyncStatus = $event"
         ></dropbox-sync>
 
+        <div v-show="connectedToDropbox">
 
-        <nav v-show="connectedToDropbox"
-             class="navbar navbar-default">
-            <div class="container-fluid">
-                <p class="navbar-text pull-right">
-                    {{ currentTime | formatDate('dddd D MMMM') }}
-                </p>
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">
-                        <span class="glyphicon glyphicon-home"></span>
-                        <span class="glyphicon glyphicon-arrow-right"></span>
-                    </a>
-                    <button class="btn btn-success navbar-btn" 
-                            v-on:click="addEvent">
-                        Add Event
-                    </button>
-                </div>
-            </div><!-- /.container-fluid -->
-        </nav>
-
-
-        <!-- Possible future development: Auto-import events from external source(s) -->
-
-
-        <div v-for="item in orderedTimeline"
-             class="panel"
-             v-bind:class="{ 'panel-success': item.status == 'Going',
-                             'panel-default': item.status == 'Interested',
-                             'panel-danger': item.status == 'Need to book',
-                             'panel-warning': !item.status,
-                             'faded': item.id == itemBeingUpdated }">
-            <div class="panel-heading">
-                <div class="pull-right text-muted">
-                    <span v-show="isCollapsed(item)">{{ item.date | formatDate('D/MMM') }}</span>
-                </div>
-                <div style="font-weight: bold"
-                     v-bind:class="{ 'text-muted': isCollapsed(item) }">
-                    
-                    <span v-on:click="editEvent(item.id)"
-                          style="cursor: pointer">
-                        {{ eventTypes[item.type] }} 
-                    </span>
-                    
-                    {{ item.name}}
-
-                    <a v-if="item.link"
-                       v-bind:href="item.link"
-                       class="emoji"
-                       style="text-decoration: none"
-                       target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
-                </div>
-                <div v-show="!isCollapsed(item)">
-                    <div class="text-muted" v-if="item.date">{{ item.date | formatDate('dddd D MMMM YYYY') }}</div>
-                    <div class="text-muted" v-if="item.location">{{ item.location }}</div>
-                    <div>
-                        <span class="emoji">
-                            {{ statusList[item.status] }}
-                        </span>
-                        <span class="text-muted">
-                            {{ item.status }}
-                        </span>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <p class="navbar-text pull-right">
+                        {{ currentTime | formatDate('dddd D MMMM') }}
+                    </p>
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">
+                            <span class="glyphicon glyphicon-home"></span>
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                            Events
+                        </a>
+                        <!-- <button class="btn btn-success navbar-btn" 
+                                v-on:click="addEvent">
+                            Add Event
+                        </button> -->
                     </div>
-                    
-                    <button class="btn btn-sm btn-default"
-                            v-bind:disabled="item.id == itemBeingUpdated"
-                            v-on:click="editEvent(item.id)">Edit</button>
-                </div>
-            </div><!-- /panel-heading -->
-        </div>
+                </div><!-- /.container-fluid -->
+            </nav>
 
-        <editor-dialog ref="editor"
-                       v-bind:event-types="eventTypes"
-                       v-bind:status-list="statusList"
-                       v-on:save="editorSave"></editor-dialog>
+
+            <timeline-page v-bind:timeline="timeline"
+                           v-on:update-timeline-item="updateTimelineItem($event)">
+            </timeline-page>
+
+
+            <!-- <links-page></links-page> -->
+
+        </div><!-- v-show="connectedToDropbox"-->
+
     </div>
     
-    <script type="text/javascript" src="editor-dialog.js"></script>
-    <script type="text/javascript" src="dropbox-sync.js"></script>
 
-    <script type="text/javascript">
- 
+    <script type="module">
+
+        import timelinePage from './timeline-page.js'
+        //import linksPage from './links-page.js'
+        import dropboxSync from './dropbox-sync.js'
+
+        // Register global filter
+        Vue.filter("formatDate", function (datestr, dateformat) {
+            if (!datestr) return "";
+            if (!dateformat) dateformat = "DD/MM/YYYY";
+            return moment(datestr).format(dateformat);
+        });
+
         new Vue({
-            el: "#vueDiv",
+            el: "#app",
+            components: {
+                timelinePage,
+               // linksPage,
+                dropboxSync
+            },
             data: {
-                timeline: [],//sessionStorage['eventsTimeline'] ? JSON.parse(sessionStorage['eventsTimeline']) : [],
-                eventTypes: {
-                    "Birthday": "🎂",
-                    "Film": "🎬",
-                    "Comedy": "🎭",
-                    "Music": "🎵",
-                    "Excursion": "🚶‍",
-                    "Holiday": "🌞"
-                },
-                statusList: {
-                    "Going": "✔",
-                    "Interested": "⭐",
-                    "Need to book": "🎟",
-                    "Went":"🙂",
-                    "Didn't go": "🙁"
-                },
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 currentTime: new Date(),
-                itemBeingUpdated: '' // id (guid) of item currently being saved
+                timeline: []
             },
             mounted: function() {
                 var self = this;
@@ -173,17 +126,8 @@
                 }, 60000); // update currentTime every minute
             },
             methods: {
-                addEvent: function () {
-                    this.$refs.editor.openDialog();
-                },
-                editEvent: function(itemId) {
-                    var idx = this.timeline.findIndex(z => z.id === itemId);
-                    var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
-                    this.$refs.editor.openDialog(copy);
-                },
-                editorSave: function(item) {
+                updateTimelineItem: function(item) {
                     var self = this;
-
                     if (item.id == -1) {
                         // add new item
                         item.id = this.uuidv4();
@@ -192,39 +136,20 @@
                         });
                     } else {
                         // edit existing item
-                        //Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
-                        this.itemBeingUpdated = item.id;
+                        ////Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
+                        //this.itemBeingUpdated = item.id;
                         this.$refs.dropbox.editItem(item, function(dropboxData) {
                             self.timeline = dropboxData;
-                            self.itemBeingUpdated = '';
+                            //self.itemBeingUpdated = '';
                         });
                     }
-                    //sessionStorage['eventsTimeline'] = JSON.stringify(this.timeline); // update local storage
-                },
-                isCollapsed: function(item) { 
-                    return item.status == "Interested";
-                },
-                uuidv4: function () {
-                    // from https://stackoverflow.com/a/2117523
-                    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-                    )
                 }
             },
-            computed: {
-                orderedTimeline: function() {
-                    var filteredTimeline = this.timeline.filter(function(item) {
-                        return item.status != "Went" && item.status != "Didn't go";
-                    });
-                    return _.orderBy(filteredTimeline, ["date"]);
-                }
-            },
-            filters: {
-                formatDate: function (datestr, dateformat) {
-                    if (!datestr) return "";
-                    if (!dateformat) dateformat = "DD/MM/YYYY";
-                    return moment(datestr).format(dateformat);
-                }
+            uuidv4: function () {
+                // from https://stackoverflow.com/a/2117523
+                return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                )
             }
         });
 

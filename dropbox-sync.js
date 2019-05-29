@@ -1,16 +1,16 @@
-Vue.component('dropbox-sync', {
-    template: html`
-    <div>
-        <!-- <div v-show="dropboxSyncStatus">
-            Dropbox sync status: {{ dropboxSyncStatus }}
-        </div> -->
-        
-        <div v-show="!dropboxAccessToken">
-            Dropbox <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
-            <input type="text" v-model="editAccessToken" class="form-control" />
-            <button class="btn btn-default" v-on:click="saveAccessToken">Set</button>
+export default Vue.extend({
+    template: /* html */`
+        <div>
+            <!-- <div v-show="dropboxSyncStatus">
+                Dropbox sync status: {{ dropboxSyncStatus }}
+            </div> -->
+            
+            <div v-show="!dropboxAccessToken">
+                Dropbox <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
+                <input type="text" v-model="editAccessToken" class="form-control" />
+                <button class="btn btn-default" v-on:click="saveAccessToken">Set</button>
+            </div>
         </div>
-    </div>
     `,
     props: {
         'filename': String, // user needs to create this file manually, initial contents should be an empty array []

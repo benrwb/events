@@ -1,11 +1,10 @@
-function html(strings) { 
-    // The default function just concatenates the parts into a single string.
-    return strings.join('');
-}
+import bootstrapDatepicker from './bootstrap-datepicker.js'
 
-Vue.component('editor-dialog', {
-    template: html`
-
+export default Vue.extend({
+    components: {
+        bootstrapDatepicker
+    },
+    template: /* html */`
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -97,7 +96,7 @@ Vue.component('editor-dialog', {
                 </div>
             </div>
         </div>
-
+    </div>
     `,
     props: {
         'eventTypes': Object,
