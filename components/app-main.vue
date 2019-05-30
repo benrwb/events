@@ -5,9 +5,9 @@
         class="alert alert-warning syncdiv">Dropbox sync: {{ dropboxSyncStatus }}</div>
 
     <dropbox-sync ref="dropbox"
-                    filename="json/events.json"
-                    v-on:sync-status-change="dropboxSyncStatus = $event"
-    ></dropbox-sync>
+                  filename="json/events.json"
+                  v-on:sync-status-change="dropboxSyncStatus = $event">
+    </dropbox-sync>
 
     <div v-show="connectedToDropbox">
 
@@ -31,13 +31,20 @@
         </nav>
 
 
-        <timeline-page v-bind:timeline="timeline"
+        <ul class="nav nav-tabs">
+            <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
+            <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
+        </ul>
+
+        <timeline-page v-show="activeTab == 'timeline'"
+                        v-bind:timeline="timeline"
                         v-on:update-timeline-item="updateTimelineItem($event)"
                         v-bind:item-being-updated="itemBeingUpdated">
         </timeline-page>
 
+        <links-page v-show="activeTab == 'links'">
+        </links-page>
 
-        <!-- <links-page></links-page> -->
 
     </div><!-- v-show="connectedToDropbox"-->
 
@@ -45,21 +52,22 @@
 </template>
 
 <script lang="ts">
-    import Vue from './types/vue'
-    import * as moment from './types/moment';
+    import Vue from './@types/vue'
+    import * as moment from './@types/moment';
 
-    import timelinePage from './timeline-page.vue'
-    //import linksPage from './links-page.js'
-    import dropboxSync from './dropbox-sync.vue'
+    // import dropboxSync from './dropbox-sync.vue'
+    // import timelinePage from './timeline-page.vue'
+    // import linksPage from './links-page.js'
     
     export default Vue.extend({
-        components: {
-            timelinePage,
-            // linksPage,
-            dropboxSync
-        },
+        // components: {
+        //     timelinePage,
+        //     linksPage,
+        //     dropboxSync
+        // },
         data: function() {
             return {
+                activeTab: "timeline",
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 currentTime: new Date(),

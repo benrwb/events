@@ -67,8 +67,8 @@
 <script lang="ts">
 
 import editorDialog from './editor-dialog.vue'
-import Vue from './types/vue'
-import * as moment from './types/moment';
+import Vue from './@types/vue'
+import * as moment from './@types/moment';
 
 export default Vue.extend({
     components: {

@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts">
-import Vue from './types/vue'
-import moment from './types/moment'
+import Vue from './@types/vue'
+import moment from './@types/moment'
 
 export default Vue.extend({
     props: {

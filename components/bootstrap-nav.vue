@@ -14,7 +14,7 @@
 //  Usage:                                                                     
 //      <bootstrap-nav value="tab1" v-model="activeTab">Page 1</bootstrap-nav> 
 
-import Vue from './types/vue'
+import Vue from './@types/vue'
 
 export default Vue.extend({
     model: { 

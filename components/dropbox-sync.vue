@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import Vue from './types/vue'
+import Vue from './@types/vue'
 
 export default Vue.extend({
     props: {
@@ -59,8 +59,8 @@ export default Vue.extend({
                 })
                 .catch(function(error) {
                     console.error(error);
-                    alert("Failed to download " + self.dropboxFilename + " from Dropbox - " + error.message);
-                    self.dropboxSyncInProgress = false;
+                    alert("Failed to download " + self.filename + " from Dropbox - " + error.message);
+                    self.setSyncStatus("Error");
                 });
         },
         addItem: function(itemToAdd, onComplete) {
@@ -110,7 +110,7 @@ export default Vue.extend({
                 })
                 .catch(function(error) {
                     console.error(error);
-                    alert("Failed to upload " + self.dropboxFilename + " to Dropbox - " + error.message);
+                    alert("Failed to upload " + self.filename + " to Dropbox - " + error.message);
                     self.setSyncStatus("Error");
                     self.dropboxLastSyncTimestamp = "";
                 });
