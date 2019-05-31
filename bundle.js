@@ -485,6 +485,12 @@ Vue.component('link-editor', {
 +"                            </div>"
 +"                        </div>"
 +""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Notes</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <input type=\"text\" class=\"form-control\" v-model=\"item.notes\" />"
++"                            </div>"
++"                        </div>"
 +""
 +"                    </div>"
 +"                </div>"
@@ -526,6 +532,7 @@ function new_linkItem() {
         type: 'Link',
         name: '',
         link: '',
+        notes: ''
     };
 }
 
@@ -555,6 +562,10 @@ Vue.component('links-page', {
 +"                        class=\"emoji\""
 +"                        style=\"text-decoration: none\""
 +"                        target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                </div>"
++"                <div v-show=\"!!item.notes\""
++"                     class=\"text-muted\">"
++"                    {{ item.notes }}"
 +"                </div>"
 +"            </div><!-- /panel-heading -->"
 +"        </div>"

@@ -23,6 +23,10 @@
                         style="text-decoration: none"
                         target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
+                <div v-show="!!item.notes"
+                     class="text-muted">
+                    {{ item.notes }}
+                </div>
             </div><!-- /panel-heading -->
         </div>
 

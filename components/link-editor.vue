@@ -34,6 +34,12 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Notes</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" v-model="item.notes" />
+                            </div>
+                        </div>
 
                     </div>
                 </div>
@@ -82,6 +88,7 @@ function new_linkItem() {
         type: 'Link',
         name: '',
         link: '',
+        notes: ''
     };
 }
 </script>
