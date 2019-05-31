@@ -43,12 +43,15 @@
 +"        </ul>"
 +""
 +"        <timeline-page v-show=\"activeTab == 'timeline'\""
-+"                        v-bind:timeline=\"timeline\""
-+"                        v-on:update-timeline-item=\"updateTimelineItem($event)\""
-+"                        v-bind:item-being-updated=\"itemBeingUpdated\">"
++"                       v-bind:timeline=\"dropboxData\""
++"                       v-on:update-item=\"updateItem($event)\""
++"                       v-bind:item-being-updated=\"itemBeingUpdated\">"
 +"        </timeline-page>"
 +""
-+"        <links-page v-show=\"activeTab == 'links'\">"
++"        <links-page v-show=\"activeTab == 'links'\""
++"                    v-bind:dropbox-data=\"dropboxData\""
++"                    v-on:update-item=\"updateItem($event)\""
++"                    v-bind:item-being-updated=\"itemBeingUpdated\">"
 +"        </links-page>"
 +""
 +""
@@ -65,8 +68,8 @@
                 activeTab: "timeline",
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
+                dropboxData: [],
                 currentTime: new Date(),
-                timeline: [],
                 itemBeingUpdated: '' // id (guid) of item currently being saved
             }
         },
@@ -74,27 +77,27 @@
             var self = this;
             this.$refs.dropbox.loadData(function(dropboxData) {
                 self.connectedToDropbox = true; // show navbar & "Add event" button
-                self.timeline = dropboxData;
+                self.dropboxData = dropboxData;
             });
             setInterval(function() {
                 self.currentTime = new Date()
             }, 60000); // update currentTime every minute
         },
         methods: {
-            updateTimelineItem: function(item) {
+            updateItem: function(item) {
                 var self = this;
                 if (item.id == -1) {
                     // add new item
                     item.id = this.uuidv4();
                     this.$refs.dropbox.addItem(item, function(dropboxData) {
-                        self.timeline = dropboxData;
+                        self.dropboxData = dropboxData;
                     });
                 } else {
                     // edit existing item
-                    ////Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
+                    ////Vue.set(this.dropboxData, this.dropboxData.findIndex(z => z.id === item.id), item); // replace item in array
                     this.itemBeingUpdated = item.id;
                     this.$refs.dropbox.editItem(item, function(dropboxData) {
-                        self.timeline = dropboxData;
+                        self.dropboxData = dropboxData;
                         self.itemBeingUpdated = '';
                     });
                 }
@@ -310,94 +313,92 @@ Vue.component('dropbox-sync', {
 
 
 Vue.component('editor-dialog', {
-    template: "    <div class=\"modal fade\" id=\"myModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">"
-+"            <div class=\"modal-dialog\" role=\"document\">"
-+"                <div class=\"modal-content\">"
-+"                    <div class=\"modal-header\">"
-+"                        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span"
-+"                                aria-hidden=\"true\">&times;</span></button>"
-+"                        <h4 class=\"modal-title\" id=\"myModalLabel\">Event details</h4>"
-+"                    </div>"
-+"                    <div class=\"modal-body\""
-+"                    style=\"padding-bottom: 0\">"
-+"        "
-+"                        <div class=\"form-horizontal\">"
+    template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">"
++"        <div class=\"modal-dialog\" role=\"document\">"
++"            <div class=\"modal-content\">"
++"                <div class=\"modal-header\">"
++"                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span"
++"                            aria-hidden=\"true\">&times;</span></button>"
++"                    <h4 class=\"modal-title\">Event details</h4>"
++"                </div>"
++"                <div class=\"modal-body\" style=\"padding-bottom: 0\">"
++"    "
++"                    <div class=\"form-horizontal\">"
 +""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Type</label>"
-+"                                <div class=\"col-xs-6\">"
-+"                                    <select class=\"form-control\" v-model=\"dbitem.type\">"
-+"                                        <option v-for=\"(value, key) in eventTypes\""
-+"                                                v-bind:value=\"key\">{{ value }} {{ key }}</option>"
-+"                                    </select>"
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Type</label>"
++"                            <div class=\"col-xs-6\">"
++"                                <select class=\"form-control\" v-model=\"dbitem.type\">"
++"                                    <option v-for=\"(value, key) in eventTypes\""
++"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>"
++"                                </select>"
++"                            </div>"
++"                        </div>"
++"                        "
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Name</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <input type=\"text\" class=\"form-control\" v-model=\"dbitem.name\">"
++"                            </div>"
++"                        </div>"
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Location</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <input type=\"text\" class=\"form-control\" v-model=\"dbitem.location\">"
++"                            </div>"
++"                        </div>"
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Date</label>"
++"                            <div class=\"col-xs-6\">"
++"                                <div class=\"input-group\">"
++"                                    <bootstrap-datepicker v-model=\"dbitem.date\"></bootstrap-datepicker>"
++"                                    <span class=\"input-group-btn\">"
++"                                        <button class=\"btn btn-default\" v-on:click=\"clearDate\">x</button>"
++"                                    </span>"
++"                                </div><!-- /input-group -->"
++"                            </div> "
++"                        </div>"
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Status</label>"
++"                            <div class=\"col-xs-7\">"
++"                                <select class=\"form-control\" v-model=\"dbitem.status\">"
++"                                    <option v-for=\"(value, key) in statusList\""
++"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>"
++"                                </select>"
++"                            </div>"
++"                        </div>"
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Link</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <div v-bind:class=\"{ 'input-group': !!dbitem.link }\">"
++"                                    <input type=\"text\" class=\"form-control\" v-model=\"dbitem.link\">"
++"    "
++"                                    <a v-show=\"!!dbitem.link\""
++"                                        v-bind:href=\"dbitem.link\""
++"                                        class=\"input-group-addon emoji\""
++"                                        target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"></span></a>"
 +"                                </div>"
 +"                            </div>"
-+"                            "
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Name</label>"
-+"                                <div class=\"col-xs-9\">"
-+"                                    <input type=\"text\" class=\"form-control\" v-model=\"dbitem.name\">"
-+"                                </div>"
-+"                            </div>"
++"                        </div>"
 +""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Location</label>"
-+"                                <div class=\"col-xs-9\">"
-+"                                    <input type=\"text\" class=\"form-control\" v-model=\"dbitem.location\">"
-+"                                </div>"
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Notes</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <textarea class=\"form-control\" v-model=\"dbitem.notes\"></textarea>"
 +"                            </div>"
-+""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Date</label>"
-+"                                <div class=\"col-xs-6\">"
-+"                                    <div class=\"input-group\">"
-+"                                        <bootstrap-datepicker v-model=\"dbitem.date\"></bootstrap-datepicker>"
-+"                                        <span class=\"input-group-btn\">"
-+"                                            <button class=\"btn btn-default\" v-on:click=\"clearDate\">x</button>"
-+"                                        </span>"
-+"                                    </div><!-- /input-group -->"
-+"                                </div> "
-+"                            </div>"
-+""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Status</label>"
-+"                                <div class=\"col-xs-7\">"
-+"                                    <select class=\"form-control\" v-model=\"dbitem.status\">"
-+"                                        <option v-for=\"(value, key) in statusList\""
-+"                                                v-bind:value=\"key\">{{ value }} {{ key }}</option>"
-+"                                    </select>"
-+"                                </div>"
-+"                            </div>"
-+""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Link</label>"
-+"                                <div class=\"col-xs-9\">"
-+"                                    <div v-bind:class=\"{ 'input-group': !!dbitem.link }\">"
-+"                                        <input type=\"text\" class=\"form-control\" v-model=\"dbitem.link\">"
-+"        "
-+"                                        <a v-show=\"!!dbitem.link\""
-+"                                            v-bind:href=\"dbitem.link\""
-+"                                            class=\"input-group-addon emoji\""
-+"                                            target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"></span></a>"
-+"                                    </div>"
-+"                                </div>"
-+"                            </div>"
-+""
-+"                            <div class=\"form-group\">"
-+"                                <label class=\"col-xs-3 control-label\">Notes</label>"
-+"                                <div class=\"col-xs-9\">"
-+"                                    <textarea class=\"form-control\" v-model=\"dbitem.notes\"></textarea>"
-+"                                </div>"
-+"                            </div>"
-+"                        </form>"
++"                        </div>"
 +""
 +"                    </div>"
-+"                    <div class=\"modal-footer\">"
-+"                        <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>"
-+"                        <button type=\"button\" "
-+"                                class=\"btn btn-primary\""
-+"                                v-on:click=\"save\">Save changes</button>"
-+"                    </div>"
++"                </div>"
++"                <div class=\"modal-footer\">"
++"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>"
++"                    <button type=\"button\" "
++"                            class=\"btn btn-primary\""
++"                            v-on:click=\"save\">Save changes</button>"
 +"                </div>"
 +"            </div>"
 +"        </div>"
@@ -408,23 +409,23 @@ Vue.component('editor-dialog', {
     },
     data: function() {
         return {
-            dbitem: new_item()
+            dbitem: new_timelineItem()
         }
     },
     methods: {
         openDialog: function (item) { // called by parent via $refs
             if (!item) {
                 // create new item
-                this.dbitem = new_item();
+                this.dbitem = new_timelineItem();
             } else {
                 // edit existing item
                 this.dbitem = item;
             }
-            $('#myModal').modal('show');
+            $(this.$el).modal('show');
         },
         save: function () {
             this.$emit('save', this.dbitem);
-            $('#myModal').modal('hide');
+            $(this.$el).modal('hide');
         },
         clearDate: function() {
             //if (confirm("Clear the date?")) {
@@ -434,7 +435,7 @@ Vue.component('editor-dialog', {
     }
 });
 
-function new_item() {
+function new_timelineItem() {
     return {
         id: -1, // will be set when saved
         type: '',
@@ -448,20 +449,150 @@ function new_item() {
 }
 
 
-Vue.component('links-page', {
-    template: "<div>"
-+"    Todo"
-+"</div>",
-    
-    
+Vue.component('link-editor', {
+    template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">"
++"        <div class=\"modal-dialog\" role=\"document\">"
++"            <div class=\"modal-content\">"
++"                <div class=\"modal-header\">"
++"                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span"
++"                            aria-hidden=\"true\">&times;</span></button>"
++"                    <h4 class=\"modal-title\">Event details</h4>"
++"                </div>"
++"                <div class=\"modal-body\" style=\"padding-bottom: 0\">"
++"    "
++"                    <div class=\"form-horizontal\">"
++""
++"                       "
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Name</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <input type=\"text\" class=\"form-control\" v-model=\"item.name\">"
++"                            </div>"
++"                        </div>"
++""
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Link</label>"
++"                            <div class=\"col-xs-9\">"
++"                                <div v-bind:class=\"{ 'input-group': !!item.link }\">"
++"                                    <input type=\"text\" class=\"form-control\" v-model=\"item.link\">"
++"    "
++"                                    <a v-show=\"!!item.link\""
++"                                        v-bind:href=\"item.link\""
++"                                        class=\"input-group-addon emoji\""
++"                                        target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                                </div>"
++"                            </div>"
++"                        </div>"
++""
++""
++"                    </div>"
++"                </div>"
++"                <div class=\"modal-footer\">"
++"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>"
++"                    <button type=\"button\" "
++"                            class=\"btn btn-primary\""
++"                            v-on:click=\"save\">Save changes</button>"
++"                </div>"
++"            </div>"
++"        </div>"
++"    </div>",
+    data: function() {
+        return {
+            item: new_linkItem()
+        }
+    },
+    methods: {
+        openDialog: function (item) { // called by parent via $refs
+            if (!item) {
+                // create new item
+                this.item = new_linkItem();
+            } else {
+                // edit existing item
+                this.item = item;
+            }
+            $(this.$el).modal('show');
+        },
+        save: function () {
+            this.$emit('save', this.item);
+            $(this.$el).modal('hide');
+        }
+    }
 });
 
+function new_linkItem() {
+    return {
+        id: -1, // will be set when saved
+        type: 'Link',
+        name: '',
+        link: '',
+    };
+}
+
+
+
+Vue.component('links-page', {
+    template: "    <div>"
++"        <button class=\"btn btn-success\" "
++"                v-on:click=\"addLink\">"
++"            Add Link"
++"        </button>"
++""
++"        <div v-for=\"item in linksList\""
++"            v-bind:key=\"item.id\""
++"            class=\"panel panel-default\""
++"            v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">"
++"            <div class=\"panel-heading\">"
++"                <div style=\"font-weight: bold\">"
++"                    "
++"                    <span v-on:click=\"editEvent(item.id)\""
++"                            style=\"cursor: pointer\">"
++"                        {{ item.name}}"
++"                    </span>"
++""
++"                    <a v-if=\"item.link\""
++"                        v-bind:href=\"item.link\""
++"                        class=\"emoji\""
++"                        style=\"text-decoration: none\""
++"                        target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                </div>"
++"            </div><!-- /panel-heading -->"
++"        </div>"
++""
++"        <link-editor ref=\"editor\""
++"                v-on:save=\"editorSave\"></link-editor>"
++"    </div>",
+    props: {
+        dropboxData: Array,
+        itemBeingUpdated: String // id (guid) of item currently being saved
+    },
+    methods: {
+        addLink: function () {
+            this.$refs.editor.openDialog();
+        },
+        editEvent: function(itemId) {
+            var idx = this.dropboxData.findIndex(z => z.id === itemId);
+            var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
+            this.$refs.editor.openDialog(copy);
+        },
+        editorSave: function(item) {
+            this.$emit('update-item', item);
+        }
+    },
+    computed: {
+        linksList: function() {
+            return this.dropboxData.filter(function(item) {
+                return item.type == "Link"
+            });
+        }
+    }
+});
 
 
 
 Vue.component('timeline-page', {
     template: "    <div>"
-+"        <button class=\"btn btn-success navbar-btn\" "
++"        <button class=\"btn btn-success\" "
 +"                v-on:click=\"addEvent\">"
 +"            Add Event"
 +"        </button>"
@@ -557,7 +688,7 @@ Vue.component('timeline-page', {
             this.$refs.editor.openDialog(copy);
         },
         editorSave: function(item) {
-            this.$emit('update-timeline-item', item);
+            this.$emit('update-item', item);
         },
         isCollapsed: function(item) { 
             return item.status == "Interested";
@@ -590,7 +721,7 @@ Vue.component('timeline-page', {
     computed: {
         orderedTimeline: function() {
             var filteredTimeline = this.timeline.filter(function(item) {
-                return item.status != "Went" && item.status != "Didn't go";
+                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go";
             });
             return _.orderBy(filteredTimeline, ["date"]);
         }

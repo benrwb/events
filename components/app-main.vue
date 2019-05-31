@@ -37,12 +37,15 @@
         </ul>
 
         <timeline-page v-show="activeTab == 'timeline'"
-                        v-bind:timeline="timeline"
-                        v-on:update-timeline-item="updateTimelineItem($event)"
-                        v-bind:item-being-updated="itemBeingUpdated">
+                       v-bind:timeline="dropboxData"
+                       v-on:update-item="updateItem($event)"
+                       v-bind:item-being-updated="itemBeingUpdated">
         </timeline-page>
 
-        <links-page v-show="activeTab == 'links'">
+        <links-page v-show="activeTab == 'links'"
+                    v-bind:dropbox-data="dropboxData"
+                    v-on:update-item="updateItem($event)"
+                    v-bind:item-being-updated="itemBeingUpdated">
         </links-page>
 
 
@@ -70,8 +73,8 @@
                 activeTab: "timeline",
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
+                dropboxData: [],
                 currentTime: new Date(),
-                timeline: [],
                 itemBeingUpdated: '' // id (guid) of item currently being saved
             }
         },
@@ -79,27 +82,27 @@
             var self = this;
             this.$refs.dropbox.loadData(function(dropboxData) {
                 self.connectedToDropbox = true; // show navbar & "Add event" button
-                self.timeline = dropboxData;
+                self.dropboxData = dropboxData;
             });
             setInterval(function() {
                 self.currentTime = new Date()
             }, 60000); // update currentTime every minute
         },
         methods: {
-            updateTimelineItem: function(item) {
+            updateItem: function(item) {
                 var self = this;
                 if (item.id == -1) {
                     // add new item
                     item.id = this.uuidv4();
                     this.$refs.dropbox.addItem(item, function(dropboxData) {
-                        self.timeline = dropboxData;
+                        self.dropboxData = dropboxData;
                     });
                 } else {
                     // edit existing item
-                    ////Vue.set(this.timeline, this.timeline.findIndex(z => z.id === item.id), item); // replace item in array
+                    ////Vue.set(this.dropboxData, this.dropboxData.findIndex(z => z.id === item.id), item); // replace item in array
                     this.itemBeingUpdated = item.id;
                     this.$refs.dropbox.editItem(item, function(dropboxData) {
-                        self.timeline = dropboxData;
+                        self.dropboxData = dropboxData;
                         self.itemBeingUpdated = '';
                     });
                 }

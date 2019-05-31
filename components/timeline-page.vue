@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button class="btn btn-success navbar-btn" 
+        <button class="btn btn-success" 
                 v-on:click="addEvent">
             Add Event
         </button>
@@ -108,7 +108,7 @@ export default Vue.extend({
             this.$refs.editor.openDialog(copy);
         },
         editorSave: function(item) {
-            this.$emit('update-timeline-item', item);
+            this.$emit('update-item', item);
         },
         isCollapsed: function(item) { 
             return item.status == "Interested";
@@ -141,7 +141,7 @@ export default Vue.extend({
     computed: {
         orderedTimeline: function() {
             var filteredTimeline = this.timeline.filter(function(item) {
-                return item.status != "Went" && item.status != "Didn't go";
+                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go";
             });
             return _.orderBy(filteredTimeline, ["date"]);
         }
