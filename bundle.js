@@ -323,7 +323,10 @@ Vue.component('editor-dialog', {
 +"                    <h4 class=\"modal-title\">"
 +"                        <ul class=\"nav nav-tabs\">       "
 +"                            <bootstrap-nav value=\"details\" v-model=\"activeTab\">Event details</bootstrap-nav> "
-+"                            <bootstrap-nav value=\"notes\"   v-model=\"activeTab\">Notes</bootstrap-nav> "
++"                            <bootstrap-nav value=\"notes\"   v-model=\"activeTab\">"
++"                                <span v-if=\"!dbitem.notes\">+</span>"
++"                                <span v-if=\"!!dbitem.notes\">Notes</span>"
++"                            </bootstrap-nav> "
 +"                        </ul>"
 +"                    </h4>"
 +"                </div>"
@@ -429,6 +432,7 @@ Vue.component('editor-dialog', {
                 // edit existing item
                 this.dbitem = item;
             }
+            this.activeTab = 'details';
             $(this.$el).modal('show');
         },
         save: function () {
