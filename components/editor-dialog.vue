@@ -13,14 +13,23 @@
                                 <span v-if="!dbitem.notes">+</span>
                                 <span v-if="!!dbitem.notes">Notes</span>
                             </bootstrap-nav> 
+                            <bootstrap-nav v-show="!!dbitem.notes"
+                                           value="markdown" v-model="activeTab">MD</bootstrap-nav>
                         </ul>
                     </h4>
                 </div>
                 <div class="modal-body" style="padding-bottom: 0">
     
                     <div v-show="activeTab == 'notes'">
-                        <textarea class="form-control" rows="20"
-                                    v-model="dbitem.notes"></textarea>
+                        <textarea class="form-control" 
+                                  style="height: 360px"
+                                  v-model="dbitem.notes"></textarea>
+                    </div>
+
+                    <div v-show="activeTab == 'markdown'"
+                         class="form-control"
+                         style="height: 360px; overflow-y: scroll">
+                        <div v-html="markdownHtml"></div>
                     </div>
 
                     <div v-show="activeTab == 'details'"
@@ -140,6 +149,14 @@ export default Vue.extend({
             //if (confirm("Clear the date?")) {
                 this.dbitem.date = null;
             //}
+        }
+    },
+    computed: {
+        markdownHtml: function() {
+            var reader = new commonmark.Parser();
+            var parsed = reader.parse(this.dbitem.notes);
+            var writer = new commonmark.HtmlRenderer();
+            return writer.render(parsed);
         }
     }
 });
