@@ -4,9 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace build {
+namespace build 
+{
     public class NaiveVueCompiler
     {
+        // Possible future TODO: Add support for <style> tag
+        // Maybe using code like this:
+        //     ------------------------------------------------------------------------------
+        //     var customStyles = document.createElement('style'); 
+        //     customStyles.appendChild(document.createTextNode(
+        //        'body { background-color: ' + localStorage.getItem('background-color') + '}'
+        //     ));
+        //     document.documentElement.insertBefore(customStyles); 
+        //     ------------------------------------------------------------------------------
+        // See https://stackoverflow.com/questions/9345003/can-i-inject-a-css-file-programmatically-using-a-content-script-js-file
+        
         string _filename;
         string _componentName;
         List<string> _lines;
