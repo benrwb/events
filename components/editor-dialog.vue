@@ -19,7 +19,7 @@
                 <div class="modal-body" style="padding-bottom: 0">
     
                     <div v-show="activeTab == 'notes'">
-                        <textarea class="form-control" rows="13"
+                        <textarea class="form-control" rows="20"
                                     v-model="dbitem.notes"></textarea>
                     </div>
 
