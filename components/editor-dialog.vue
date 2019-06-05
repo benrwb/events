@@ -1,11 +1,11 @@
 <template>
-    <div class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header"
-                     style="border-bottom: none">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                     style="border-bottom: none; padding: 0; background-color: #ddd">
+                    <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button> -->
                     <h4 class="modal-title">
                         <ul class="nav nav-tabs">       
                             <bootstrap-nav value="details" v-model="activeTab">Event details</bootstrap-nav> 
