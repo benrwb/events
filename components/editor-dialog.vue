@@ -14,7 +14,7 @@
                                 <span v-if="!!dbitem.notes">Notes</span>
                             </bootstrap-nav> 
                             <bootstrap-nav v-show="!!dbitem.notes"
-                                           value="markdown" v-model="activeTab">MD</bootstrap-nav>
+                                           value="markdown" v-model="activeTab">M🠋</bootstrap-nav>
                         </ul>
                     </h4>
                 </div>
