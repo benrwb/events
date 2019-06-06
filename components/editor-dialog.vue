@@ -22,13 +22,13 @@
     
                     <div v-show="activeTab == 'notes'">
                         <textarea class="form-control" 
-                                  style="height: 360px"
+                                  style="height: 365px"
                                   v-model="dbitem.notes"></textarea>
                     </div>
 
                     <div v-show="activeTab == 'markdown'"
                          class="form-control"
-                         style="height: 360px; overflow-y: scroll">
+                         style="height: 365px; overflow-y: scroll">
                         <div v-html="markdownHtml"></div>
                     </div>
 
