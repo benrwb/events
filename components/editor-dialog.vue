@@ -155,6 +155,7 @@ export default Vue.extend({
     },
     computed: {
         markdownHtml: function() {
+            if (!this.dbitem.notes) return "";
             var reader = new commonmark.Parser();
             var parsed = reader.parse(this.dbitem.notes);
             var writer = new commonmark.HtmlRenderer();
