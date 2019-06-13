@@ -461,7 +461,7 @@ Vue.component('editor-dialog', {
             if (!this.dbitem.notes) return "";
             var reader = new commonmark.Parser();
             var parsed = reader.parse(this.dbitem.notes);
-            var writer = new commonmark.HtmlRenderer();
+            var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
             return writer.render(parsed);
         }
     }
