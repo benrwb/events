@@ -24,9 +24,11 @@
     
                     <div v-show="activeTab == 'notes'">
                         <textarea class="form-control" 
-                                  style="height: 400px"
+                                  style="height: 200px"
                                   v-model="dbitem.notes"></textarea>
                     </div>
+                    <!-- 200px = smaller notes box (for use on mobile devices
+                         where the keyboard takes up half the screen) -->
 
                     <div v-show="activeTab == 'markdown'"
                          class="well"
