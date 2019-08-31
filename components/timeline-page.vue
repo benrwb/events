@@ -130,7 +130,7 @@ export default Vue.extend({
                     return pluralise(duration.days(), "day");
             } else if (duration.asWeeks() < 10)
                 // Less than 10 weeks away - show in weeks/days
-                return pluralise(Math.floor(duration.asWeeks()), "week") + " " + pluralise(duration.asDays() % 7, "day");
+                return pluralise(Math.floor(duration.asWeeks()), "week") + " " + pluralise(Math.floor(duration.asDays() % 7), "day");
             else if (duration.asYears() < 1)
                 // Less than a year away - show in months
                 return pluralise(duration.months(), "month");
