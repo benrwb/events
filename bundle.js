@@ -40,9 +40,11 @@
 +"        <ul class=\"nav nav-tabs\">"
 +"            <bootstrap-nav value=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>"
 +"            <bootstrap-nav value=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>"
++"            <bootstrap-nav value=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>"
 +"        </ul>"
 +""
-+"        <timeline-page v-show=\"activeTab == 'timeline'\""
++"        <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\""
++"                       v-bind:ideas-only=\"activeTab == 'ideas'\""
 +"                       v-bind:timeline=\"dropboxData\""
 +"                       v-on:update-item=\"updateItem($event)\""
 +"                       v-bind:item-being-updated=\"itemBeingUpdated\">"
@@ -701,7 +703,8 @@ Vue.component('timeline-page', {
 +"    </div>",
     props: {
         timeline: Array,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        itemBeingUpdated: String, // id (guid) of item currently being saved
+        ideasOnly: Boolean
     },
     data: function() {
         return {
@@ -765,8 +768,10 @@ Vue.component('timeline-page', {
     },
     computed: {
         orderedTimeline: function() {
+            var self = this;
             var filteredTimeline = this.timeline.filter(function(item) {
-                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go";
+                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                && ((self.ideasOnly == true && !item.date) || (self.ideasOnly == false && item.date))
             });
             return _.orderBy(filteredTimeline, ["date"]);
         }

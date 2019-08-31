@@ -76,7 +76,8 @@ export default Vue.extend({
     },
     props: {
         timeline: Array,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        itemBeingUpdated: String, // id (guid) of item currently being saved
+        ideasOnly: Boolean
     },
     data: function() {
         return {
@@ -140,8 +141,10 @@ export default Vue.extend({
     },
     computed: {
         orderedTimeline: function() {
+            var self = this;
             var filteredTimeline = this.timeline.filter(function(item) {
-                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go";
+                return item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                && ((self.ideasOnly == true && !item.date) || (self.ideasOnly == false && item.date))
             });
             return _.orderBy(filteredTimeline, ["date"]);
         }
