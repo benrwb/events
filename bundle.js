@@ -712,7 +712,7 @@ Vue.component('timeline-page', {
                 "Birthday": "🎂",
                 "Restaurent": "🍽️",
                 "Film": "🎬",
-                "Comedy": "🎭",
+                "Live Entertainment": "🎭",
                 "Music": "🎵",
                 "Excursion": "🚶‍",
                 "Holiday": "🌞"

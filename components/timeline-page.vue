@@ -85,7 +85,7 @@ export default Vue.extend({
                 "Birthday": "🎂",
                 "Restaurent": "🍽️",
                 "Film": "🎬",
-                "Comedy": "🎭",
+                "Live Entertainment": "🎭",
                 "Music": "🎵",
                 "Excursion": "🚶‍",
                 "Holiday": "🌞"
