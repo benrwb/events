@@ -1,12 +1,34 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace build 
+public class Program
 {
-    public class NaiveVueCompiler
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("Building...");
+
+        string rootPath = args[0];
+        string componentsPath = Path.Combine(rootPath, "components");
+        string outputPath = Path.Combine(rootPath, "bundle.js");
+
+        var output = new StringBuilder();
+        foreach (FileInfo fi in new DirectoryInfo(componentsPath).GetFiles()) 
+        {
+            if (fi.Extension == ".vue") 
+            {
+                output.Append(new NaiveVueCompiler(fi.FullName).Parse());
+            }
+        }
+        
+        File.WriteAllText(outputPath, output.ToString());
+
+        Console.WriteLine("Done!");
+    }
+
+     public class NaiveVueCompiler
     {
         // Possible future TODO: Add support for <style> tag
         // Maybe using code like this:
@@ -77,8 +99,8 @@ namespace build
                 if (offset != -1) 
                 {
                     string leftpad = new string(' ', offset);
-                    output.AppendLine(leftpad + $"Vue.component('{_componentName}', {{");
-                    output.AppendLine(leftpad + $"    template: " + BuildTemplateString(templateLines) + ",");
+                    output.AppendLine(leftpad + "Vue.component('" + _componentName + "', {");
+                    output.AppendLine(leftpad + "    template: " + BuildTemplateString(templateLines) + ",");
                     continue;
                 } 
 

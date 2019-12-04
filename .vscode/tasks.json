@@ -6,7 +6,7 @@
         {
             "label": "Build Vue Components into Bundle.js",
             "type": "shell",
-            "command": ".\\make.cmd",
+            "command": ".\\build.ps1",
             "group": "build",
             "presentation": {
                 "echo": true,
