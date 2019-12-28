@@ -25,10 +25,9 @@
                     <span v-on:click="editEvent(item.id)"
                             style="cursor: pointer">
                         {{ eventTypes[item.type] }} 
+                        {{ item.name }}
                     </span>
                     
-                    {{ item.name}}
-
                     <a v-if="item.link"
                         v-bind:href="item.link"
                         class="emoji"
@@ -36,7 +35,7 @@
                         target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                 </div>
                 <div v-show="!isCollapsed(item)">
-                    <div v-if="item.date"  >
+                    <div v-if="item.date">
                         <span class="text-muted">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>
                         ({{ howSoon(item.date) }})
                     </div>
