@@ -487,10 +487,10 @@ Vue.component('editor-dialog', {
             });
         },
         insertTodo: function() {
-            this.insertAtCursor("⏹");
+            this.insertAtCursor("⏹ ");
         },
         insertDone: function() {
-            this.insertAtCursor("✅");
+            this.insertAtCursor("✅ ");
         }
     },
     computed: {

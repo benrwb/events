@@ -182,10 +182,10 @@ export default Vue.extend({
             });
         },
         insertTodo: function() {
-            this.insertAtCursor("⏹");
+            this.insertAtCursor("⏹ ");
         },
         insertDone: function() {
-            this.insertAtCursor("✅");
+            this.insertAtCursor("✅ ");
         }
     },
     computed: {
