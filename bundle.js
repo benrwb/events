@@ -340,7 +340,7 @@ Vue.component('editor-dialog', {
 +"    "
 +"                    <div v-show=\"activeTab == 'notes'\">"
 +"                        <textarea class=\"form-control\" "
-+"                                  style=\"height: 200px; font-family: Consolas, 'Courier New', monospace\""
++"                                  style=\"height: 200px; font-size: 13px; font-family: 'Lucida Console', monospace\""
 +"                                  ref=\"textarea\""
 +"                                  v-model=\"dbitem.notes\"></textarea>"
 +"                    </div>"
