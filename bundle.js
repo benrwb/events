@@ -483,6 +483,7 @@ Vue.component('editor-dialog', {
             Vue.nextTick(function() {
                 setTimeout(function() { // without setTimeout input.selectionStart often gets reset to 1 
                     input.selectionStart = input.selectionEnd = start + textToInsert.length;
+                    input.focus();
                 }, 0);
             });
         },
