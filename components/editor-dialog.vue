@@ -24,7 +24,7 @@
     
                     <div v-show="activeTab == 'notes'">
                         <textarea class="form-control" 
-                                  style="height: 200px; font-family: Consolas"
+                                  style="height: 200px; font-family: Consolas, monospace"
                                   ref="textarea"
                                   v-model="dbitem.notes"></textarea>
                     </div>
