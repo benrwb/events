@@ -24,7 +24,8 @@
     
                     <div v-show="activeTab == 'notes'">
                         <textarea class="form-control" 
-                                  style="height: 200px"
+                                  style="height: 200px; font-family: Consolas"
+                                  ref="textarea"
                                   v-model="dbitem.notes"></textarea>
                     </div>
                     <!-- 200px = smaller notes box (for use on mobile devices
@@ -104,6 +105,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <div style="float: left">
+                        <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
+                        <button type="button" class="btn btn-default" v-on:click="insertDone">✅</button>
+                    </div>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
@@ -153,6 +158,33 @@ export default Vue.extend({
             //if (confirm("Clear the date?")) {
                 this.dbitem.date = null;
             //}
+        },
+        insertAtCursor: function (textToInsert) {
+            const input = this.$refs.textarea;
+
+            // see https://www.everythingfrontend.com/posts/insert-text-into-textarea-at-cursor-position.html
+            // get current text of the input
+            const value = this.dbitem.notes;
+
+            // save selection start and end position
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+
+            // update the value with our text inserted
+            this.dbitem.notes = value.slice(0, start) + textToInsert + value.slice(end);
+
+            // update cursor to be at the end of insertion
+            Vue.nextTick(function() {
+                setTimeout(function() { // without setTimeout input.selectionStart often gets reset to 1 
+                    input.selectionStart = input.selectionEnd = start + textToInsert.length;
+                }, 0);
+            });
+        },
+        insertTodo: function() {
+            this.insertAtCursor("⏹");
+        },
+        insertDone: function() {
+            this.insertAtCursor("✅");
         }
     },
     computed: {
