@@ -105,7 +105,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div style="float: left">
+                    <div v-show="activeTab == 'notes'"
+                         style="float: left">
                         <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
                         <button type="button" class="btn btn-default" v-on:click="insertDone">✅</button>
                     </div>
