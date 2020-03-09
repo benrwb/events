@@ -25,6 +25,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/commonmark/0.29.0/commonmark.min.js"></script>
 
+    <!-- https://github.com/sparksuite/simplemde-markdown-editor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
     <script src="bundle.js"></script>
     
     <style type="text/css">
@@ -43,6 +47,24 @@
         }
         .faded {
             opacity: 0.5;
+        }
+      
+        /* https://github.com/sparksuite/simplemde-markdown-editor/issues/263#issuecomment-262591099 */   
+        .simplemde-fullscreen .modal-dialog {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+        
+        .CodeMirror {
+            /* for simplemde-markdown-editor */
+            height: 200px;
+            box-sizing: content-box; /* see https://github.com/sparksuite/simplemde-markdown-editor/issues/619#issuecomment-374179389 */
         }
     </style>
 </head>

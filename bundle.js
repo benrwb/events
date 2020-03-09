@@ -337,12 +337,16 @@ Vue.component('editor-dialog', {
 +"                    </h4>"
 +"                </div>"
 +"                <div class=\"modal-body\" style=\"padding-bottom: 0\">"
-+"    "
++"   "
 +"                    <div v-show=\"activeTab == 'notes'\">"
-+"                        <textarea class=\"form-control\" "
-+"                                  style=\"height: 200px; font-size: 13px; font-family: 'Lucida Console', monospace\""
++"                        <simple-mde v-model=\"dbitem.notes\""
++"                                    style=\"height: 200px\""
++"                                    ref=\"simplemde\""
++"                        ></simple-mde>"
++"                        <!--<textarea class=\"form-control\" "
++"                                  style=\"height: 200px\""
 +"                                  ref=\"textarea\""
-+"                                  v-model=\"dbitem.notes\"></textarea>"
++"                                  v-model=\"dbitem.notes\"></textarea>-->"
 +"                    </div>"
 +"                    <!-- 200px = smaller notes box (for use on mobile devices"
 +"                         where the keyboard takes up half the screen) -->"
@@ -421,11 +425,11 @@ Vue.component('editor-dialog', {
 +"                    </div>"
 +"                </div>"
 +"                <div class=\"modal-footer\">"
-+"                    <div v-show=\"activeTab == 'notes'\""
++"                    <!--<div v-show=\"activeTab == 'notes'\""
 +"                         style=\"float: left\">"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertTodo\">⏹</button>"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertDone\">✅</button>"
-+"                    </div>"
++"                    </div>-->"
 +"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>"
 +"                    <button type=\"button\" "
 +"                            class=\"btn btn-primary\""
@@ -465,34 +469,34 @@ Vue.component('editor-dialog', {
                 this.dbitem.date = null;
             //}
         },
-        insertAtCursor: function (textToInsert) {
-            const input = this.$refs.textarea;
-
-            // see https://www.everythingfrontend.com/posts/insert-text-into-textarea-at-cursor-position.html
-            // get current text of the input
-            const value = this.dbitem.notes;
-
-            // save selection start and end position
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-
-            // update the value with our text inserted
-            this.dbitem.notes = value.slice(0, start) + textToInsert + value.slice(end);
-
-            // update cursor to be at the end of insertion
-            Vue.nextTick(function() {
-                setTimeout(function() { // without setTimeout input.selectionStart often gets reset to 1 
-                    input.selectionStart = input.selectionEnd = start + textToInsert.length;
-                    input.focus();
-                }, 0);
-            });
-        },
-        insertTodo: function() {
-            this.insertAtCursor("⏹ ");
-        },
-        insertDone: function() {
-            this.insertAtCursor("✅ ");
-        }
+        //insertAtCursor: function (textToInsert) {
+        //    const input = this.$refs.textarea;
+        //
+        //    // see https://www.everythingfrontend.com/posts/insert-text-into-textarea-at-cursor-position.html
+        //    // get current text of the input
+        //    const value = this.dbitem.notes;
+        //
+        //    // save selection start and end position
+        //    const start = input.selectionStart;
+        //    const end = input.selectionEnd;
+        //
+        //    // update the value with our text inserted
+        //    this.dbitem.notes = value.slice(0, start) + textToInsert + value.slice(end);
+        //
+        //    // update cursor to be at the end of insertion
+        //    Vue.nextTick(function() {
+        //        setTimeout(function() { // without setTimeout input.selectionStart often gets reset to 1 
+        //            input.selectionStart = input.selectionEnd = start + textToInsert.length;
+        //            input.focus();
+        //        }, 0);
+        //    });
+        //},
+        //insertTodo: function() {
+        //    this.insertAtCursor("⏹ ");
+        //},
+        //insertDone: function() {
+        //    this.insertAtCursor("✅ ");
+        //}
     },
     computed: {
         markdownHtml: function() {
@@ -501,6 +505,18 @@ Vue.component('editor-dialog', {
             var parsed = reader.parse(this.dbitem.notes);
             var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
             return writer.render(parsed);
+        }
+    },
+    watch: {
+        activeTab: function (newValue) {
+            if (newValue == "notes") { 
+                // tell SimpleMDE to refresh 
+                // (otherwise the contents won't update until the control is focussed/clicked!)
+                var self = this;
+                Vue.nextTick(function() {
+                    self.$refs.simplemde.refresh(); 
+                });
+            }
         }
     }
 });
@@ -665,6 +681,68 @@ Vue.component('links-page', {
             return this.dropboxData.filter(function(item) {
                 return item.type == "Link"
             });
+        }
+    }
+});
+
+
+Vue.component('simple-mde', {
+    template: "    <textarea></textarea>",
+    props: {
+        value: String // for use with v-model
+    },
+    data: function() {
+        return { 
+            mde: null,
+            lastValue: null
+        }
+    },
+    mounted: function() {
+        this.mde = new SimpleMDE({ 
+            element: this.$el,
+            spellChecker: false,
+            initialValue: this.value,
+            status: false, // hide the status bar
+            autofocus: true
+            // set height of control with .CodeMirror CSS class
+        });
+        
+        var self = this;
+        this.mde.codemirror.on("change", function() {
+            self.lastValue = self.mde.value();
+            self.$emit("input", self.lastValue); // for use with v-model
+        });
+
+        this.mde.codemirror.on('refresh', function () {
+            // Fix fullscreen when in Bootstrap modal
+            // see https://github.com/sparksuite/simplemde-markdown-editor/issues/263#issuecomment-262591099
+            if (self.mde.isFullscreenActive()) {
+                $('body').addClass('simplemde-fullscreen');
+            } else {
+                $('body').removeClass('simplemde-fullscreen');
+            }
+        });
+    },
+    beforeDestroy: function() {
+        // Remove SimpleMDE from textarea 
+        this.mde.toTextArea();
+        this.mde = null;
+    },
+    watch: {
+        value: function (newValue) {
+            // Update when value changes
+            if (newValue != this.lastValue) {
+                this.mde.value(newValue);
+            }
+        }
+    },
+    methods: {
+        refresh: function() { // NOTE: This function is called by parent (via $refs) so its name must not be changed!
+            // Useful for Bootstrap modal/tabs, 
+            // where the contents don't update until the control is focussed/clicked,
+            // so triggering a manual refresh is necessary.
+            // See https://github.com/F-loat/vue-simplemde/issues/20#issuecomment-326799643
+            this.mde.codemirror.refresh();
         }
     }
 });
