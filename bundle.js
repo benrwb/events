@@ -716,7 +716,7 @@ Vue.component('simple-mde', {
         var self = this;
         this.mde.codemirror.on("change", function() {
             var newValue = self.mde.value();
-            self.changesToIgnore.push(newValue);
+            self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
             self.$emit("input", newValue); // for use with v-model
         });
 
@@ -740,10 +740,12 @@ Vue.component('simple-mde', {
             // Update when value changes
             var ignoreIdx = this.changesToIgnore.indexOf(newValue);
             if (ignoreIdx == -1) {
+                // External change - update control with new value
                 this.mde.value(newValue);
                 this.changesToIgnore.splice(0, this.changesToIgnore.length); // remove all items from array
             } else {
-                this.changesToIgnore.splice(ignoreIdx, 1);
+                // Internal change (caused by self.$emit) - ignore 
+                this.changesToIgnore.splice(ignoreIdx, 1); // remove item from array
             }
         }
     },
