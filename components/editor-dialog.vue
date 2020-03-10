@@ -13,10 +13,10 @@
                                 <span v-if="!dbitem.notes">+</span>
                                 <span v-if="!!dbitem.notes">Notes</span>
                             </bootstrap-nav> 
-                            <bootstrap-nav v-show="!!dbitem.notes"
+                            <!-- <bootstrap-nav v-show="!!dbitem.notes"
                                            value="markdown" v-model="activeTab">
                                                 M<span style="font-size: smaller" class="glyphicon glyphicon-arrow-down"></span>
-                            </bootstrap-nav>
+                            </bootstrap-nav> -->
                         </ul>
                     </h4>
                 </div>

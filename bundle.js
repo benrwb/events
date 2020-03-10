@@ -329,10 +329,10 @@ Vue.component('editor-dialog', {
 +"                                <span v-if=\"!dbitem.notes\">+</span>"
 +"                                <span v-if=\"!!dbitem.notes\">Notes</span>"
 +"                            </bootstrap-nav> "
-+"                            <bootstrap-nav v-show=\"!!dbitem.notes\""
++"                            <!-- <bootstrap-nav v-show=\"!!dbitem.notes\""
 +"                                           value=\"markdown\" v-model=\"activeTab\">"
 +"                                                M<span style=\"font-size: smaller\" class=\"glyphicon glyphicon-arrow-down\"></span>"
-+"                            </bootstrap-nav>"
++"                            </bootstrap-nav> -->"
 +"                        </ul>"
 +"                    </h4>"
 +"                </div>"
@@ -351,11 +351,11 @@ Vue.component('editor-dialog', {
 +"                    <!-- 200px = smaller notes box (for use on mobile devices"
 +"                         where the keyboard takes up half the screen) -->"
 +""
-+"                    <div v-show=\"activeTab == 'markdown'\""
++"                    <!-- <div v-show=\"activeTab == 'markdown'\""
 +"                         class=\"well\""
 +"                         style=\"height: 400px; overflow-y: scroll; margin: 0\">"
 +"                        <div v-html=\"markdownHtml\"></div>"
-+"                    </div>"
++"                    </div> -->"
 +""
 +"                    <div v-show=\"activeTab == 'details'\""
 +"                         class=\"form-horizontal\">"
@@ -498,15 +498,15 @@ Vue.component('editor-dialog', {
         //    this.insertAtCursor("✅ ");
         //}
     },
-    computed: {
-        markdownHtml: function() {
-            if (!this.dbitem.notes) return "";
-            var reader = new commonmark.Parser();
-            var parsed = reader.parse(this.dbitem.notes);
-            var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
-            return writer.render(parsed);
-        }
-    },
+    // computed: {
+    //     markdownHtml: function() {
+    //         if (!this.dbitem.notes) return "";
+    //         var reader = new commonmark.Parser();
+    //         var parsed = reader.parse(this.dbitem.notes);
+    //         var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
+    //         return writer.render(parsed);
+    //     }
+    // },
     watch: {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
