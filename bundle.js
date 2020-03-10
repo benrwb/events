@@ -513,7 +513,7 @@ Vue.component('editor-dialog', {
                 // tell SimpleMDE to refresh 
                 // (otherwise the contents won't update until the control is focussed/clicked!)
                 var self = this;
-                Vue.nextTick(function() {
+                Vue.nextTick(function() { // wait for tab to become visible
                     self.$refs.simplemde.refresh(); 
                 });
             }
@@ -694,7 +694,7 @@ Vue.component('simple-mde', {
     data: function() {
         return { 
             mde: null,
-            lastValue: null
+            changesToIgnore: []
         }
     },
     mounted: function() {
@@ -703,14 +703,21 @@ Vue.component('simple-mde', {
             spellChecker: false,
             initialValue: this.value,
             status: false, // hide the status bar
-            autofocus: true
+            autofocus: true,
+            toolbar: ["bold", "italic", "heading", "|", 
+                      //"quote", "unordered-list", "ordered-list", "|", 
+                      //"link", "image", "|", 
+                      "preview", "side-by-side", "fullscreen", "|", 
+                      //"guide" 
+                      ]
             // set height of control with .CodeMirror CSS class
         });
         
         var self = this;
         this.mde.codemirror.on("change", function() {
-            self.lastValue = self.mde.value();
-            self.$emit("input", self.lastValue); // for use with v-model
+            var newValue = self.mde.value();
+            self.changesToIgnore.push(newValue);
+            self.$emit("input", newValue); // for use with v-model
         });
 
         this.mde.codemirror.on('refresh', function () {
@@ -731,8 +738,12 @@ Vue.component('simple-mde', {
     watch: {
         value: function (newValue) {
             // Update when value changes
-            if (newValue != this.lastValue) {
+            var ignoreIdx = this.changesToIgnore.indexOf(newValue);
+            if (ignoreIdx == -1) {
                 this.mde.value(newValue);
+                this.changesToIgnore.splice(0, this.changesToIgnore.length); // remove all items from array
+            } else {
+                this.changesToIgnore.splice(ignoreIdx, 1);
             }
         }
     },
