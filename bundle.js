@@ -698,7 +698,7 @@ Vue.component('simple-mde', {
         }
     },
     mounted: function() {
-        this.mde = new SimpleMDE({ 
+        this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
             initialValue: this.value,
