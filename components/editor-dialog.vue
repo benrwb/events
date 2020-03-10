@@ -35,11 +35,11 @@
                     <!-- 200px = smaller notes box (for use on mobile devices
                          where the keyboard takes up half the screen) -->
 
-                    <div v-show="activeTab == 'markdown'"
+                    <!-- <div v-show="activeTab == 'markdown'"
                          class="well"
                          style="height: 400px; overflow-y: scroll; margin: 0">
                         <div v-html="markdownHtml"></div>
-                    </div>
+                    </div> -->
 
                     <div v-show="activeTab == 'details'"
                          class="form-horizontal">
@@ -193,15 +193,15 @@ export default Vue.extend({
         //    this.insertAtCursor("✅ ");
         //}
     },
-    computed: {
-        markdownHtml: function() {
-            if (!this.dbitem.notes) return "";
-            var reader = new commonmark.Parser();
-            var parsed = reader.parse(this.dbitem.notes);
-            var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
-            return writer.render(parsed);
-        }
-    },
+    // computed: {
+    //     markdownHtml: function() {
+    //         if (!this.dbitem.notes) return "";
+    //         var reader = new commonmark.Parser();
+    //         var parsed = reader.parse(this.dbitem.notes);
+    //         var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
+    //         return writer.render(parsed);
+    //     }
+    // },
     watch: {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
