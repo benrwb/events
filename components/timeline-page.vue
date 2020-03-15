@@ -114,8 +114,20 @@ export default Vue.extend({
             return item.status == "Interested";
         },
         howSoon: function(date) {
-            var eventDate = moment(date);
-            var nowDate = moment().startOf('day');
+            // NOTE: Using UTC for date comparisons, to avoid problems caused by 
+            //       comparing dates from different timezones (due to daylight savings):
+            // EXAMPLE (LOCAL TIME):    
+            //        Today's date = "Sun Mar 15 2020 00:00:00 GMT+0000"
+            //          Event date = "Mon Mar 30 2020 00:00:00 GMT+0100"
+            //   duration.asDays() = 14.958333333333334 (1 hour short, due to clocks going forward)
+            //    Result displayed = "2 weeks 0 days" ❌ (should be 2 weeks 1 day) 
+            // EXAMPLE (UTC):
+            //       Todays's date = "Sun Mar 15 2020 00:00:00 GMT+0000"
+            //          Event date = "Mon Mar 30 2020 00:00:00 GMT+0000"
+            //   duration.asDays() = 15
+            //    Result displayed = "2 weeks 1 day" ✅
+            var eventDate = moment.utc(date);
+            var nowDate = moment.utc(moment().format("YYYY-MM-DD"));
             var duration = moment.duration(eventDate.diff(nowDate));
             //return duration.humanize();
             var pluralise = function(number, suffix) {
