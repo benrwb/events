@@ -781,7 +781,7 @@ Vue.component('timeline-page', {
 +"                <div v-if=\"isCollapsed(item) && item.date\""
 +"                     class=\"pull-right\">"
 +"                    <span class=\"text-muted\">{{ item.date | formatDate('D/MMM') }}</span>"
-+"                    ({{ howSoon(item.date) }})"
++"                    <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ howSoon(item.date) }})</span>"
 +"                </div>"
 +"                <div style=\"font-weight: bold\""
 +"                        v-bind:class=\"{ 'text-muted': isCollapsed(item) }\">"
@@ -801,7 +801,11 @@ Vue.component('timeline-page', {
 +"                <div v-show=\"!isCollapsed(item)\">"
 +"                    <div v-if=\"item.date\">"
 +"                        <span class=\"text-muted\">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>"
-+"                        ({{ howSoon(item.date) }})"
++"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),"
++"                                              'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }\">"
++"                                              <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->"
++"                            ({{ howSoon(item.date) }})"
++"                        </span>"
 +"                    </div>"
 +"                    <div class=\"text-muted\" v-if=\"item.location\">{{ item.location }}</div>"
 +"                    <div>"
@@ -882,24 +886,43 @@ Vue.component('timeline-page', {
             var nowDate = moment.utc(moment().format("YYYY-MM-DD"));
             var duration = moment.duration(eventDate.diff(nowDate));
             //return duration.humanize();
+
             var pluralise = function(number, suffix) {
-                return number + " " + suffix + (number == 1 ? "" : "s");
+                return number + " " + suffix 
+                    + (number == 1 ? "" : "s");
             }
+
+            // Handle dates in the past
+            var isNegative = false;
+            if (duration.asMilliseconds() < 0) {
+                duration = moment.duration(0 - duration.asMilliseconds(), 'milliseconds');
+                isNegative = true;
+            }
+
             if (duration.asDays() < 7) {
                 if (duration.days() == 0)
                     return "Today";
                 else 
                     // Less than a week away - show # days
-                    return pluralise(duration.days(), "day");
+                    return pluralise(duration.days(), "day") 
+                         + (isNegative ? " ago" : "");
             } else if (duration.asWeeks() < 10)
                 // Less than 10 weeks away - show in weeks/days
-                return pluralise(Math.floor(duration.asWeeks()), "week") + " " + pluralise(Math.floor(duration.asDays() % 7), "day");
+                return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
+                     + pluralise(Math.floor(duration.asDays() % 7), "day")
+                     + (isNegative ? " ago" : "");
             else if (duration.asYears() < 1)
                 // Less than a year away - show in months
-                return pluralise(duration.months(), "month");
+                return pluralise(duration.months(), "month")
+                     + (isNegative ? " ago" : "");
             else 
                 // More than a year away - show years/months
-                return pluralise(duration.years(), "year") + " "  + pluralise(duration.months(), "month");
+                return pluralise(duration.years(), "year") + " "  
+                     + pluralise(duration.months(), "month")
+                     + (isNegative ? " ago" : "");
+        },
+        dateIsInPast: function (datestr) {
+            return moment(datestr).isBefore();
         }
     },
     computed: {
