@@ -20,8 +20,8 @@
                         </ul>
                     </h4>
                 </div>
-                <div class="modal-body" style="padding-bottom: 0">
-   
+                <div style="padding-top: 15px">
+                    <!-- class="modal-body" style="padding-bottom: 0" -->
                     <div v-show="activeTab == 'notes'">
                         <simple-mde v-model="dbitem.notes"
                                     ref="simplemde"
