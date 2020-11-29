@@ -26,7 +26,7 @@
 +"                    <a class=\"navbar-brand\" href=\"#\">"
 +"                        <span class=\"glyphicon glyphicon-home\"></span>"
 +"                        <span class=\"glyphicon glyphicon-arrow-right\"></span>"
-+"                        Events 3"
++"                        Events 4"
 +"                    </a>"
 +"                    <!-- <button class=\"btn btn-success navbar-btn\" "
 +"                            v-on:click=\"addEvent\">"
