@@ -86,6 +86,7 @@
             return {
                 activeTab: "timeline",
                 previousTab: "", // to restore previously-active tab when editor closed
+                previousScrollPosition: 0, // to restore scroll position when editor closed
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
@@ -123,6 +124,7 @@
         methods: {
             openEditor: function (item) {
                 this.previousTab = this.activeTab;
+                this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "editor";
                 this.$refs.editor.openDialog(item);
             },
@@ -147,6 +149,10 @@
             },
             closeEditor: function () {
                 this.activeTab = this.previousTab;
+                var self = this;
+                Vue.nextTick(function () {
+                    document.documentElement.scrollTop = self.previousScrollPosition;
+                });
             },
             uuidv4: function () {
                 // from https://stackoverflow.com/a/2117523
