@@ -715,7 +715,7 @@ Vue.component('simple-mde', {
                       "preview", "side-by-side", "fullscreen", "|", 
                       //"guide" 
                       ],
-            //maxHeight: '450px'
+            minHeight: '100px'
             // set height of control with .CodeMirror CSS class
         });
         
