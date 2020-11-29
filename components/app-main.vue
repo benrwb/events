@@ -54,14 +54,13 @@
                     v-on:open-editor="openEditor">
         </links-page>
 
-
-
         <editor-dialog v-show="activeTab == 'editor'"
                 ref="editor"
                 v-bind:event-types="eventTypes"
                 v-bind:status-list="statusList"
                 v-on:save="updateItem"
-                v-on:close="closeEditor"></editor-dialog>
+                v-on:close="closeEditor">
+        </editor-dialog>
 
     </div><!-- v-show="connectedToDropbox"-->
 
