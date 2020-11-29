@@ -21,7 +21,7 @@ export default Vue.extend({
             spellChecker: false,
             initialValue: this.value,
             status: false, // hide the status bar
-            autofocus: true,
+            //autofocus: true,
             toolbar: ["bold", "italic", "heading", "|", 
                       //"quote", "unordered-list", "ordered-list", "|", 
                       //"link", "image", "|", 
