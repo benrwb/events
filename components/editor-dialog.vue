@@ -24,9 +24,8 @@
    
                     <div v-show="activeTab == 'notes'">
                         <simple-mde v-model="dbitem.notes"
-                                    style="height: 200px"
                                     ref="simplemde"
-                        ></simple-mde>
+                        ></simple-mde><!-- style="height: 200px" -->
                         <!--<textarea class="form-control" 
                                   style="height: 200px"
                                   ref="textarea"

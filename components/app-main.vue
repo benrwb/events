@@ -20,7 +20,7 @@
                     <a class="navbar-brand" href="#">
                         <span class="glyphicon glyphicon-home"></span>
                         <span class="glyphicon glyphicon-arrow-right"></span>
-                        Events 2
+                        Events 3
                     </a>
                     <!-- <button class="btn btn-success navbar-btn" 
                             v-on:click="addEvent">
@@ -35,6 +35,7 @@
             <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
             <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
             <bootstrap-nav value="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
+            <bootstrap-nav value="test"     v-model="activeTab">Test</bootstrap-nav>
         </ul>
 
         <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
@@ -50,6 +51,10 @@
                     v-bind:item-being-updated="itemBeingUpdated">
         </links-page>
 
+
+        <simple-mde v-if="activeTab == 'test'"
+                    v-model="notused">
+        </simple-mde>
 
     </div><!-- v-show="connectedToDropbox"-->
 
@@ -77,7 +82,8 @@
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date(),
-                itemBeingUpdated: '' // id (guid) of item currently being saved
+                itemBeingUpdated: '', // id (guid) of item currently being saved
+                notused: '' // for test of markdown editor
             }
         },
         mounted: function() {
