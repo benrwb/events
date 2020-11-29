@@ -28,7 +28,7 @@ export default Vue.extend({
                       "preview", "side-by-side", "fullscreen", "|", 
                       //"guide" 
                       ],
-            minHeight: '100px'
+            //maxHeight: '450px'
             // set height of control with .CodeMirror CSS class
         });
         
