@@ -20,7 +20,7 @@
                         </ul>
                     </h4>
                 </div>
-                <div style="padding-top: 15px">
+                <div>
                     <!-- class="modal-body" style="padding-bottom: 0" -->
                     <div v-show="activeTab == 'notes'">
                         <simple-mde v-model="dbitem.notes"
@@ -41,6 +41,7 @@
                     </div> -->
 
                     <div v-show="activeTab == 'details'"
+                         style="padding: 15px"
                          class="form-horizontal">
 
                         <div class="form-group">
