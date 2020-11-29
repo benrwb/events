@@ -11,7 +11,8 @@
 
     <div v-show="connectedToDropbox">
 
-        <nav class="navbar navbar-default">
+        <nav v-show="activeTab != 'editor'"
+             class="navbar navbar-default">
             <div class="container-fluid">
                 <p class="navbar-text pull-right">
                     {{ currentTime | formatDate('dddd D MMMM') }}
@@ -31,30 +32,36 @@
         </nav>
 
 
-        <ul class="nav nav-tabs">
+        <ul v-show="activeTab != 'editor'"
+            class="nav nav-tabs">
             <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
             <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
             <bootstrap-nav value="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
-            <bootstrap-nav value="test"     v-model="activeTab">Test</bootstrap-nav>
         </ul>
 
         <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
                        v-bind:ideas-only="activeTab == 'ideas'"
                        v-bind:timeline="dropboxData"
-                       v-on:update-item="updateItem($event)"
-                       v-bind:item-being-updated="itemBeingUpdated">
+                       v-bind:item-being-updated="itemBeingUpdated"
+                       v-bind:event-types="eventTypes"
+                       v-bind:status-list="statusList"
+                       v-on:open-editor="openEditor">
         </timeline-page>
 
         <links-page v-show="activeTab == 'links'"
                     v-bind:dropbox-data="dropboxData"
-                    v-on:update-item="updateItem($event)"
-                    v-bind:item-being-updated="itemBeingUpdated">
+                    v-bind:item-being-updated="itemBeingUpdated"
+                    v-on:open-editor="openEditor">
         </links-page>
 
 
-        <simple-mde v-if="activeTab == 'test'"
-                    v-model="notused">
-        </simple-mde>
+
+        <editor-dialog v-show="activeTab == 'editor'"
+                ref="editor"
+                v-bind:event-types="eventTypes"
+                v-bind:status-list="statusList"
+                v-on:save="updateItem"
+                v-on:close="closeEditor"></editor-dialog>
 
     </div><!-- v-show="connectedToDropbox"-->
 
@@ -78,12 +85,29 @@
         data: function() {
             return {
                 activeTab: "timeline",
+                previousTab: "", // to restore previously-active tab when editor closed
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date(),
                 itemBeingUpdated: '', // id (guid) of item currently being saved
-                notused: '' // for test of markdown editor
+
+                eventTypes: {
+                    "Birthday": "🎂",
+                    "Restaurent": "🍽️",
+                    "Film": "🎬",
+                    "Live Entertainment": "🎭",
+                    "Music": "🎵",
+                    "Excursion": "🚶‍",
+                    "Holiday": "🌞"
+                },
+                statusList: {
+                    "Going": "✔",
+                    "Interested": "⭐",
+                    "Need to book": "🎟",
+                    "Went":"🙂",
+                    "Didn't go": "🙁"
+                }
             }
         },
         mounted: function() {
@@ -97,7 +121,12 @@
             }, 60000); // update currentTime every minute
         },
         methods: {
-            updateItem: function(item) {
+            openEditor: function (item) {
+                this.previousTab = this.activeTab;
+                this.activeTab = "editor";
+                this.$refs.editor.openDialog(item);
+            },
+            updateItem: function (item) {
                 var self = this;
                 if (item.id == -1) {
                     // add new item
@@ -114,6 +143,10 @@
                         self.itemBeingUpdated = '';
                     });
                 }
+                this.closeEditor();
+            },
+            closeEditor: function () {
+                this.activeTab = this.previousTab;
             },
             uuidv4: function () {
                 // from https://stackoverflow.com/a/2117523

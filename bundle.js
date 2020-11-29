@@ -17,7 +17,8 @@
 +""
 +"    <div v-show=\"connectedToDropbox\">"
 +""
-+"        <nav class=\"navbar navbar-default\">"
++"        <nav v-show=\"activeTab != 'editor'\""
++"             class=\"navbar navbar-default\">"
 +"            <div class=\"container-fluid\">"
 +"                <p class=\"navbar-text pull-right\">"
 +"                    {{ currentTime | formatDate('dddd D MMMM') }}"
@@ -37,30 +38,36 @@
 +"        </nav>"
 +""
 +""
-+"        <ul class=\"nav nav-tabs\">"
++"        <ul v-show=\"activeTab != 'editor'\""
++"            class=\"nav nav-tabs\">"
 +"            <bootstrap-nav value=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>"
 +"            <bootstrap-nav value=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>"
 +"            <bootstrap-nav value=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>"
-+"            <bootstrap-nav value=\"test\"     v-model=\"activeTab\">Test</bootstrap-nav>"
 +"        </ul>"
 +""
 +"        <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\""
 +"                       v-bind:ideas-only=\"activeTab == 'ideas'\""
 +"                       v-bind:timeline=\"dropboxData\""
-+"                       v-on:update-item=\"updateItem($event)\""
-+"                       v-bind:item-being-updated=\"itemBeingUpdated\">"
++"                       v-bind:item-being-updated=\"itemBeingUpdated\""
++"                       v-bind:event-types=\"eventTypes\""
++"                       v-bind:status-list=\"statusList\""
++"                       v-on:open-editor=\"openEditor\">"
 +"        </timeline-page>"
 +""
 +"        <links-page v-show=\"activeTab == 'links'\""
 +"                    v-bind:dropbox-data=\"dropboxData\""
-+"                    v-on:update-item=\"updateItem($event)\""
-+"                    v-bind:item-being-updated=\"itemBeingUpdated\">"
++"                    v-bind:item-being-updated=\"itemBeingUpdated\""
++"                    v-on:open-editor=\"openEditor\">"
 +"        </links-page>"
 +""
 +""
-+"        <simple-mde v-if=\"activeTab == 'test'\""
-+"                    v-model=\"notused\">"
-+"        </simple-mde>"
++""
++"        <editor-dialog v-show=\"activeTab == 'editor'\""
++"                ref=\"editor\""
++"                v-bind:event-types=\"eventTypes\""
++"                v-bind:status-list=\"statusList\""
++"                v-on:save=\"updateItem\""
++"                v-on:close=\"closeEditor\"></editor-dialog>"
 +""
 +"    </div><!-- v-show=\"connectedToDropbox\"-->"
 +""
@@ -73,12 +80,29 @@
         data: function() {
             return {
                 activeTab: "timeline",
+                previousTab: "", // to restore previously-active tab when editor closed
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date(),
                 itemBeingUpdated: '', // id (guid) of item currently being saved
-                notused: '' // for test of markdown editor
+
+                eventTypes: {
+                    "Birthday": "🎂",
+                    "Restaurent": "🍽️",
+                    "Film": "🎬",
+                    "Live Entertainment": "🎭",
+                    "Music": "🎵",
+                    "Excursion": "🚶‍",
+                    "Holiday": "🌞"
+                },
+                statusList: {
+                    "Going": "✔",
+                    "Interested": "⭐",
+                    "Need to book": "🎟",
+                    "Went":"🙂",
+                    "Didn't go": "🙁"
+                }
             }
         },
         mounted: function() {
@@ -92,7 +116,12 @@
             }, 60000); // update currentTime every minute
         },
         methods: {
-            updateItem: function(item) {
+            openEditor: function (item) {
+                this.previousTab = this.activeTab;
+                this.activeTab = "editor";
+                this.$refs.editor.openDialog(item);
+            },
+            updateItem: function (item) {
                 var self = this;
                 if (item.id == -1) {
                     // add new item
@@ -109,6 +138,10 @@
                         self.itemBeingUpdated = '';
                     });
                 }
+                this.closeEditor();
+            },
+            closeEditor: function () {
+                this.activeTab = this.previousTab;
             },
             uuidv4: function () {
                 // from https://stackoverflow.com/a/2117523
@@ -321,13 +354,13 @@ Vue.component('dropbox-sync', {
 
 
 Vue.component('editor-dialog', {
-    template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" data-backdrop=\"static\">"
+    template: "<div>"
++"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" data-backdrop=\"static\">"
 +"        <div class=\"modal-dialog\" role=\"document\">"
-+"            <div class=\"modal-content\">"
++"            <div class=\"modal-content\"> -->"
 +"                <div class=\"modal-header\""
 +"                     style=\"border-bottom: none; padding: 0; background-color: #ddd\">"
-+"                    <!-- <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span"
-+"                            aria-hidden=\"true\">&times;</span></button> -->"
++""
 +"                    <h4 class=\"modal-title\">"
 +"                        <ul class=\"nav nav-tabs\">       "
 +"                            <bootstrap-nav value=\"details\" v-model=\"activeTab\">Event details</bootstrap-nav> "
@@ -435,14 +468,16 @@ Vue.component('editor-dialog', {
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertTodo\">⏹</button>"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertDone\">✅</button>"
 +"                    </div>-->"
-+"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>"
++"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\""
++"                            v-on:click=\"close\">Close</button>"
 +"                    <button type=\"button\" "
 +"                            class=\"btn btn-primary\""
 +"                            v-on:click=\"save\">Save changes</button>"
 +"                </div>"
-+"            </div>"
++"            <!-- </div>"
 +"        </div>"
-+"    </div>",
++"    </div> -->"
++"</div>",
     props: {
         'eventTypes': Object,
         'statusList': Object
@@ -463,11 +498,14 @@ Vue.component('editor-dialog', {
                 this.dbitem = item;
             }
             this.activeTab = 'details';
-            $(this.$el).modal('show');
+            // $(this.$el).modal('show');
         },
         save: function () {
             this.$emit('save', this.dbitem);
-            $(this.$el).modal('hide');
+            // $(this.$el).modal('hide');
+        },
+        close: function () {
+            this.$emit('close');
         },
         clearDate: function() {
             //if (confirm("Clear the date?")) {
@@ -830,47 +868,23 @@ Vue.component('timeline-page', {
 +"            </div><!-- /panel-heading -->"
 +"        </div>"
 +""
-+"        <editor-dialog ref=\"editor\""
-+"                v-bind:event-types=\"eventTypes\""
-+"                v-bind:status-list=\"statusList\""
-+"                v-on:save=\"editorSave\"></editor-dialog>"
++"        "
 +"    </div>",
     props: {
         timeline: Array,
         itemBeingUpdated: String, // id (guid) of item currently being saved
-        ideasOnly: Boolean
-    },
-    data: function() {
-        return {
-            eventTypes: {
-                "Birthday": "🎂",
-                "Restaurent": "🍽️",
-                "Film": "🎬",
-                "Live Entertainment": "🎭",
-                "Music": "🎵",
-                "Excursion": "🚶‍",
-                "Holiday": "🌞"
-            },
-            statusList: {
-                "Going": "✔",
-                "Interested": "⭐",
-                "Need to book": "🎟",
-                "Went":"🙂",
-                "Didn't go": "🙁"
-            }
-        }
+        ideasOnly: Boolean,
+        eventTypes: Object,
+        statusList: Object
     },
     methods: {
         addEvent: function () {
-            this.$refs.editor.openDialog();
+            this.$emit('open-editor', null);
         },
         editEvent: function(itemId) {
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
-            this.$refs.editor.openDialog(copy);
-        },
-        editorSave: function(item) {
-            this.$emit('update-item', item);
+            this.$emit('open-editor', copy);
         },
         isCollapsed: function(item) { 
             return item.status == "Interested";

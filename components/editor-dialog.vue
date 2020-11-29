@@ -1,11 +1,11 @@
 <template>
-    <div class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+<div>
+    <!-- <div class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
         <div class="modal-dialog" role="document">
-            <div class="modal-content">
+            <div class="modal-content"> -->
                 <div class="modal-header"
                      style="border-bottom: none; padding: 0; background-color: #ddd">
-                    <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button> -->
+
                     <h4 class="modal-title">
                         <ul class="nav nav-tabs">       
                             <bootstrap-nav value="details" v-model="activeTab">Event details</bootstrap-nav> 
@@ -113,14 +113,16 @@
                         <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
                         <button type="button" class="btn btn-default" v-on:click="insertDone">✅</button>
                     </div>-->
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                            v-on:click="close">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
                             v-on:click="save">Save changes</button>
                 </div>
-            </div>
+            <!-- </div>
         </div>
-    </div>
+    </div> -->
+</div>
 </template>
 
 <script lang="ts">
@@ -152,11 +154,14 @@ export default Vue.extend({
                 this.dbitem = item;
             }
             this.activeTab = 'details';
-            $(this.$el).modal('show');
+            // $(this.$el).modal('show');
         },
         save: function () {
             this.$emit('save', this.dbitem);
-            $(this.$el).modal('hide');
+            // $(this.$el).modal('hide');
+        },
+        close: function () {
+            this.$emit('close');
         },
         clearDate: function() {
             //if (confirm("Clear the date?")) {

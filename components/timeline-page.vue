@@ -60,10 +60,7 @@
             </div><!-- /panel-heading -->
         </div>
 
-        <editor-dialog ref="editor"
-                v-bind:event-types="eventTypes"
-                v-bind:status-list="statusList"
-                v-on:save="editorSave"></editor-dialog>
+        
     </div>
 </template>
 
@@ -80,39 +77,18 @@ export default Vue.extend({
     props: {
         timeline: Array,
         itemBeingUpdated: String, // id (guid) of item currently being saved
-        ideasOnly: Boolean
-    },
-    data: function() {
-        return {
-            eventTypes: {
-                "Birthday": "🎂",
-                "Restaurent": "🍽️",
-                "Film": "🎬",
-                "Live Entertainment": "🎭",
-                "Music": "🎵",
-                "Excursion": "🚶‍",
-                "Holiday": "🌞"
-            },
-            statusList: {
-                "Going": "✔",
-                "Interested": "⭐",
-                "Need to book": "🎟",
-                "Went":"🙂",
-                "Didn't go": "🙁"
-            }
-        }
+        ideasOnly: Boolean,
+        eventTypes: Object,
+        statusList: Object
     },
     methods: {
         addEvent: function () {
-            this.$refs.editor.openDialog();
+            this.$emit('open-editor', null);
         },
         editEvent: function(itemId) {
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
-            this.$refs.editor.openDialog(copy);
-        },
-        editorSave: function(item) {
-            this.$emit('update-item', item);
+            this.$emit('open-editor', copy);
         },
         isCollapsed: function(item) { 
             return item.status == "Interested";
