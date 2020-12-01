@@ -56,7 +56,7 @@
 +""
 +"        <links-page v-show=\"activeTab == 'links'\""
 +"                    v-bind:dropbox-data=\"dropboxData\""
-+"                    v-on:update-item=\"updateItem($event)\""
++"                    v-on:update-item=\"updateItem($event, false)\""
 +"                    v-bind:item-being-updated=\"itemBeingUpdated\">"
 +"        </links-page>"
 +""
@@ -64,7 +64,7 @@
 +"                ref=\"editor\""
 +"                v-bind:event-types=\"eventTypes\""
 +"                v-bind:status-list=\"statusList\""
-+"                v-on:save=\"updateItem\""
++"                v-on:save=\"updateItem($event, true)\""
 +"                v-on:close=\"closeEditor\">"
 +"        </editor-dialog>"
 +""
@@ -122,7 +122,7 @@
                 this.activeTab = "editor";
                 this.$refs.editor.openDialog(item);
             },
-            updateItem: function (item) {
+            updateItem: function (item, shouldCloseEditor) {
                 var self = this;
                 if (item.id == -1) {
                     // add new item
@@ -139,7 +139,10 @@
                         self.itemBeingUpdated = '';
                     });
                 }
-                this.closeEditor();
+
+                if (shouldCloseEditor) {
+                    this.closeEditor();
+                }
             },
             closeEditor: function () {
                 this.activeTab = this.previousTab;
