@@ -1,11 +1,5 @@
-
-
-    // import dropboxSync from './dropbox-sync.vue'
-    // import timelinePage from './timeline-page.vue'
-    // import linksPage from './links-page.js'
-    
-    Vue.component('app-main', {
-        template: "<div>"
+Vue.component('app-main', {
+    template: "<div>"
 +""
 +"    <div v-show=\"!!dropboxSyncStatus\""
 +"        class=\"alert alert-warning syncdiv\">Dropbox sync: {{ dropboxSyncStatus }}</div>"
@@ -71,22 +65,16 @@
 +"    </div><!-- v-show=\"connectedToDropbox\"-->"
 +""
 +"</div>",
-        // components: {
-        //     timelinePage,
-        //     linksPage,
-        //     dropboxSync
-        // },
         data: function() {
             return {
                 activeTab: "timeline",
-                previousTab: "", // to restore previously-active tab when editor closed
-                previousScrollPosition: 0, // to restore scroll position when editor closed
+                previousTab: "",
+                previousScrollPosition: 0,
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date(),
-                itemBeingUpdated: '', // id (guid) of item currently being saved
-
+                itemBeingUpdated: '',
                 eventTypes: {
                     "Birthday": "🎂",
                     "Restaurent": "🍽️",
@@ -108,12 +96,12 @@
         mounted: function() {
             var self = this;
             this.$refs.dropbox.loadData(function(dropboxData) {
-                self.connectedToDropbox = true; // show navbar & "Add event" button
+                self.connectedToDropbox = true;
                 self.dropboxData = dropboxData;
             });
             setInterval(function() {
                 self.currentTime = new Date()
-            }, 60000); // update currentTime every minute
+            }, 60000);
         },
         methods: {
             openEditor: function (item) {
@@ -125,21 +113,17 @@
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
                 if (item.id == -1) {
-                    // add new item
                     item.id = this.uuidv4();
                     this.$refs.dropbox.addItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                     });
                 } else {
-                    // edit existing item
-                    ////Vue.set(this.dropboxData, this.dropboxData.findIndex(z => z.id === item.id), item); // replace item in array
                     this.itemBeingUpdated = item.id;
                     this.$refs.dropbox.editItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                         self.itemBeingUpdated = '';
                     });
                 }
-
                 if (shouldCloseEditor) {
                     this.closeEditor();
                 }
@@ -152,60 +136,44 @@
                 });
             },
             uuidv4: function () {
-                // from https://stackoverflow.com/a/2117523
                 return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );
             }
         }
     });
-
-
-
-
 Vue.component('bootstrap-datepicker', {
     template: "    <input class='form-control' type='text' />",
     props: {
-        value: String // accept a value prop (for use with v-model)
+        value: String
     },
     mounted: function () {
-        // Set initial value of the input to 'value'
-        // (This will be picked up by the datepicker and used as the initial date)
         var modate = !this.value ? null : moment(this.value);
         if (modate != null && modate.isValid()) {
             $(this.$el).val(modate.format("DD/MM/YYYY"));
         }
-        
-        // Attach the datepicker control to the input         
         $(this.$el).datepicker({
-            format: "dd/mm/yyyy", // UK date format
+            format: "dd/mm/yyyy",
             autoclose: true,
             todayHighlight: true,
-            disableTouchKeyboard: true, //  hide keyboard on mobile devices
-            weekStart: 1 // week starts on Monday
+            disableTouchKeyboard: true,
+            weekStart: 1
         });
-        
-        // Register event
         var self = this;
         $(this.$el).datepicker().on("hide", function (e) {
-            // Update the date when the datepicker is closed ("hide" event)
-            // (which will happen either when a date is picked or when the field loses focus)
             self.updateValue();
         });
     },
     watch: {
-        // watch the 'value' prop for changes and update the control accordingly
         value: function (newValue) {
-            var modate = newValue == null ? null : moment(newValue); // handle null/undefined values
+            var modate = newValue == null ? null : moment(newValue);
             if (modate != null && modate.isValid())
                 $(this.$el).datepicker("setDate", modate.toDate());
             else
-                $(this.$el).datepicker("setDate", null); // clear the selected date
+                $(this.$el).datepicker("setDate", null);
         }
     },
     methods: {
-        // Emit an input event with the new value
-        // (To produce side effects in the parent scope, a component needs to explicitly emit an event)
         updateValue: function () {
             var jsDate = $(this.$el).datepicker("getDate");
             var dateVal = jsDate == null ? null : moment(jsDate).format('YYYY-MM-DD');
@@ -213,14 +181,6 @@ Vue.component('bootstrap-datepicker', {
         },
     }
 });
-
-
-//  Can be either tab or pill depending on container                           
-//      e.g. <ul class="nav nav-tabs"> versus <ul class="nav nav-pills">       
-//  Usage:                                                                     
-//      <bootstrap-nav value="tab1" v-model="activeTab">Page 1</bootstrap-nav> 
-
-
 Vue.component('bootstrap-nav', {
     template: "    <li role=\"presentation\""
 +"        v-bind:class=\"{ 'active': value == groupValue }\">"
@@ -229,23 +189,20 @@ Vue.component('bootstrap-nav', {
 +"        </a>"
 +"    </li>",
     model: { 
-        // custom options for v-model
         prop: 'groupValue',
         event: 'input'
     },
     props: {
-        "groupValue": String, // value of the currently-selected tab in the group (via v-model)
-        "value": String // value for *this* tab
+        "groupValue": String,
+        "value": String
     },
     methods: {
         navClick: function(event) {
-            this.$emit('input', this.value); // for use with v-model
-            event.preventDefault(); // don't jump to top of page
+            this.$emit('input', this.value);
+            event.preventDefault();
         }
     }
 });
-
-
 Vue.component('dropbox-sync', {
     template: "   <div>"
 +"        <!-- <div v-show=\"dropboxSyncStatus\">"
@@ -259,7 +216,7 @@ Vue.component('dropbox-sync', {
 +"        </div>"
 +"    </div>",
     props: {
-        'filename': String, // user needs to create this file manually, initial contents should be an empty array []
+        'filename': String,
     },
     data: function() {
         return {
@@ -276,15 +233,12 @@ Vue.component('dropbox-sync', {
         },
         saveAccessToken: function() {
             localStorage["dropboxAccessToken"] = this.editAccessToken;
-            this.dropboxAccessToken = this.editAccessToken; // hide "enter access token" controls
+            this.dropboxAccessToken = this.editAccessToken;
             this.setSyncStatus("Please refresh the page to continue");
         },
-        loadData: function(onComplete) { // called by parent
-            // Dropbox sync stage 1 - Load existing data from Dropbox
+        loadData: function(onComplete) {
             if (!this.dropboxAccessToken) return;
             this.setSyncStatus("Loading");
-
-            // See https://dropbox.github.io/dropbox-sdk-js/Dropbox.html#filesDownload__anchor
             var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
             var self = this;
             dbx.filesDownload({ path: '/' + this.filename })
@@ -292,7 +246,6 @@ Vue.component('dropbox-sync', {
                     var reader = new FileReader();
                     reader.addEventListener("loadend", function() {
                         var dropboxData = JSON.parse(reader.result);
-                        //self.dropboxSyncStage2(dataToSync, dropboxData);
                         self.setSyncStatus("");
                         if (onComplete)
                             onComplete(dropboxData);
@@ -307,41 +260,27 @@ Vue.component('dropbox-sync', {
         },
         addItem: function(itemToAdd, onComplete) {
             var self = this;
-
-            // 1. Load data from dropbox
             this.loadData(function(dropboxData) {
-
-                // 2. Add new item to array
                 dropboxData.push(itemToAdd);
-
-                // 3. Save updated data back to dropbox
-                self.saveData(dropboxData, onComplete); // save updated data
+                self.saveData(dropboxData, onComplete);
             });
         },
         editItem: function(itemToEdit, onComplete) {
             var self = this;
-
-            // 1. Load data from dropbox
             this.loadData(function(dropboxData) {
-
-                // 2. Replace item in array
                 var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
-                dropboxData[idx] = itemToEdit; // replace item
-
-                // 3. Save updated data back to dropbox
-                self.saveData(dropboxData, onComplete); // save updated data
+                dropboxData[idx] = itemToEdit;
+                self.saveData(dropboxData, onComplete);
             });
         },
         saveData: function(dropboxData, onComplete) {
-            // Dropbox sync stage 3 - Save data back to Dropbox
             if (!this.dropboxAccessToken ) return;
             this.setSyncStatus("Saving");
-            // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
             var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
             var self = this;
             dbx.filesUpload({ 
                     path: '/' + this.filename, 
-                    contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
+                    contents: JSON.stringify(dropboxData, null, 2),
                     mode: { '.tag': 'overwrite' }
                 })
                 .then(function(response) {
@@ -359,8 +298,6 @@ Vue.component('dropbox-sync', {
         }
     }
 });
-
-
 Vue.component('editor-dialog', {
     template: "<div style=\"margin-left: -15px; margin-right: -15px\">"
 +"    <!-- -15px margin to counteract the 15px margin added by div class=\"container\" on parent."
@@ -498,88 +435,42 @@ Vue.component('editor-dialog', {
     data: function() {
         return {
             dbitem: new_timelineItem(),
-            activeTab: 'details' // 'details' or 'notes'
+            activeTab: 'details'
         }
     },
     methods: {
-        openDialog: function (item) { // called by parent via $refs
+        openDialog: function (item) {
             if (!item) {
-                // create new item
                 this.dbitem = new_timelineItem();
             } else {
-                // edit existing item
                 this.dbitem = item;
             }
             this.activeTab = 'details';
-            // $(this.$el).modal('show');
         },
         save: function () {
             this.$emit('save', this.dbitem);
-            // $(this.$el).modal('hide');
         },
         close: function () {
             this.$emit('close');
         },
         clearDate: function() {
-            //if (confirm("Clear the date?")) {
                 this.dbitem.date = null;
-            //}
         },
-        //insertAtCursor: function (textToInsert) {
-        //    const input = this.$refs.textarea;
-        //
-        //    // see https://www.everythingfrontend.com/posts/insert-text-into-textarea-at-cursor-position.html
-        //    // get current text of the input
-        //    const value = this.dbitem.notes;
-        //
-        //    // save selection start and end position
-        //    const start = input.selectionStart;
-        //    const end = input.selectionEnd;
-        //
-        //    // update the value with our text inserted
-        //    this.dbitem.notes = value.slice(0, start) + textToInsert + value.slice(end);
-        //
-        //    // update cursor to be at the end of insertion
-        //    Vue.nextTick(function() {
-        //        setTimeout(function() { // without setTimeout input.selectionStart often gets reset to 1 
-        //            input.selectionStart = input.selectionEnd = start + textToInsert.length;
-        //            input.focus();
-        //        }, 0);
-        //    });
-        //},
-        //insertTodo: function() {
-        //    this.insertAtCursor("⏹ ");
-        //},
-        //insertDone: function() {
-        //    this.insertAtCursor("✅ ");
-        //}
     },
-    // computed: {
-    //     markdownHtml: function() {
-    //         if (!this.dbitem.notes) return "";
-    //         var reader = new commonmark.Parser();
-    //         var parsed = reader.parse(this.dbitem.notes);
-    //         var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
-    //         return writer.render(parsed);
-    //     }
-    // },
     watch: {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
-                // tell SimpleMDE to refresh 
-                // (otherwise the contents won't update until the control is focussed/clicked!)
                 var self = this;
-                Vue.nextTick(function() { // wait for tab to become visible
+                Vue.nextTick(function() {
                     self.$refs.simplemde.refresh(); 
                 });
             }
         }
     }
 });
-
 function new_timelineItem() {
     return {
-        id: -1, // will be set when saved
+        id: -1,
         type: '',
         name: '',
         location: '',
@@ -589,8 +480,6 @@ function new_timelineItem() {
         notes: ''
     };
 }
-
-
 Vue.component('link-editor', {
     template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">"
 +"        <div class=\"modal-dialog\" role=\"document\">"
@@ -651,12 +540,10 @@ Vue.component('link-editor', {
         }
     },
     methods: {
-        openDialog: function (item) { // called by parent via $refs
+        openDialog: function (item) {
             if (!item) {
-                // create new item
                 this.item = new_linkItem();
             } else {
-                // edit existing item
                 this.item = item;
             }
             $(this.$el).modal('show');
@@ -667,19 +554,15 @@ Vue.component('link-editor', {
         }
     }
 });
-
 function new_linkItem() {
     return {
-        id: -1, // will be set when saved
+        id: -1,
         type: 'Link',
         name: '',
         link: '',
         notes: ''
     };
 }
-
-
-
 Vue.component('links-page', {
     template: "    <div>"
 +"        <button class=\"btn btn-success\" "
@@ -717,7 +600,7 @@ Vue.component('links-page', {
 +"    </div>",
     props: {
         dropboxData: Array,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        itemBeingUpdated: String
     },
     methods: {
         addLink: function () {
@@ -725,7 +608,7 @@ Vue.component('links-page', {
         },
         editEvent: function(itemId) {
             var idx = this.dropboxData.findIndex(z => z.id === itemId);
-            var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
+            var copy = Object.assign({}, this.dropboxData[idx]);
             this.$refs.editor.openDialog(copy);
         },
         editorSave: function(item) {
@@ -740,12 +623,10 @@ Vue.component('links-page', {
         }
     }
 });
-
-
 Vue.component('simple-mde', {
     template: "    <textarea></textarea>",
     props: {
-        value: String // for use with v-model
+        value: String
     },
     data: function() {
         return { 
@@ -758,28 +639,20 @@ Vue.component('simple-mde', {
             element: this.$el,
             spellChecker: false,
             initialValue: this.value,
-            status: false, // hide the status bar
+            status: false,
             autofocus: true,
             toolbar: ["bold", "italic", "heading", "|", 
-                      //"quote", "unordered-list", "ordered-list", "|", 
-                      //"link", "image", "|", 
                       "preview", "side-by-side", "fullscreen", "|", 
-                      //"guide" 
                       ],
             minHeight: '100px'
-            // set height of control with .CodeMirror CSS class
         });
-        
         var self = this;
         this.mde.codemirror.on("change", function() {
             var newValue = self.mde.value();
-            self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
-            self.$emit("input", newValue); // for use with v-model
+            self.changesToIgnore.push(newValue);
+            self.$emit("input", newValue);
         });
-
         this.mde.codemirror.on('refresh', function () {
-            // Fix fullscreen when in Bootstrap modal
-            // see https://github.com/sparksuite/simplemde-markdown-editor/issues/263#issuecomment-262591099
             if (self.mde.isFullscreenActive()) {
                 $('body').addClass('simplemde-fullscreen');
             } else {
@@ -788,37 +661,26 @@ Vue.component('simple-mde', {
         });
     },
     beforeDestroy: function() {
-        // Remove SimpleMDE from textarea 
         this.mde.toTextArea();
         this.mde = null;
     },
     watch: {
         value: function (newValue) {
-            // Update when value changes
             var ignoreIdx = this.changesToIgnore.indexOf(newValue);
             if (ignoreIdx == -1) {
-                // External change - update control with new value
                 this.mde.value(newValue);
-                this.changesToIgnore.splice(0, this.changesToIgnore.length); // remove all items from array
+                this.changesToIgnore.splice(0, this.changesToIgnore.length);
             } else {
-                // Internal change (caused by self.$emit) - ignore 
-                this.changesToIgnore.splice(ignoreIdx, 1); // remove item from array
+                this.changesToIgnore.splice(ignoreIdx, 1);
             }
         }
     },
     methods: {
-        refresh: function() { // NOTE: This function is called by parent (via $refs) so its name must not be changed!
-            // Useful for Bootstrap modal/tabs, 
-            // where the contents don't update until the control is focussed/clicked,
-            // so triggering a manual refresh is necessary.
-            // See https://github.com/F-loat/vue-simplemde/issues/20#issuecomment-326799643
+        refresh: function() {
             this.mde.codemirror.refresh();
         }
     }
 });
-
-
-
 Vue.component('timeline-page', {
     template: "    <div>"
 +"        <button class=\"btn btn-success\" "
@@ -885,7 +747,7 @@ Vue.component('timeline-page', {
 +"    </div>",
     props: {
         timeline: Array,
-        itemBeingUpdated: String, // id (guid) of item currently being saved
+        itemBeingUpdated: String,
         ideasOnly: Boolean,
         eventTypes: Object,
         statusList: Object
@@ -896,60 +758,39 @@ Vue.component('timeline-page', {
         },
         editEvent: function(itemId) {
             var idx = this.timeline.findIndex(z => z.id === itemId);
-            var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
+            var copy = Object.assign({}, this.timeline[idx]);
             this.$emit('open-editor', copy);
         },
         isCollapsed: function(item) { 
             return item.status == "Interested";
         },
         howSoon: function(date) {
-            // NOTE: Using UTC for date comparisons, to avoid problems caused by 
-            //       comparing dates from different timezones (due to daylight savings):
-            // EXAMPLE (LOCAL TIME):    
-            //        Today's date = "Sun Mar 15 2020 00:00:00 GMT+0000"
-            //          Event date = "Mon Mar 30 2020 00:00:00 GMT+0100"
-            //   duration.asDays() = 14.958333333333334 (1 hour short, due to clocks going forward)
-            //    Result displayed = "2 weeks 0 days" ❌ (should be 2 weeks 1 day) 
-            // EXAMPLE (UTC):
-            //       Todays's date = "Sun Mar 15 2020 00:00:00 GMT+0000"
-            //          Event date = "Mon Mar 30 2020 00:00:00 GMT+0000"
-            //   duration.asDays() = 15
-            //    Result displayed = "2 weeks 1 day" ✅
             var eventDate = moment.utc(date);
             var nowDate = moment.utc(moment().format("YYYY-MM-DD"));
             var duration = moment.duration(eventDate.diff(nowDate));
-            //return duration.humanize();
-
             var pluralise = function(number, suffix) {
                 return number + " " + suffix 
                     + (number == 1 ? "" : "s");
             }
-
-            // Handle dates in the past
             var isNegative = false;
             if (duration.asMilliseconds() < 0) {
                 duration = moment.duration(0 - duration.asMilliseconds(), 'milliseconds');
                 isNegative = true;
             }
-
             if (duration.asDays() < 7) {
                 if (duration.days() == 0)
                     return "Today";
                 else 
-                    // Less than a week away - show # days
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
             } else if (duration.asWeeks() < 10)
-                // Less than 10 weeks away - show in weeks/days
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");
             else if (duration.asYears() < 1)
-                // Less than a year away - show in months
                 return pluralise(duration.months(), "month")
                      + (isNegative ? " ago" : "");
             else 
-                // More than a year away - show years/months
                 return pluralise(duration.years(), "year") + " "  
                      + pluralise(duration.months(), "month")
                      + (isNegative ? " ago" : "");
