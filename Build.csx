@@ -11,7 +11,7 @@ public class Program
         Console.WriteLine("Building...");
 
         string rootPath = args[0];
-        string componentsPath = Path.Combine(rootPath, "components");
+        string componentsPath = Path.Combine(rootPath, "src");
         string outputPath = Path.Combine(rootPath, "bundle.js");
 
         var output = new StringBuilder();
