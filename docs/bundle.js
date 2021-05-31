@@ -77,7 +77,7 @@ Vue.component('app-main', {
                 itemBeingUpdated: '',
                 eventTypes: {
                     "Birthday": "🎂",
-                    "Restaurent": "🍽️",
+                    "Restaurant": "🍽️",
                     "Film": "🎬",
                     "Live Entertainment": "🎭",
                     "Music": "🎵",

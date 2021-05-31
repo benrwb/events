@@ -94,7 +94,7 @@
 
                 eventTypes: {
                     "Birthday": "🎂",
-                    "Restaurent": "🍽️",
+                    "Restaurant": "🍽️",
                     "Film": "🎬",
                     "Live Entertainment": "🎭",
                     "Music": "🎵",
