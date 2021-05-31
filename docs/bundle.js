@@ -279,22 +279,22 @@ Vue.component('dropbox-sync', {
             var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
             var self = this;
             dbx.filesUpload({ 
-                    path: '/' + this.filename, 
-                    contents: JSON.stringify(dropboxData, null, 2),
-                    mode: { '.tag': 'overwrite' }
-                })
-                .then(function(response) {
-                    self.setSyncStatus("");
-                    self.dropboxLastSyncTimestamp = new Date();
-                    if (onComplete)
-                        onComplete(dropboxData);
-                })
-                .catch(function(error) {
-                    console.error(error);
-                    alert("Failed to upload " + self.filename + " to Dropbox - " + error.message);
-                    self.setSyncStatus("Error");
-                    self.dropboxLastSyncTimestamp = "";
-                });
+                path: '/' + this.filename, 
+                contents: JSON.stringify(dropboxData, null, 2),
+                mode: { '.tag': 'overwrite' }
+            })
+            .then(function(response) {
+                self.setSyncStatus("");
+                self.dropboxLastSyncTimestamp = new Date();
+                if (onComplete)
+                    onComplete(dropboxData);
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert("Failed to upload " + self.filename + " to Dropbox - " + error.message);
+                self.setSyncStatus("Error");
+                self.dropboxLastSyncTimestamp = "";
+            });
         }
     }
 });

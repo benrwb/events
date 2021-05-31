@@ -134,6 +134,7 @@
 import bootstrapDatepicker from './bootstrap-datepicker.vue'
 import Vue from './@types/vue'
 import * as $ from './@types/jquery'
+import { TimelineItem } from './@types/app';
 
 export default Vue.extend({
     components: {
@@ -225,7 +226,7 @@ export default Vue.extend({
     }
 });
 
-function new_timelineItem() {
+function new_timelineItem(): TimelineItem {
     return {
         id: -1, // will be set when saved
         type: '',

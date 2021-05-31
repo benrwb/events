@@ -67,15 +67,16 @@
 <script lang="ts">
 
 import editorDialog from './editor-dialog.vue'
-import Vue from './@types/vue'
+import Vue, { PropType } from './@types/vue'
 import moment from './@types/moment';
+import { TimelineItem } from './@types/app';
 
 export default Vue.extend({
     components: {
         editorDialog
     },
     props: {
-        timeline: Array,
+        timeline: Array as PropType<TimelineItem[]>,
         itemBeingUpdated: String, // id (guid) of item currently being saved
         ideasOnly: Boolean,
         eventTypes: Object,
