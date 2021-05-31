@@ -14,3 +14,7 @@ export interface TimelineItem extends BaseItem {
     date: string;
     status: string;
 }
+
+export interface TimelineWithHeadings {
+    [key: string]: TimelineItem[];
+}
