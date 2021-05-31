@@ -807,7 +807,8 @@ Vue.component('timeline-page', {
                 var filteredTimeline = this.timeline.filter(item =>
                     item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
-                return _.groupBy(filteredTimeline, 'type');
+                var orderedTimeline = _.sortBy(filteredTimeline, ["type", "name"]);
+                return _.groupBy(orderedTimeline, 'type');
             } else {
                 var filteredTimeline = this.timeline.filter(item =>
                     item.type != "Link" && item.status != "Went" && item.status != "Didn't go"

@@ -159,13 +159,14 @@ export default Vue.extend({
                 var filteredTimeline = this.timeline.filter(item =>
                     item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
-                return _.groupBy(filteredTimeline, 'type');
+                var orderedTimeline = _.sortBy(filteredTimeline, ["type", "name"]); // alphabetical order
+                return _.groupBy(orderedTimeline, 'type');
             } else {
                 // TIMELINE
                 var filteredTimeline = this.timeline.filter(item =>
                     item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
-                var orderedTimeline = _.orderBy(filteredTimeline, ["date"]);
+                var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return { 'N/A': orderedTimeline };
             }
         }
