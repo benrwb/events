@@ -82,7 +82,8 @@ Vue.component('app-main', {
                     "Live Entertainment": "🎭",
                     "Music": "🎵",
                     "Excursion": "🚶‍",
-                    "Holiday": "🌞"
+                    "Holiday - Abroad": "🌞",
+                    "Holiday - UK": "🇬🇧"
                 },
                 statusList: {
                     "Going": "✔",
