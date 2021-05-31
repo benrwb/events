@@ -57,6 +57,7 @@
 <script lang="ts">
 import Vue from './@types/vue'
 import * as $ from './@types/jquery'
+import { LinkItem } from './@types/app';
 
 export default Vue.extend({
     data: function() {
@@ -82,9 +83,9 @@ export default Vue.extend({
     }
 });
 
-function new_linkItem() {
+function new_linkItem(): LinkItem {
     return {
-        id: -1, // will be set when saved
+        id: '', // will be set when saved
         type: 'Link',
         name: '',
         link: '',

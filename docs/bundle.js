@@ -112,7 +112,7 @@ Vue.component('app-main', {
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
-                if (item.id == -1) {
+                if (item.id == "") {
                     item.id = this.uuidv4();
                     this.$refs.dropbox.addItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
@@ -470,7 +470,7 @@ Vue.component('editor-dialog', {
 });
 function new_timelineItem() {
     return {
-        id: -1,
+        id: '',
         type: '',
         name: '',
         location: '',
@@ -556,7 +556,7 @@ Vue.component('link-editor', {
 });
 function new_linkItem() {
     return {
-        id: -1,
+        id: '',
         type: 'Link',
         name: '',
         link: '',

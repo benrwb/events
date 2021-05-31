@@ -228,7 +228,7 @@ export default Vue.extend({
 
 function new_timelineItem(): TimelineItem {
     return {
-        id: -1, // will be set when saved
+        id: '', // will be set when saved
         type: '',
         name: '',
         location: '',

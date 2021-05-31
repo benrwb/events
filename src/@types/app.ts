@@ -1,10 +1,16 @@
-export interface TimelineItem {
-    id: number;
+export interface BaseItem {
+    id: string; // uuid
     type: string;
     name: string;
-    location: string;
-    date: string;
-    status: string;
     link: string;
     notes: string;
 };
+
+export interface LinkItem extends BaseItem {
+}
+
+export interface TimelineItem extends BaseItem {
+    location: string;
+    date: string;
+    status: string;
+}

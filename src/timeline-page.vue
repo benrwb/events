@@ -151,7 +151,7 @@ export default Vue.extend({
         }
     },
     computed: {
-        orderedTimeline: function() {
+        orderedTimeline: function(): TimelineItem[] {
             var self = this;
             var filteredTimeline = this.timeline.filter(function(item) {
                 return item.type != "Link" && item.status != "Went" && item.status != "Didn't go"

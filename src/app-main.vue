@@ -129,7 +129,7 @@
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
-                if (item.id == -1) {
+                if (item.id == "") {
                     // add new item
                     item.id = this.uuidv4();
                     this.$refs.dropbox.addItem(item, function(dropboxData) {

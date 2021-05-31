@@ -38,15 +38,16 @@
 <script lang="ts">
 
 import linkEditor from './link-editor.vue'
-import Vue from './@types/vue'
+import Vue, { PropType } from './@types/vue'
 import * as moment from './@types/moment';
+import { LinkItem } from './@types/app';
 
 export default Vue.extend({
     components: {
         linkEditor
     },
     props: {
-        dropboxData: Array,
+        dropboxData: Array as PropType<LinkItem[]>,
         itemBeingUpdated: String // id (guid) of item currently being saved
     },
     methods: {
@@ -63,7 +64,7 @@ export default Vue.extend({
         }
     },
     computed: {
-        linksList: function() {
+        linksList: function(): LinkItem[] {
             return this.dropboxData.filter(function(item) {
                 return item.type == "Link"
             });
