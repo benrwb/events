@@ -300,11 +300,7 @@ Vue.component('dropbox-sync', {
     }
 });
 Vue.component('editor-dialog', {
-    template: "<div style=\"margin-left: -15px; margin-right: -15px\">"
-+"    <!-- -15px margin to counteract the 15px margin added by div class=\"container\" on parent."
-+"          This means that content (e.g. the markdown edit box) will go all the way "
-+"          to the sides of the screen. -->"
-+""
+    template: "<div class=\"editor-dialog\">"
 +"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" data-backdrop=\"static\">"
 +"        <div class=\"modal-dialog\" role=\"document\">"
 +"            <div class=\"modal-content\"> -->"

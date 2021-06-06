@@ -76,6 +76,30 @@
             font-family: 'Courier New', Courier, monospace;
             padding: 2px; /* remove gaps from background */
         }
+
+        @media (min-width: 768px) {
+            /* DESKTOP STYLING */
+            body {
+                background-color: #84c0c0; /* #ddd; */
+                overflow-y: scroll; /* always show scroll bar (this prevents
+                page jumping around when switching from list to editor) */
+            }
+            .container {
+                max-width: 800px !important; /* limit width when used on desktop */
+                background-color: white;
+                padding: 0 25px;
+            }
+        }
+        @media (max-width: 768px) {
+            /* MOBILE STYLING */
+            .editor-dialog {
+                margin-left: -15px; 
+                margin-right: -15px;
+                /* -15px margin to counteract the 15px margin added by div class="container" on parent.
+                This means that content (e.g. the markdown edit box) will go all the way 
+                to the sides of the screen. */
+            }
+        }
     </style>
 </head>
 <body>
