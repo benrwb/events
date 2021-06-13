@@ -347,7 +347,7 @@ Vue.component('editor-dialog', {
 +""
 +"                        <div class=\"form-group\">"
 +"                            <label class=\"col-xs-3 control-label\">Type</label>"
-+"                            <div class=\"col-xs-6\">"
++"                            <div class=\"col-xs-7\">"
 +"                                <select class=\"form-control\" v-model=\"dbitem.type\">"
 +"                                    <option v-for=\"(value, key) in eventTypes\""
 +"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>"
