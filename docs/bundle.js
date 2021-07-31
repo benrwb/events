@@ -98,7 +98,7 @@ Vue.component('app-main', {
                     "Event listings": "📜",
                     "Venue": "🏛️",
                     "Holidays": "🌞",
-                    "Other": "❓"
+                    "Other": "💡"
                 }
             }
         },
