@@ -64,7 +64,14 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">Location</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" v-model="dbitem.location">
+                                <div v-bind:class="{ 'input-group': !!dbitem.location }">
+                                    <input type="text" class="form-control" v-model="dbitem.location">
+    
+                                    <a v-show="!!dbitem.location"
+                                        v-bind:href="'https://www.google.com/maps/search/' + dbitem.location"
+                                        class="input-group-addon emoji"
+                                        target="_blank"><span class="glyphicon glyphicon-map-marker"></span></a>
+                                </div>
                             </div>
                         </div>
 
