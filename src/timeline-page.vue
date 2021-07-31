@@ -22,7 +22,7 @@
                                  'faded': item.id == itemBeingUpdated }">
                 <div class="panel-heading">
                     <div v-if="isCollapsed(item) && item.date"
-                        class="pull-right">
+                         class="pull-right">
                         <span class="text-muted">{{ item.date | formatDate('D/MMM') }}</span>
                         <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ howSoon(item.date) }})</span>
                     </div>
@@ -157,14 +157,14 @@ export default Vue.extend({
             if (this.ideasOnly) {
                 // IDEAS
                 var filteredTimeline = this.timeline.filter(item =>
-                    item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
                 var orderedTimeline = _.sortBy(filteredTimeline, ["type", "name"]); // alphabetical order
                 return _.groupBy(orderedTimeline, 'type');
             } else {
                 // TIMELINE
                 var filteredTimeline = this.timeline.filter(item =>
-                    item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return { 'N/A': orderedTimeline };

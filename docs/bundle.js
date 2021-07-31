@@ -49,17 +49,18 @@ Vue.component('app-main', {
 +"        </timeline-page>"
 +""
 +"        <links-page v-show=\"activeTab == 'links'\""
++"                    v-bind:link-types=\"linkTypes\""
 +"                    v-bind:dropbox-data=\"dropboxData\""
 +"                    v-on:update-item=\"updateItem($event, false)\""
 +"                    v-bind:item-being-updated=\"itemBeingUpdated\">"
 +"        </links-page>"
 +""
 +"        <editor-dialog v-show=\"activeTab == 'editor'\""
-+"                ref=\"editor\""
-+"                v-bind:event-types=\"eventTypes\""
-+"                v-bind:status-list=\"statusList\""
-+"                v-on:save=\"updateItem($event, true)\""
-+"                v-on:close=\"closeEditor\">"
++"                       ref=\"editor\""
++"                       v-bind:event-types=\"eventTypes\""
++"                       v-bind:status-list=\"statusList\""
++"                       v-on:save=\"updateItem($event, true)\""
++"                       v-on:close=\"closeEditor\">"
 +"        </editor-dialog>"
 +""
 +"    </div><!-- v-show=\"connectedToDropbox\"-->"
@@ -91,6 +92,13 @@ Vue.component('app-main', {
                     "Need to book": "🎟",
                     "Went":"🙂",
                     "Didn't go": "🙁"
+                },
+                linkTypes: {
+                    "Ticket sales": "🎫",
+                    "Event listings": "📜",
+                    "Venue": "🏛️",
+                    "Holidays": "🌞",
+                    "Other": "❓"
                 }
             }
         },
@@ -433,8 +441,8 @@ Vue.component('editor-dialog', {
 +"    </div> -->"
 +"</div>",
     props: {
-        'eventTypes': Object,
-        'statusList': Object
+        eventTypes: Object,
+        statusList: Object
     },
     data: function() {
         return {
@@ -475,6 +483,7 @@ Vue.component('editor-dialog', {
 function new_timelineItem() {
     return {
         id: '',
+        category: 'Event',
         type: '',
         name: '',
         location: '',
@@ -497,6 +506,16 @@ Vue.component('link-editor', {
 +"    "
 +"                    <div class=\"form-horizontal\">"
 +""
++""
++"                        <div class=\"form-group\">"
++"                            <label class=\"col-xs-3 control-label\">Type</label>"
++"                            <div class=\"col-xs-7\">"
++"                                <select class=\"form-control\" v-model=\"item.type\">"
++"                                    <option v-for=\"(value, key) in linkTypes\""
++"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>"
++"                                </select>"
++"                            </div>"
++"                        </div>"
 +"                       "
 +"                        <div class=\"form-group\">"
 +"                            <label class=\"col-xs-3 control-label\">Name</label>"
@@ -538,6 +557,9 @@ Vue.component('link-editor', {
 +"            </div>"
 +"        </div>"
 +"    </div>",
+    props: {
+        linkTypes: Object
+    },
     data: function() {
         return {
             item: new_linkItem()
@@ -561,7 +583,8 @@ Vue.component('link-editor', {
 function new_linkItem() {
     return {
         id: '',
-        type: 'Link',
+        category: 'Link',
+        type: '',
         name: '',
         link: '',
         notes: ''
@@ -574,37 +597,44 @@ Vue.component('links-page', {
 +"            Add Link"
 +"        </button>"
 +""
-+"        <div v-for=\"item in linksList\""
-+"            v-bind:key=\"item.id\""
-+"            class=\"panel panel-default\""
-+"            v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">"
-+"            <div class=\"panel-heading\">"
-+"                <div style=\"font-weight: bold\">"
-+"                    "
-+"                    <span v-on:click=\"editEvent(item.id)\""
-+"                            style=\"cursor: pointer\">"
-+"                        {{ item.name}}"
-+"                    </span>"
++"        <div v-for=\"(items, heading) in groupedLinks\""
++"             v-bind:key=\"heading\">"
 +""
-+"                    <a v-if=\"item.link\""
-+"                        v-bind:href=\"item.link\""
-+"                        class=\"emoji\""
-+"                        style=\"text-decoration: none\""
-+"                        target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
-+"                </div>"
-+"                <div v-show=\"!!item.notes\""
-+"                     class=\"text-muted\">"
-+"                    {{ item.notes }}"
++"            <h1>{{ heading }}</h1>"
++""
++"            <div v-for=\"item in items\""
++"                v-bind:key=\"item.id\""
++"                class=\"panel panel-default\""
++"                v-on:click=\"editEvent(item.id)\""
++"                style=\"cursor: pointer\""
++"                v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">"
++"                <div class=\"panel-heading\">"
++"                    <div style=\"font-weight: bold\">"
++"                        "
++"                        {{ linkTypes[item.type] }} {{ item.name }}"
++""
++"                        <a v-if=\"item.link\""
++"                            v-bind:href=\"item.link\""
++"                            class=\"emoji\""
++"                            style=\"text-decoration: none\""
++"                            target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                    </div>"
++"                    <div v-show=\"!!item.notes\""
++"                        class=\"text-muted\">"
++"                        {{ item.notes }}"
++"                    </div>"
 +"                </div>"
 +"            </div><!-- /panel-heading -->"
 +"        </div>"
 +""
 +"        <link-editor ref=\"editor\""
-+"                v-on:save=\"editorSave\"></link-editor>"
++"                     v-bind:link-types=\"linkTypes\""
++"                     v-on:save=\"editorSave\"></link-editor>"
 +"    </div>",
     props: {
         dropboxData: Array,
-        itemBeingUpdated: String
+        itemBeingUpdated: String,
+        linkTypes: Object
     },
     methods: {
         addLink: function () {
@@ -620,10 +650,10 @@ Vue.component('links-page', {
         }
     },
     computed: {
-        linksList: function() {
-            return this.dropboxData.filter(function(item) {
-                return item.type == "Link"
-            });
+        groupedLinks: function () {
+            var filtered = this.dropboxData.filter(item => item.category == "Link");
+            var ordered = _.sortBy(filtered, ["type", "name"]);
+            return _.groupBy(ordered, 'type');
         }
     }
 });
@@ -709,7 +739,7 @@ Vue.component('timeline-page', {
 +"                                 'faded': item.id == itemBeingUpdated }\">"
 +"                <div class=\"panel-heading\">"
 +"                    <div v-if=\"isCollapsed(item) && item.date\""
-+"                        class=\"pull-right\">"
++"                         class=\"pull-right\">"
 +"                        <span class=\"text-muted\">{{ item.date | formatDate('D/MMM') }}</span>"
 +"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ howSoon(item.date) }})</span>"
 +"                    </div>"
@@ -808,13 +838,13 @@ Vue.component('timeline-page', {
         orderedTimeline: function() {
             if (this.ideasOnly) {
                 var filteredTimeline = this.timeline.filter(item =>
-                    item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
                 var orderedTimeline = _.sortBy(filteredTimeline, ["type", "name"]);
                 return _.groupBy(orderedTimeline, 'type');
             } else {
                 var filteredTimeline = this.timeline.filter(item =>
-                    item.type != "Link" && item.status != "Went" && item.status != "Didn't go"
+                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]);
                 return { 'N/A': orderedTimeline };

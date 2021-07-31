@@ -144,8 +144,8 @@ export default Vue.extend({
         bootstrapDatepicker
     },
     props: {
-        'eventTypes': Object,
-        'statusList': Object
+        eventTypes: Object,
+        statusList: Object
     },
     data: function() {
         return {
@@ -232,6 +232,7 @@ export default Vue.extend({
 function new_timelineItem(): TimelineItem {
     return {
         id: '', // will be set when saved
+        category: 'Event',
         type: '',
         name: '',
         location: '',

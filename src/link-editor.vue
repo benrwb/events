@@ -11,6 +11,16 @@
     
                     <div class="form-horizontal">
 
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Type</label>
+                            <div class="col-xs-7">
+                                <select class="form-control" v-model="item.type">
+                                    <option v-for="(value, key) in linkTypes"
+                                            v-bind:value="key">{{ value }} {{ key }}</option>
+                                </select>
+                            </div>
+                        </div>
                        
                         <div class="form-group">
                             <label class="col-xs-3 control-label">Name</label>
@@ -60,6 +70,9 @@ import * as $ from './@types/jquery'
 import { LinkItem } from './@types/app';
 
 export default Vue.extend({
+    props: {
+        linkTypes: Object
+    },
     data: function() {
         return {
             item: new_linkItem()
@@ -86,7 +99,8 @@ export default Vue.extend({
 function new_linkItem(): LinkItem {
     return {
         id: '', // will be set when saved
-        type: 'Link',
+        category: 'Link',
+        type: '',
         name: '',
         link: '',
         notes: ''

@@ -1,5 +1,6 @@
 export interface BaseItem {
     id: string; // uuid
+    category: "Event" | "Link";
     type: string;
     name: string;
     link: string;
@@ -17,4 +18,8 @@ export interface TimelineItem extends BaseItem {
 
 export interface TimelineWithHeadings {
     [key: string]: TimelineItem[];
+}
+
+export interface LinksWithHeadings {
+    [key: string]: LinkItem[];
 }

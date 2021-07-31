@@ -49,17 +49,18 @@
         </timeline-page>
 
         <links-page v-show="activeTab == 'links'"
+                    v-bind:link-types="linkTypes"
                     v-bind:dropbox-data="dropboxData"
                     v-on:update-item="updateItem($event, false)"
                     v-bind:item-being-updated="itemBeingUpdated">
         </links-page>
 
         <editor-dialog v-show="activeTab == 'editor'"
-                ref="editor"
-                v-bind:event-types="eventTypes"
-                v-bind:status-list="statusList"
-                v-on:save="updateItem($event, true)"
-                v-on:close="closeEditor">
+                       ref="editor"
+                       v-bind:event-types="eventTypes"
+                       v-bind:status-list="statusList"
+                       v-on:save="updateItem($event, true)"
+                       v-on:close="closeEditor">
         </editor-dialog>
 
     </div><!-- v-show="connectedToDropbox"-->
@@ -108,6 +109,13 @@
                     "Need to book": "🎟",
                     "Went":"🙂",
                     "Didn't go": "🙁"
+                },
+                linkTypes: {
+                    "Ticket sales": "🎫",
+                    "Event listings": "📜",
+                    "Venue": "🏛️",
+                    "Holidays": "🌞",
+                    "Other": "❓"
                 }
             }
         },

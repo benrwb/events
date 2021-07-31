@@ -5,33 +5,39 @@
             Add Link
         </button>
 
-        <div v-for="item in linksList"
-            v-bind:key="item.id"
-            class="panel panel-default"
-            v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
-            <div class="panel-heading">
-                <div style="font-weight: bold">
-                    
-                    <span v-on:click="editEvent(item.id)"
-                            style="cursor: pointer">
-                        {{ item.name}}
-                    </span>
+        <div v-for="(items, heading) in groupedLinks"
+             v-bind:key="heading">
 
-                    <a v-if="item.link"
-                        v-bind:href="item.link"
-                        class="emoji"
-                        style="text-decoration: none"
-                        target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
-                </div>
-                <div v-show="!!item.notes"
-                     class="text-muted">
-                    {{ item.notes }}
+            <h1>{{ heading }}</h1>
+
+            <div v-for="item in items"
+                v-bind:key="item.id"
+                class="panel panel-default"
+                v-on:click="editEvent(item.id)"
+                style="cursor: pointer"
+                v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
+                <div class="panel-heading">
+                    <div style="font-weight: bold">
+                        
+                        {{ linkTypes[item.type] }} {{ item.name }}
+
+                        <a v-if="item.link"
+                            v-bind:href="item.link"
+                            class="emoji"
+                            style="text-decoration: none"
+                            target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
+                    </div>
+                    <div v-show="!!item.notes"
+                        class="text-muted">
+                        {{ item.notes }}
+                    </div>
                 </div>
             </div><!-- /panel-heading -->
         </div>
 
         <link-editor ref="editor"
-                v-on:save="editorSave"></link-editor>
+                     v-bind:link-types="linkTypes"
+                     v-on:save="editorSave"></link-editor>
     </div>
 </template>
 
@@ -39,8 +45,8 @@
 
 import linkEditor from './link-editor.vue'
 import Vue, { PropType } from './@types/vue'
-import * as moment from './@types/moment';
-import { LinkItem } from './@types/app';
+import { LinkItem, LinksWithHeadings } from './@types/app';
+import * as _ from './@types/lodash';
 
 export default Vue.extend({
     components: {
@@ -48,7 +54,8 @@ export default Vue.extend({
     },
     props: {
         dropboxData: Array as PropType<LinkItem[]>,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        itemBeingUpdated: String, // id (guid) of item currently being saved
+        linkTypes: Object
     },
     methods: {
         addLink: function () {
@@ -64,10 +71,10 @@ export default Vue.extend({
         }
     },
     computed: {
-        linksList: function(): LinkItem[] {
-            return this.dropboxData.filter(function(item) {
-                return item.type == "Link"
-            });
+        groupedLinks: function (): LinksWithHeadings {
+            var filtered = this.dropboxData.filter(item => item.category == "Link");
+            var ordered = _.sortBy(filtered, ["type", "name"]); // alphabetical order
+            return _.groupBy(ordered, 'type');
         }
     }
 });
