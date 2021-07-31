@@ -11,24 +11,25 @@
             <h1>{{ heading }}</h1>
 
             <div v-for="item in items"
-                v-bind:key="item.id"
-                class="panel panel-default"
-                v-on:click="editEvent(item.id)"
-                style="cursor: pointer"
-                v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
+                 v-bind:key="item.id"
+                 class="panel panel-default"
+                 v-on:click="editEvent(item.id, $event)"
+                 style="cursor: pointer"
+                 v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
+
                 <div class="panel-heading">
                     <div style="font-weight: bold">
                         
                         {{ linkTypes[item.type] }} {{ item.name }}
 
                         <a v-if="item.link"
-                            v-bind:href="item.link"
-                            class="emoji"
-                            style="text-decoration: none"
-                            target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
+                           v-bind:href="item.link"
+                           class="emoji"
+                           style="text-decoration: none"
+                           target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                     </div>
                     <div v-show="!!item.notes"
-                        class="text-muted">
+                         class="text-muted">
                         {{ item.notes }}
                     </div>
                 </div>
@@ -61,7 +62,10 @@ export default Vue.extend({
         addLink: function () {
             this.$refs.editor.openDialog();
         },
-        editEvent: function(itemId) {
+        editEvent: function(itemId, event) {
+            if (event.target.classList.contains("glyphicon-new-window")) {
+                return; // don't open the editor if the link was clicked
+            }
             var idx = this.dropboxData.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
             this.$refs.editor.openDialog(copy);

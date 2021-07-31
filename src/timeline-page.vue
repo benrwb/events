@@ -13,7 +13,7 @@
             <div v-for="item in items"
                  v-bind:key="item.id"
                  class="panel"
-                 v-on:click="editEvent(item.id)"
+                 v-on:click="editEvent(item.id, $event)"
                  style="cursor: pointer"
                  v-bind:class="{ 'panel-success': item.status == 'Going',
                                  'panel-default': item.status == 'Interested',
@@ -32,10 +32,10 @@
                         {{ eventTypes[item.type] }} {{ item.name }}
                         
                         <a v-if="item.link"
-                            v-bind:href="item.link"
-                            class="emoji"
-                            style="text-decoration: none"
-                            target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
+                           v-bind:href="item.link"
+                           class="emoji"
+                           style="text-decoration: none"
+                           target="_blank">&nbsp;<span class="glyphicon glyphicon-new-window"></span></a>
                     </div>
                     <div v-show="!isCollapsed(item)">
                         <div v-if="item.date">
@@ -88,7 +88,10 @@ export default Vue.extend({
         addEvent: function () {
             this.$emit('open-editor', null);
         },
-        editEvent: function(itemId) {
+        editEvent: function (itemId, event) {
+            if (event.target.classList.contains("glyphicon-new-window")) {
+                return; // don't open the editor if the link was clicked
+            }
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
             this.$emit('open-editor', copy);

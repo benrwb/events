@@ -603,24 +603,25 @@ Vue.component('links-page', {
 +"            <h1>{{ heading }}</h1>"
 +""
 +"            <div v-for=\"item in items\""
-+"                v-bind:key=\"item.id\""
-+"                class=\"panel panel-default\""
-+"                v-on:click=\"editEvent(item.id)\""
-+"                style=\"cursor: pointer\""
-+"                v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">"
++"                 v-bind:key=\"item.id\""
++"                 class=\"panel panel-default\""
++"                 v-on:click=\"editEvent(item.id, $event)\""
++"                 style=\"cursor: pointer\""
++"                 v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">"
++""
 +"                <div class=\"panel-heading\">"
 +"                    <div style=\"font-weight: bold\">"
 +"                        "
 +"                        {{ linkTypes[item.type] }} {{ item.name }}"
 +""
 +"                        <a v-if=\"item.link\""
-+"                            v-bind:href=\"item.link\""
-+"                            class=\"emoji\""
-+"                            style=\"text-decoration: none\""
-+"                            target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                           v-bind:href=\"item.link\""
++"                           class=\"emoji\""
++"                           style=\"text-decoration: none\""
++"                           target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
 +"                    </div>"
 +"                    <div v-show=\"!!item.notes\""
-+"                        class=\"text-muted\">"
++"                         class=\"text-muted\">"
 +"                        {{ item.notes }}"
 +"                    </div>"
 +"                </div>"
@@ -640,7 +641,10 @@ Vue.component('links-page', {
         addLink: function () {
             this.$refs.editor.openDialog();
         },
-        editEvent: function(itemId) {
+        editEvent: function(itemId, event) {
+            if (event.target.classList.contains("glyphicon-new-window")) {
+                return;
+            }
             var idx = this.dropboxData.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.dropboxData[idx]);
             this.$refs.editor.openDialog(copy);
@@ -730,7 +734,7 @@ Vue.component('timeline-page', {
 +"            <div v-for=\"item in items\""
 +"                 v-bind:key=\"item.id\""
 +"                 class=\"panel\""
-+"                 v-on:click=\"editEvent(item.id)\""
++"                 v-on:click=\"editEvent(item.id, $event)\""
 +"                 style=\"cursor: pointer\""
 +"                 v-bind:class=\"{ 'panel-success': item.status == 'Going',"
 +"                                 'panel-default': item.status == 'Interested',"
@@ -749,10 +753,10 @@ Vue.component('timeline-page', {
 +"                        {{ eventTypes[item.type] }} {{ item.name }}"
 +"                        "
 +"                        <a v-if=\"item.link\""
-+"                            v-bind:href=\"item.link\""
-+"                            class=\"emoji\""
-+"                            style=\"text-decoration: none\""
-+"                            target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
++"                           v-bind:href=\"item.link\""
++"                           class=\"emoji\""
++"                           style=\"text-decoration: none\""
++"                           target=\"_blank\">&nbsp;<span class=\"glyphicon glyphicon-new-window\"></span></a>"
 +"                    </div>"
 +"                    <div v-show=\"!isCollapsed(item)\">"
 +"                        <div v-if=\"item.date\">"
@@ -791,7 +795,10 @@ Vue.component('timeline-page', {
         addEvent: function () {
             this.$emit('open-editor', null);
         },
-        editEvent: function(itemId) {
+        editEvent: function (itemId, event) {
+            if (event.target.classList.contains("glyphicon-new-window")) {
+                return;
+            }
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]);
             this.$emit('open-editor', copy);
