@@ -77,9 +77,11 @@
 
                         <div class="form-group">
                             <label class="col-xs-3 control-label">Date</label>
-                            <div class="col-xs-6">
+                            <div class="col-xs-7">
                                 <div class="input-group">
-                                    <bootstrap-datepicker v-model="dbitem.date"></bootstrap-datepicker>
+                                    <bootstrap-datepicker v-model="dbitem.date"
+                                                          format="D dd/mm/yyyy"
+                                    ></bootstrap-datepicker>
                                     <span class="input-group-btn">
                                         <button class="btn btn-default" v-on:click="clearDate">x</button>
                                     </span>

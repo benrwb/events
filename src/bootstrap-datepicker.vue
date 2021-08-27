@@ -8,7 +8,8 @@ import moment from './@types/moment'
 
 export default Vue.extend({
     props: {
-        value: String // accept a value prop (for use with v-model)
+        value: String, // accept a value prop (for use with v-model)
+        format: String // custom date format
     },
     mounted: function () {
         // Set initial value of the input to 'value'
@@ -17,10 +18,10 @@ export default Vue.extend({
         if (modate != null && modate.isValid()) {
             $(this.$el).val(modate.format("DD/MM/YYYY"));
         }
-        
+
         // Attach the datepicker control to the input         
         $(this.$el).datepicker({
-            format: "dd/mm/yyyy", // UK date format
+            format: this.format || "dd/mm/yyyy", // default to UK date format
             autoclose: true,
             todayHighlight: true,
             disableTouchKeyboard: true, //  hide keyboard on mobile devices

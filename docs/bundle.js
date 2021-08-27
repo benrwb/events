@@ -154,7 +154,8 @@ Vue.component('app-main', {
 Vue.component('bootstrap-datepicker', {
     template: "    <input class='form-control' type='text' />",
     props: {
-        value: String
+        value: String,
+        format: String
     },
     mounted: function () {
         var modate = !this.value ? null : moment(this.value);
@@ -162,7 +163,7 @@ Vue.component('bootstrap-datepicker', {
             $(this.$el).val(modate.format("DD/MM/YYYY"));
         }
         $(this.$el).datepicker({
-            format: "dd/mm/yyyy",
+            format: this.format || "dd/mm/yyyy",
             autoclose: true,
             todayHighlight: true,
             disableTouchKeyboard: true,
@@ -386,9 +387,11 @@ Vue.component('editor-dialog', {
 +""
 +"                        <div class=\"form-group\">"
 +"                            <label class=\"col-xs-3 control-label\">Date</label>"
-+"                            <div class=\"col-xs-6\">"
++"                            <div class=\"col-xs-7\">"
 +"                                <div class=\"input-group\">"
-+"                                    <bootstrap-datepicker v-model=\"dbitem.date\"></bootstrap-datepicker>"
++"                                    <bootstrap-datepicker v-model=\"dbitem.date\""
++"                                                          format=\"D dd/mm/yyyy\""
++"                                    ></bootstrap-datepicker>"
 +"                                    <span class=\"input-group-btn\">"
 +"                                        <button class=\"btn btn-default\" v-on:click=\"clearDate\">x</button>"
 +"                                    </span>"
