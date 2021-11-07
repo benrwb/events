@@ -68,7 +68,7 @@
                                     <input type="text" class="form-control" v-model="dbitem.location">
     
                                     <a v-show="!!dbitem.location"
-                                        v-bind:href="'https://www.google.com/maps/search/' + dbitem.location"
+                                        v-bind:href="mapUrl"
                                         class="input-group-addon emoji"
                                         target="_blank"><span class="glyphicon glyphicon-map-marker"></span></a>
                                 </div>
@@ -208,15 +208,33 @@ export default Vue.extend({
         //    this.insertAtCursor("✅ ");
         //}
     },
-    // computed: {
-    //     markdownHtml: function() {
-    //         if (!this.dbitem.notes) return "";
-    //         var reader = new commonmark.Parser();
-    //         var parsed = reader.parse(this.dbitem.notes);
-    //         var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
-    //         return writer.render(parsed);
-    //     }
-    // },
+    computed: {
+        // markdownHtml: function() {
+        //     if (!this.dbitem.notes) return "";
+        //     var reader = new commonmark.Parser();
+        //     var parsed = reader.parse(this.dbitem.notes);
+        //     var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
+        //     return writer.render(parsed);
+        // }
+        mapUrl: function (): string {
+            // Sometimes "Name" should be included as part of the location - for example
+            // for "Holiday" types, where "Name" is the name of the hotel or destination.
+            // Whereas with other types of event the "Name" should *not* be included,
+            // for example Film, Music or Live Entertainment, where "Name" contains the
+            // the film/band/show, which is not part of the location.
+
+            var includeName = (this.dbitem.type || "").startsWith("Holiday")
+            || this.dbitem.type == "Excursion"
+            || this.dbitem.type == "Restaurant"
+
+            var removeEmoji = (text) => text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            // https://stackoverflow.com/a/41543705
+
+            return "https://www.google.com/maps/search/"
+                + (includeName ? removeEmoji(this.dbitem.name).trim() + ", " : "") 
+                + this.dbitem.location;
+        }
+    },
     watch: {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
