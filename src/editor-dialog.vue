@@ -54,8 +54,11 @@
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="col-xs-3 control-label">Name</label>
+                        <div class="form-group"
+                             v-bind:class="{ 'no-bottom-margin': locationIncludesName }">
+                            <label class="col-xs-3 control-label">
+                                Name {{ locationIncludesName ? "/" : "" }}
+                            </label>
                             <div class="col-xs-9">
                                 <input type="text" class="form-control" v-model="dbitem.name">
                             </div>
@@ -216,6 +219,11 @@ export default Vue.extend({
         //     var writer = new commonmark.HtmlRenderer({softbreak: "<br />"}); // make soft breaks render as hard breaks in HTML
         //     return writer.render(parsed);
         // }
+        locationIncludesName: function (): boolean {
+            return (this.dbitem.type || "").startsWith("Holiday")
+                || this.dbitem.type == "Excursion"
+                || this.dbitem.type == "Restaurant";
+        },
         mapUrl: function (): string {
             // Sometimes "Name" should be included as part of the location - for example
             // for "Holiday" types, where "Name" is the name of the hotel or destination.
@@ -223,15 +231,18 @@ export default Vue.extend({
             // for example Film, Music or Live Entertainment, where "Name" contains the
             // the film/band/show, which is not part of the location.
 
-            var includeName = (this.dbitem.type || "").startsWith("Holiday")
-            || this.dbitem.type == "Excursion"
-            || this.dbitem.type == "Restaurant"
-
-            var removeEmoji = (text) => text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
-            // https://stackoverflow.com/a/41543705
+            function tidyName (text: string) {
+                // Remove anything in parenthesis
+                var openBracketIdx = text.indexOf(" (");
+                if (openBracketIdx != -1) {
+                    text = text.substring(0, openBracketIdx);
+                }
+                // Remove emoji (https://stackoverflow.com/a/41543705)
+                return text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+            }
 
             return "https://www.google.com/maps/search/"
-                + (includeName ? removeEmoji(this.dbitem.name).trim() + ", " : "") 
+                + (this.locationIncludesName ? tidyName(this.dbitem.name).trim() + ", " : "") 
                 + this.dbitem.location;
         }
     },

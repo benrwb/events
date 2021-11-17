@@ -364,8 +364,11 @@ Vue.component('editor-dialog', {
 +"                            </div>\n"
 +"                        </div>\n"
 +"                        \n"
-+"                        <div class=\"form-group\">\n"
-+"                            <label class=\"col-xs-3 control-label\">Name</label>\n"
++"                        <div class=\"form-group\"\n"
++"                             v-bind:class=\"{ 'no-bottom-margin': locationIncludesName }\">\n"
++"                            <label class=\"col-xs-3 control-label\">\n"
++"                                Name {{ locationIncludesName ? \"/\" : \"\" }}\n"
++"                            </label>\n"
 +"                            <div class=\"col-xs-9\">\n"
 +"                                <input type=\"text\" class=\"form-control\" v-model=\"dbitem.name\">\n"
 +"                            </div>\n"
@@ -473,13 +476,21 @@ Vue.component('editor-dialog', {
         },
     },
     computed: {
+        locationIncludesName: function () {
+            return (this.dbitem.type || "").startsWith("Holiday")
+                || this.dbitem.type == "Excursion"
+                || this.dbitem.type == "Restaurant";
+        },
         mapUrl: function () {
-            var includeName = (this.dbitem.type || "").startsWith("Holiday")
-            || this.dbitem.type == "Excursion"
-            || this.dbitem.type == "Restaurant"
-            var removeEmoji = (text) => text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            function tidyName (text) {
+                var openBracketIdx = text.indexOf(" (");
+                if (openBracketIdx != -1) {
+                    text = text.substring(0, openBracketIdx);
+                }
+                return text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+            }
             return "https://www.google.com/maps/search/"
-                + (includeName ? removeEmoji(this.dbitem.name).trim() + ", " : "") 
+                + (this.locationIncludesName ? tidyName(this.dbitem.name).trim() + ", " : "") 
                 + this.dbitem.location;
         }
     },
