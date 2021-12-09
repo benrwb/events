@@ -77,7 +77,7 @@ Vue.component('app-main', {
                 currentTime: new Date(),
                 itemBeingUpdated: '', // id (guid) of item currently being saved
                 eventTypes: {
-                    "Birthday": "🎂",
+                    "Special occasion": "🎂",
                     "Restaurant": "🍽️",
                     "Film": "🎬",
                     "Live Entertainment": "🎭",
