@@ -770,8 +770,8 @@ Vue.component('timeline-page', {
 +"                <div class=\"panel-heading\">\n"
 +"                    <div v-if=\"isCollapsed(item) && item.date\"\n"
 +"                         class=\"pull-right\">\n"
-+"                        <span class=\"text-muted\">{{ item.date | formatDate('D/MMM') }}</span>\n"
-+"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ howSoon(item.date) }})</span>\n"
++"                        <span class=\"text-muted\">{{ item.date | formatDate('ddd D/MMM') }}</span>\n"
++"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ shorten(howSoon(item.date)) }})</span>\n"
 +"                    </div>\n"
 +"                    <div style=\"font-weight: bold\"\n"
 +"                         v-bind:class=\"{ 'text-muted': isCollapsed(item) }\">\n"
@@ -863,6 +863,9 @@ Vue.component('timeline-page', {
                 return pluralise(duration.years(), "year") + " "  
                      + pluralise(duration.months(), "month")
                      + (isNegative ? " ago" : "");
+        },
+        shorten: function (str) {
+            return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();

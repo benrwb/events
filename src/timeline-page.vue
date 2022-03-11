@@ -23,8 +23,8 @@
                 <div class="panel-heading">
                     <div v-if="isCollapsed(item) && item.date"
                          class="pull-right">
-                        <span class="text-muted">{{ item.date | formatDate('D/MMM') }}</span>
-                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ howSoon(item.date) }})</span>
+                        <span class="text-muted">{{ item.date | formatDate('ddd D/MMM') }}</span>
+                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
                     </div>
                     <div style="font-weight: bold"
                          v-bind:class="{ 'text-muted': isCollapsed(item) }">
@@ -151,6 +151,9 @@ export default Vue.extend({
                 return pluralise(duration.years(), "year") + " "  
                      + pluralise(duration.months(), "month")
                      + (isNegative ? " ago" : "");
+        },
+        shorten: function (str: string) {
+            return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
