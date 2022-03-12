@@ -115,7 +115,8 @@
                     "Event listings": "📜",
                     "Venue": "🏛️",
                     "Holidays": "🌞",
-                    "Other": "💡"
+                    "Other": "💡",
+                    "Information": "ℹ"
                 }
             }
         },
