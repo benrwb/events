@@ -95,8 +95,8 @@ Vue.component('app-main', {
                 },
                 linkTypes: {
                     "Ticket sales": "🎫",
-                    "Event listings": "📜",
-                    "Venue": "🏛️",
+                    "Event listings": "📰",
+                    "Venue": "🌆",
                     "Holidays": "🌞",
                     "Other": "💡",
                     "Information": "ℹ"
