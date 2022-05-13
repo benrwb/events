@@ -113,7 +113,7 @@
                 linkTypes: {
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
-                    "Venue": "🌆",
+                    "Venue": "🌃",
                     "Holidays": "🌞",
                     "Other": "💡",
                     "Information": "ℹ"
