@@ -104,9 +104,10 @@
                     "Holiday - UK": "🇬🇧"
                 },
                 statusList: {
-                    "Going": "✔",
+                    "": "🟡",
                     "Interested": "⭐",
                     "Need to book": "🎟",
+                    "Going": "✔",
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
