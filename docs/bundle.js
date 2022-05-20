@@ -87,17 +87,17 @@ Vue.component('app-main', {
                     "Holiday - UK": "🇬🇧"
                 },
                 statusList: {
-                    "": "🟡",
+                    "": "",
+                    "Going": "✔",
                     "Interested": "⭐",
                     "Need to book": "🎟",
-                    "Going": "✔",
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
                 linkTypes: {
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
-                    "Venue": "🌃",
+                    "Venue": "🏛",
                     "Holidays": "🌞",
                     "Other": "💡",
                     "Information": "ℹ"
@@ -637,9 +637,9 @@ Vue.component('links-page', {
 +"                 v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">\n"
 +"\n"
 +"                <div class=\"panel-heading\">\n"
-+"                    <div style=\"font-weight: bold\">\n"
-+"                        \n"
-+"                        {{ linkTypes[item.type] }} {{ item.name }}\n"
++"                    <div>\n"
++"                        {{ linkTypes[item.type] }} \n"
++"                        <span style=\"font-weight: bold\">{{ item.name }}</span>\n"
 +"\n"
 +"                        <a v-if=\"item.link\"\n"
 +"                           v-bind:href=\"item.link\"\n"
@@ -798,7 +798,7 @@ Vue.component('timeline-page', {
 +"                        </div>\n"
 +"                        <div v-if=\"item.location\"\n"
 +"                             class=\"text-muted\">{{ item.location }}</div>\n"
-+"                        <div>\n"
++"                        <div v-if=\"item.status\">\n"
 +"                            <span class=\"emoji\">\n"
 +"                                {{ statusList[item.status] }}\n"
 +"                            </span>\n"

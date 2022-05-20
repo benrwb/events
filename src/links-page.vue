@@ -18,9 +18,9 @@
                  v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
 
                 <div class="panel-heading">
-                    <div style="font-weight: bold">
-                        
-                        {{ linkTypes[item.type] }} {{ item.name }}
+                    <div>
+                        {{ linkTypes[item.type] }} 
+                        <span style="font-weight: bold">{{ item.name }}</span>
 
                         <a v-if="item.link"
                            v-bind:href="item.link"

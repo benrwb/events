@@ -104,17 +104,17 @@
                     "Holiday - UK": "🇬🇧"
                 },
                 statusList: {
-                    "": "🟡",
+                    "": "",
+                    "Going": "✔",
                     "Interested": "⭐",
                     "Need to book": "🎟",
-                    "Going": "✔",
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
                 linkTypes: {
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
-                    "Venue": "🌃",
+                    "Venue": "🏛",
                     "Holidays": "🌞",
                     "Other": "💡",
                     "Information": "ℹ"

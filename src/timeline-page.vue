@@ -49,7 +49,7 @@
                         </div>
                         <div v-if="item.location"
                              class="text-muted">{{ item.location }}</div>
-                        <div>
+                        <div v-if="item.status">
                             <span class="emoji">
                                 {{ statusList[item.status] }}
                             </span>
