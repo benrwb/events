@@ -520,6 +520,83 @@ function new_timelineItem() {
         notes: ''
     };
 }
+Vue.component('expanding-textarea', {
+    template: "    <div>\n"
++"\n"
++"        <!-- \"hidden\" textarea, used to calculate height of text -->\n"
++"        <div style=\"position: relative\">\n"
++"            <textarea v-bind=\"$attrs\" class=\"form-control screenonly\" v-bind:value=\"value\" style=\"resize: none; position: absolute; z-index: -1\" tabindex=\"-1\" rows=\"1\"\n"
++"                      ref=\"hiddenTextarea\"></textarea>\n"
++"        </div>\n"
++"\n"
++"        <!-- visible textarea -->\n"
++"        <textarea v-bind=\"$attrs\" class=\"form-control screenonly\" v-model=\"theValue\" style=\"resize: none\" \n"
++"                  v-on:focus=\"$emit('focus')\" v-on:blur=\"$emit('blur')\"\n"
++"                  ref=\"txtarea\"></textarea>\n"
++"\n"
++"        <!-- print div -->\n"
++"        <div style=\"white-space: pre-wrap; margin-bottom: 0\" class=\"well well-sm printonly\">{{ value }}</div>\n"
++"\n"
++"    </div>\n",
+        inheritAttrs: false, // e.g. so placeholder="..." is applied to <textarea> not root element
+        props: {
+            value: String, // for use with v-model
+            minHeight: [Number,String]
+        },
+        computed: {
+            theValue: {
+                get: function () {
+                    return this.value;
+                },
+                set: function (newValue) {
+                    this.$emit("input", newValue); // for use with v-model
+                }
+            }
+        },
+        methods: {
+            autoResize: function () {
+                var minHeight = this.minHeight ? Number(this.minHeight) : 54;
+                var textarea = this.$refs.txtarea;
+                var hiddenTextarea = this.$refs.hiddenTextarea;
+                Vue.nextTick(function () { // wait for hiddenTextarea to update
+                    textarea.style.height = Math.max(minHeight, (hiddenTextarea.scrollHeight + 2)) + "px";
+                });
+            },
+            focus: function () {
+                var textarea = this.$refs.txtarea;
+                textarea.focus();
+            }
+        },
+        mounted: function () {
+            window.addEventListener("resize", this.autoResize);
+            this.autoResize();
+        },
+        beforeDestroy: function () {
+            window.removeEventListener("resize", this.autoResize);
+        },
+        watch: {
+            value: function () { // when value is changed (either through user input, or viewmodel change)
+                this.autoResize();
+            }
+        }
+    });
+                {   // this is wrapped in a block because there might be more than 
+                    // one component with styles, in which case we will have 
+                    // multiple 'componentStyles' variables and don't want them to clash!
+                    const componentStyles = document.createElement('style');
+                    componentStyles.textContent = `    @media screen {
+        .printonly {
+            display: none;
+        }
+    }
+
+    @media print {
+        .screenonly {
+            display: none !important;
+        }
+    }`;
+                    document.head.appendChild(componentStyles);
+                }
 Vue.component('link-editor', {
     template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
@@ -569,7 +646,10 @@ Vue.component('link-editor', {
 +"                        <div class=\"form-group\">\n"
 +"                            <label class=\"col-xs-3 control-label\">Notes</label>\n"
 +"                            <div class=\"col-xs-9\">\n"
-+"                                <input type=\"text\" class=\"form-control\" v-model=\"item.notes\" />\n"
++"                                <expanding-textarea v-model=\"item.notes\" \n"
++"                                                    min-height=\"34\"\n"
++"                                                    ref=\"textarea\" />\n"
++"                                <!-- <input type=\"text\" class=\"form-control\" v-model=\"item.notes\" /> -->\n"
 +"                            </div>\n"
 +"                        </div>\n"
 +"\n"
@@ -591,6 +671,15 @@ Vue.component('link-editor', {
         return {
             item: new_linkItem()
         }
+    },
+    mounted: function () {
+        var self = this;
+        $(this.$el).on('shown.bs.modal', function () {
+            self.$refs.textarea.autoResize();
+        });
+    },
+    beforeDestroy: function () {
+        $(this.$el).off('shown.bs.modal'); // remove event listener
     },
     methods: {
         openDialog: function (item) { // called by parent via $refs
@@ -649,9 +738,9 @@ Vue.component('links-page', {
 +"                                                 style=\"padding: 0 3px\"></span></a>\n"
 +"                    </div>\n"
 +"                    <div v-show=\"!!item.notes\"\n"
-+"                         class=\"text-muted\">\n"
-+"                        {{ item.notes }}\n"
-+"                    </div>\n"
++"                         class=\"text-muted\"\n"
++"                         >{{ item.notes }}</div>\n"
++"                         <!-- style=\"white-space: pre-line\" -->\n"
 +"                </div>\n"
 +"            </div><!-- /panel-heading -->\n"
 +"        </div>\n"

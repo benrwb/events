@@ -30,9 +30,9 @@
                                                  style="padding: 0 3px"></span></a>
                     </div>
                     <div v-show="!!item.notes"
-                         class="text-muted">
-                        {{ item.notes }}
-                    </div>
+                         class="text-muted"
+                         >{{ item.notes }}</div>
+                         <!-- style="white-space: pre-line" -->
                 </div>
             </div><!-- /panel-heading -->
         </div>

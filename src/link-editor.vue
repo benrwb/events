@@ -47,7 +47,10 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">Notes</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" v-model="item.notes" />
+                                <expanding-textarea v-model="item.notes" 
+                                                    min-height="34"
+                                                    ref="textarea" />
+                                <!-- <input type="text" class="form-control" v-model="item.notes" /> -->
                             </div>
                         </div>
 
@@ -77,6 +80,16 @@ export default Vue.extend({
         return {
             item: new_linkItem()
         }
+    },
+    mounted: function () {
+        var self = this;
+        $(this.$el).on('shown.bs.modal', function () {
+            // resize textarea when modal is shown
+            self.$refs.textarea.autoResize();
+        });
+    },
+    beforeDestroy: function () {
+        $(this.$el).off('shown.bs.modal'); // remove event listener
     },
     methods: {
         openDialog: function (item) { // called by parent via $refs
