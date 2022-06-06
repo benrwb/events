@@ -1,10 +1,11 @@
 <template>
-    <div class="modal fade" tabindex="-1" role="dialog">
+    <div>
+    <!-- <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
-            <div class="modal-content">
+            <div class="modal-content"> -->
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                            v-on:click="close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Link details</h4>
                 </div>
                 <div class="modal-body" style="padding-bottom: 0">
@@ -57,14 +58,15 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                            v-on:click="close">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
                             v-on:click="save">Save changes</button>
                 </div>
-            </div>
-        </div>
-    </div>
+            <!-- </div>
+        </div> -->
+    </div> 
 </template>
 
 <script lang="ts">
@@ -81,16 +83,16 @@ export default Vue.extend({
             item: new_linkItem()
         }
     },
-    mounted: function () {
-        var self = this;
-        $(this.$el).on('shown.bs.modal', function () {
-            // resize textarea when modal is shown
-            self.$refs.textarea.autoResize();
-        });
-    },
-    beforeDestroy: function () {
-        $(this.$el).off('shown.bs.modal'); // remove event listener
-    },
+    // mounted: function () {
+    //     var self = this;
+    //     $(this.$el).on('shown.bs.modal', function () {
+    //         // resize textarea when modal is shown
+    //         self.$refs.textarea.autoResize();
+    //     });
+    // },
+    // beforeDestroy: function () {
+    //     $(this.$el).off('shown.bs.modal'); // remove event listener
+    // },
     methods: {
         openDialog: function (item) { // called by parent via $refs
             if (!item) {
@@ -100,7 +102,10 @@ export default Vue.extend({
                 // edit existing item
                 this.item = item;
             }
-            $(this.$el).modal('show');
+            //$(this.$el).modal('show');
+        },
+        close: function () {
+            this.$emit('close');
         },
         save: function () {
             this.$emit('save', this.item);

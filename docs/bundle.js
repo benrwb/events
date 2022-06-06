@@ -10,34 +10,32 @@ Vue.component('app-main', {
 +"    </dropbox-sync>\n"
 +"\n"
 +"    <div v-show=\"connectedToDropbox\">\n"
-+"\n"
-+"        <nav v-show=\"activeTab != 'editor'\"\n"
-+"             class=\"navbar navbar-default\">\n"
-+"            <div class=\"container-fluid\">\n"
-+"                <p class=\"navbar-text pull-right\">\n"
-+"                    {{ currentTime | formatDate('dddd D MMMM') }}\n"
-+"                </p>\n"
-+"                <div class=\"navbar-header\">\n"
-+"                    <a class=\"navbar-brand\" href=\"#\">\n"
-+"                        <span class=\"glyphicon glyphicon-home\"></span>\n"
-+"                        <span class=\"glyphicon glyphicon-arrow-right\"></span>\n"
-+"                        Events\n"
-+"                    </a>\n"
-+"                    <!-- <button class=\"btn btn-success navbar-btn\" \n"
-+"                            v-on:click=\"addEvent\">\n"
-+"                        Add Event\n"
-+"                    </button> -->\n"
-+"                </div>\n"
-+"            </div><!-- /.container-fluid -->\n"
-+"        </nav>\n"
-+"\n"
-+"\n"
-+"        <ul v-show=\"activeTab != 'editor'\"\n"
-+"            class=\"nav nav-tabs\">\n"
-+"            <bootstrap-nav value=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
-+"            <bootstrap-nav value=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
-+"            <bootstrap-nav value=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
-+"        </ul>\n"
++"        \n"
++"        <div v-show=\"activeTab != 'editor' && activeTab != 'linkeditor'\">\n"
++"            <nav class=\"navbar navbar-default\">\n"
++"                <div class=\"container-fluid\">\n"
++"                    <p class=\"navbar-text pull-right\">\n"
++"                        {{ currentTime | formatDate('dddd D MMMM') }}\n"
++"                    </p>\n"
++"                    <div class=\"navbar-header\">\n"
++"                        <a class=\"navbar-brand\" href=\"#\">\n"
++"                            <span class=\"glyphicon glyphicon-home\"></span>\n"
++"                            <span class=\"glyphicon glyphicon-arrow-right\"></span>\n"
++"                            Events\n"
++"                        </a>\n"
++"                        <!-- <button class=\"btn btn-success navbar-btn\" \n"
++"                                v-on:click=\"addEvent\">\n"
++"                            Add Event\n"
++"                        </button> -->\n"
++"                    </div>\n"
++"                </div><!-- /.container-fluid -->\n"
++"            </nav>\n"
++"            <ul class=\"nav nav-tabs\">\n"
++"                <bootstrap-nav value=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
++"                <bootstrap-nav value=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
++"                <bootstrap-nav value=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
++"            </ul>\n"
++"        </div>\n"
 +"\n"
 +"        <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\"\n"
 +"                       v-bind:ideas-only=\"activeTab == 'ideas'\"\n"
@@ -51,8 +49,8 @@ Vue.component('app-main', {
 +"        <links-page v-show=\"activeTab == 'links'\"\n"
 +"                    v-bind:link-types=\"linkTypes\"\n"
 +"                    v-bind:dropbox-data=\"dropboxData\"\n"
-+"                    v-on:update-item=\"updateItem($event, false)\"\n"
-+"                    v-bind:item-being-updated=\"itemBeingUpdated\">\n"
++"                    v-bind:item-being-updated=\"itemBeingUpdated\"\n"
++"                    v-on:open-editor=\"openLinkEditor\">\n"
 +"        </links-page>\n"
 +"\n"
 +"        <editor-dialog v-show=\"activeTab == 'editor'\"\n"
@@ -62,6 +60,13 @@ Vue.component('app-main', {
 +"                       v-on:save=\"updateItem($event, true)\"\n"
 +"                       v-on:close=\"closeEditor\">\n"
 +"        </editor-dialog>\n"
++"\n"
++"        <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
++"                     ref=\"linkeditor\"\n"
++"                     v-bind:link-types=\"linkTypes\"\n"
++"                     v-on:save=\"updateItem($event, true)\"\n"
++"                     v-on:close=\"closeEditor\">\n"
++"        </link-editor>\n"
 +"\n"
 +"    </div><!-- v-show=\"connectedToDropbox\"-->\n"
 +"\n"
@@ -120,6 +125,12 @@ Vue.component('app-main', {
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "editor";
                 this.$refs.editor.openDialog(item);
+            },
+            openLinkEditor: function (item) {
+                this.previousTab = this.activeTab;
+                this.previousScrollPosition = document.documentElement.scrollTop;
+                this.activeTab = "linkeditor";
+                this.$refs.linkeditor.openDialog(item);
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
@@ -598,12 +609,13 @@ Vue.component('expanding-textarea', {
                     document.head.appendChild(componentStyles);
                 }
 Vue.component('link-editor', {
-    template: "    <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
+    template: "    <div>\n"
++"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
-+"            <div class=\"modal-content\">\n"
++"            <div class=\"modal-content\"> -->\n"
 +"                <div class=\"modal-header\">\n"
-+"                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span\n"
-+"                            aria-hidden=\"true\">&times;</span></button>\n"
++"                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"\n"
++"                            v-on:click=\"close\"><span aria-hidden=\"true\">&times;</span></button>\n"
 +"                    <h4 class=\"modal-title\">Link details</h4>\n"
 +"                </div>\n"
 +"                <div class=\"modal-body\" style=\"padding-bottom: 0\">\n"
@@ -656,14 +668,15 @@ Vue.component('link-editor', {
 +"                    </div>\n"
 +"                </div>\n"
 +"                <div class=\"modal-footer\">\n"
-+"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n"
++"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\"\n"
++"                            v-on:click=\"close\">Close</button>\n"
 +"                    <button type=\"button\" \n"
 +"                            class=\"btn btn-primary\"\n"
 +"                            v-on:click=\"save\">Save changes</button>\n"
 +"                </div>\n"
-+"            </div>\n"
-+"        </div>\n"
-+"    </div>\n",
++"            <!-- </div>\n"
++"        </div> -->\n"
++"    </div> \n",
     props: {
         linkTypes: Object
     },
@@ -672,15 +685,6 @@ Vue.component('link-editor', {
             item: new_linkItem()
         }
     },
-    mounted: function () {
-        var self = this;
-        $(this.$el).on('shown.bs.modal', function () {
-            self.$refs.textarea.autoResize();
-        });
-    },
-    beforeDestroy: function () {
-        $(this.$el).off('shown.bs.modal'); // remove event listener
-    },
     methods: {
         openDialog: function (item) { // called by parent via $refs
             if (!item) {
@@ -688,7 +692,9 @@ Vue.component('link-editor', {
             } else {
                 this.item = item;
             }
-            $(this.$el).modal('show');
+        },
+        close: function () {
+            this.$emit('close');
         },
         save: function () {
             this.$emit('save', this.item);
@@ -739,15 +745,13 @@ Vue.component('links-page', {
 +"                    </div>\n"
 +"                    <div v-show=\"!!item.notes\"\n"
 +"                         class=\"text-muted\"\n"
-+"                         >{{ item.notes }}</div>\n"
++"                         >{{ item.notes.substring(0, 100) }}{{ item.notes.length > 100 ? \"...\" : \"\" }}</div>\n"
 +"                         <!-- style=\"white-space: pre-line\" -->\n"
 +"                </div>\n"
 +"            </div><!-- /panel-heading -->\n"
 +"        </div>\n"
 +"\n"
-+"        <link-editor ref=\"editor\"\n"
-+"                     v-bind:link-types=\"linkTypes\"\n"
-+"                     v-on:save=\"editorSave\"></link-editor>\n"
++"        \n"
 +"    </div>\n",
     props: {
         dropboxData: Array,
@@ -756,7 +760,7 @@ Vue.component('links-page', {
     },
     methods: {
         addLink: function () {
-            this.$refs.editor.openDialog();
+            this.$emit('open-editor', null);
         },
         editEvent: function(itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
@@ -764,10 +768,7 @@ Vue.component('links-page', {
             }
             var idx = this.dropboxData.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
-            this.$refs.editor.openDialog(copy);
-        },
-        editorSave: function(item) {
-            this.$emit('update-item', item);
+            this.$emit('open-editor', copy);
         }
     },
     computed: {

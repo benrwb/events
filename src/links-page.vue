@@ -31,29 +31,23 @@
                     </div>
                     <div v-show="!!item.notes"
                          class="text-muted"
-                         >{{ item.notes }}</div>
+                         >{{ item.notes.substring(0, 100) }}{{ item.notes.length > 100 ? "..." : "" }}</div>
                          <!-- style="white-space: pre-line" -->
                 </div>
             </div><!-- /panel-heading -->
         </div>
 
-        <link-editor ref="editor"
-                     v-bind:link-types="linkTypes"
-                     v-on:save="editorSave"></link-editor>
+        
     </div>
 </template>
 
 <script lang="ts">
 
-import linkEditor from './link-editor.vue'
 import Vue, { PropType } from './@types/vue'
 import { LinkItem, LinksWithHeadings } from './@types/app';
 import * as _ from './@types/lodash';
 
 export default Vue.extend({
-    components: {
-        linkEditor
-    },
     props: {
         dropboxData: Array as PropType<LinkItem[]>,
         itemBeingUpdated: String, // id (guid) of item currently being saved
@@ -61,7 +55,7 @@ export default Vue.extend({
     },
     methods: {
         addLink: function () {
-            this.$refs.editor.openDialog();
+            this.$emit('open-editor', null);
         },
         editEvent: function(itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
@@ -69,10 +63,7 @@ export default Vue.extend({
             }
             var idx = this.dropboxData.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
-            this.$refs.editor.openDialog(copy);
-        },
-        editorSave: function(item) {
-            this.$emit('update-item', item);
+            this.$emit('open-editor', copy);
         }
     },
     computed: {

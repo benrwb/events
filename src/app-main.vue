@@ -10,34 +10,32 @@
     </dropbox-sync>
 
     <div v-show="connectedToDropbox">
-
-        <nav v-show="activeTab != 'editor'"
-             class="navbar navbar-default">
-            <div class="container-fluid">
-                <p class="navbar-text pull-right">
-                    {{ currentTime | formatDate('dddd D MMMM') }}
-                </p>
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">
-                        <span class="glyphicon glyphicon-home"></span>
-                        <span class="glyphicon glyphicon-arrow-right"></span>
-                        Events
-                    </a>
-                    <!-- <button class="btn btn-success navbar-btn" 
-                            v-on:click="addEvent">
-                        Add Event
-                    </button> -->
-                </div>
-            </div><!-- /.container-fluid -->
-        </nav>
-
-
-        <ul v-show="activeTab != 'editor'"
-            class="nav nav-tabs">
-            <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
-            <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
-            <bootstrap-nav value="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
-        </ul>
+        
+        <div v-show="activeTab != 'editor' && activeTab != 'linkeditor'">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <p class="navbar-text pull-right">
+                        {{ currentTime | formatDate('dddd D MMMM') }}
+                    </p>
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">
+                            <span class="glyphicon glyphicon-home"></span>
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                            Events
+                        </a>
+                        <!-- <button class="btn btn-success navbar-btn" 
+                                v-on:click="addEvent">
+                            Add Event
+                        </button> -->
+                    </div>
+                </div><!-- /.container-fluid -->
+            </nav>
+            <ul class="nav nav-tabs">
+                <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
+                <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
+                <bootstrap-nav value="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
+            </ul>
+        </div>
 
         <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
                        v-bind:ideas-only="activeTab == 'ideas'"
@@ -51,8 +49,8 @@
         <links-page v-show="activeTab == 'links'"
                     v-bind:link-types="linkTypes"
                     v-bind:dropbox-data="dropboxData"
-                    v-on:update-item="updateItem($event, false)"
-                    v-bind:item-being-updated="itemBeingUpdated">
+                    v-bind:item-being-updated="itemBeingUpdated"
+                    v-on:open-editor="openLinkEditor">
         </links-page>
 
         <editor-dialog v-show="activeTab == 'editor'"
@@ -62,6 +60,13 @@
                        v-on:save="updateItem($event, true)"
                        v-on:close="closeEditor">
         </editor-dialog>
+
+        <link-editor v-show="activeTab == 'linkeditor'"
+                     ref="linkeditor"
+                     v-bind:link-types="linkTypes"
+                     v-on:save="updateItem($event, true)"
+                     v-on:close="closeEditor">
+        </link-editor>
 
     </div><!-- v-show="connectedToDropbox"-->
 
@@ -137,6 +142,12 @@
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "editor";
                 this.$refs.editor.openDialog(item);
+            },
+            openLinkEditor: function (item) {
+                this.previousTab = this.activeTab;
+                this.previousScrollPosition = document.documentElement.scrollTop;
+                this.activeTab = "linkeditor";
+                this.$refs.linkeditor.openDialog(item);
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
