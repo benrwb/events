@@ -609,7 +609,7 @@ Vue.component('expanding-textarea', {
                     document.head.appendChild(componentStyles);
                 }
 Vue.component('link-editor', {
-    template: "    <div>\n"
+    template: "    <div class=\"editor-dialog\">\n"
 +"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
 +"            <div class=\"modal-content\"> -->\n"
