@@ -969,8 +969,11 @@ Vue.component('timeline-page', {
                 var filteredTimeline = this.timeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
-                var orderedTimeline = _.sortBy(filteredTimeline, ["type", "name"]); // alphabetical order
-                return _.groupBy(orderedTimeline, 'type');
+                var orderedTimeline = _.sortBy(filteredTimeline, [
+                    item => item.type == "Film" ? "!Film" : item.type, // sort by type; Films first
+                    "name" // within each type heading, sort items in alphabetical order
+                ]);
+                return _.groupBy(orderedTimeline, "type");
             } else {
                 var filteredTimeline = this.timeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
