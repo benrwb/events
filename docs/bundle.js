@@ -971,7 +971,7 @@ Vue.component('timeline-page', {
                     && !item.date);
                 var orderedTimeline = _.sortBy(filteredTimeline, [
                     item => item.type == "Film" ? "!Film" : item.type, // sort by type; Films first
-                    "name" // within each type heading, sort items in alphabetical order
+                    item => (item.name.includes("📌") ? "!" : "") + item.name // within each type heading, sort items in alphabetical order; pinned items at top
                 ]);
                 return _.groupBy(orderedTimeline, "type");
             } else {
