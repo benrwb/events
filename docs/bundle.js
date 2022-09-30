@@ -839,6 +839,11 @@ Vue.component('simple-mde', {
 });
 Vue.component('timeline-page', {
     template: "    <div>\n"
++"        <label v-if=\"!ideasOnly && needToBookCount > 0\"\n"
++"              class=\"pull-right\">\n"
++"              <input type=\"checkbox\" v-model=\"showNeedToBookOnly\" />\n"
++"            Need to book <span class=\"badge\">{{ needToBookCount }}</span>\n"
++"        </label>\n"
 +"        <button class=\"btn btn-success\" \n"
 +"                v-on:click=\"addEvent\">\n"
 +"            Add Event\n"
@@ -910,6 +915,11 @@ Vue.component('timeline-page', {
         eventTypes: Object,
         statusList: Object
     },
+    data: function() {
+        return {
+            showNeedToBookOnly: false
+        }
+    },
     methods: {
         addEvent: function () {
             this.$emit('open-editor', null);
@@ -978,9 +988,16 @@ Vue.component('timeline-page', {
                 var filteredTimeline = this.timeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
+                if (this.showNeedToBookOnly) {
+                    filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
+                }
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return { 'N/A': orderedTimeline };
             }
+        },
+        needToBookCount: function() {
+            return this.timeline.filter(item =>
+                item.category != "Link" && !!item.date && item.status == "Need to book").length;
         }
     }
 });

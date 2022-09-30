@@ -1,5 +1,10 @@
 <template>
     <div>
+        <label v-if="!ideasOnly && needToBookCount > 0"
+              class="pull-right">
+              <input type="checkbox" v-model="showNeedToBookOnly" />
+            Need to book <span class="badge">{{ needToBookCount }}</span>
+        </label>
         <button class="btn btn-success" 
                 v-on:click="addEvent">
             Add Event
@@ -84,6 +89,11 @@ export default Vue.extend({
         ideasOnly: Boolean,
         eventTypes: Object,
         statusList: Object
+    },
+    data: function() {
+        return {
+            showNeedToBookOnly: false
+        }
     },
     methods: {
         addEvent: function () {
@@ -176,9 +186,16 @@ export default Vue.extend({
                 var filteredTimeline = this.timeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
+                if (this.showNeedToBookOnly) {
+                    filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
+                }
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return { 'N/A': orderedTimeline };
             }
+        },
+        needToBookCount: function(): number {
+            return this.timeline.filter(item =>
+                item.category != "Link" && !!item.date && item.status == "Need to book").length;
         }
     }
 });
