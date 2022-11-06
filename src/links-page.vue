@@ -69,7 +69,10 @@ export default Vue.extend({
     computed: {
         groupedLinks: function (): LinksWithHeadings {
             var filtered = this.dropboxData.filter(item => item.category == "Link");
-            var ordered = _.sortBy(filtered, ["type", "name"]); // alphabetical order
+            var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
+                item => item.type,
+                item => (item.name.includes("📌") ? "!" : "") + item.name
+            ]);
             return _.groupBy(ordered, 'type');
         }
     }
