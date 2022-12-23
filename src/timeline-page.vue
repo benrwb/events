@@ -24,7 +24,8 @@
                                  'panel-default': item.status == 'Interested',
                                  'panel-danger': item.status == 'Need to book',
                                  'panel-warning': !item.status,
-                                 'faded': item.id == itemBeingUpdated }">
+                                 'faded': item.id == itemBeingUpdated,
+                                 'glow': item.schoolHolidays }">
                 <div class="panel-heading">
                     <div v-if="isCollapsed(item) && item.date"
                          class="pull-right">

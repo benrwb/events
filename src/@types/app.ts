@@ -13,6 +13,7 @@ export interface LinkItem extends BaseItem {
 export interface TimelineItem extends BaseItem {
     location: string;
     date: string;
+    schoolHolidays: boolean;
     status: string;
 }
 

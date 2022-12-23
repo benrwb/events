@@ -412,7 +412,11 @@ Vue.component('editor-dialog', {
 +"                                        <button class=\"btn btn-default\" v-on:click=\"clearDate\">x</button>\n"
 +"                                    </span>\n"
 +"                                </div><!-- /input-group -->\n"
-+"                            </div> \n"
++"                                <label style=\"font-weight: normal\">\n"
++"                                    <input type=\"checkbox\" \n"
++"                                           v-model=\"dbitem.schoolHolidays\" /> School holidays\n"
++"                                </label>\n"
++"                            </div>\n"
 +"                        </div>\n"
 +"\n"
 +"                        <div class=\"form-group\">\n"
@@ -526,6 +530,7 @@ function new_timelineItem() {
         name: '',
         location: '',
         date: null,
+        schoolHolidays: false,
         status: '',
         link: '',
         notes: ''
@@ -866,7 +871,8 @@ Vue.component('timeline-page', {
 +"                                 'panel-default': item.status == 'Interested',\n"
 +"                                 'panel-danger': item.status == 'Need to book',\n"
 +"                                 'panel-warning': !item.status,\n"
-+"                                 'faded': item.id == itemBeingUpdated }\">\n"
++"                                 'faded': item.id == itemBeingUpdated,\n"
++"                                 'glow': item.schoolHolidays }\">\n"
 +"                <div class=\"panel-heading\">\n"
 +"                    <div v-if=\"isCollapsed(item) && item.date\"\n"
 +"                         class=\"pull-right\">\n"

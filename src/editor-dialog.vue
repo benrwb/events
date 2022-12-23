@@ -89,7 +89,11 @@
                                         <button class="btn btn-default" v-on:click="clearDate">x</button>
                                     </span>
                                 </div><!-- /input-group -->
-                            </div> 
+                                <label style="font-weight: normal">
+                                    <input type="checkbox" 
+                                           v-model="dbitem.schoolHolidays" /> School holidays
+                                </label>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -268,6 +272,7 @@ function new_timelineItem(): TimelineItem {
         name: '',
         location: '',
         date: null,
+        schoolHolidays: false,
         status: '',
         link: '',
         notes: ''
