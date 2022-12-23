@@ -9,6 +9,7 @@
                 v-on:click="addEvent">
             Add Event
         </button>
+        <br /><br />
 
         <div v-for="(items, heading) in orderedTimeline"
              v-bind:key="heading">

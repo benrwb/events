@@ -856,6 +856,7 @@ Vue.component('timeline-page', {
 +"                v-on:click=\"addEvent\">\n"
 +"            Add Event\n"
 +"        </button>\n"
++"        <br /><br />\n"
 +"\n"
 +"        <div v-for=\"(items, heading) in orderedTimeline\"\n"
 +"             v-bind:key=\"heading\">\n"
