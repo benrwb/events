@@ -89,7 +89,8 @@
                                         <button class="btn btn-default" v-on:click="clearDate">x</button>
                                     </span>
                                 </div><!-- /input-group -->
-                                <label style="font-weight: normal">
+                                <label style="font-weight: normal"
+                                       v-bind:class="{ 'text-muted': !dbitem.schoolHolidays }">
                                     <input type="checkbox" 
                                            v-model="dbitem.schoolHolidays" /> School holidays
                                 </label>
