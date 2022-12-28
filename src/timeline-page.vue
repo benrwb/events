@@ -18,54 +18,60 @@
             
             <div v-for="item in items"
                  v-bind:key="item.id"
-                 class="panel"
-                 v-on:click="editEvent(item.id, $event)"
-                 style="cursor: pointer"
-                 v-bind:class="{ 'panel-success': item.status == 'Going',
-                                 'panel-default': item.status == 'Interested',
-                                 'panel-danger': item.status == 'Need to book',
-                                 'panel-warning': !item.status,
-                                 'faded': item.id == itemBeingUpdated,
-                                 'glow': item.schoolHolidays }">
-                <div class="panel-heading">
-                    <div v-if="isCollapsed(item) && item.date"
-                         class="pull-right">
-                        <span class="text-muted">{{ item.date | formatDate('ddd D/MMM') }}</span>
-                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
-                    </div>
-                    <div style="font-weight: bold"
-                         v-bind:class="{ 'text-muted': isCollapsed(item) }">
-                        
-                        {{ eventTypes[item.type] }} {{ item.name }}
-                        
-                        <a v-if="item.link"
-                           v-bind:href="item.link"
-                           class="emoji"
-                           style="text-decoration: none"
-                           target="_blank"><span class="glyphicon glyphicon-new-window"
-                                                 style="padding: 0 3px"></span></a>
-                    </div>
-                    <div v-show="!isCollapsed(item)">
-                        <div v-if="item.date">
-                            <span class="text-muted">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>
-                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
-                                                  'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
-                                                <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
-                                ({{ howSoon(item.date) }})
-                            </span>
+                 v-bind:class="{ 'glow': item.schoolHolidays }">
+                 <!-- ^^^ `glow` class is applied to *parent* div (above)
+                          as opposed to panel (below); this allows the 
+                          panel below to keep its rounded corners (border-radius),
+                          which we would otherwise have to remove
+                          to ensure that the `glow` outline was rectangular. -->
+                <div class="panel"
+                    v-on:click="editEvent(item.id, $event)"
+                    style="cursor: pointer"
+                    v-bind:class="{ 'panel-success': item.status == 'Going',
+                                    'panel-default': item.status == 'Interested',
+                                    'panel-danger': item.status == 'Need to book',
+                                    'panel-warning': !item.status,
+                                    'faded': item.id == itemBeingUpdated }">
+                    <div class="panel-heading">
+                        <div v-if="isCollapsed(item) && item.date"
+                            class="pull-right">
+                            <span class="text-muted">{{ item.date | formatDate('ddd D/MMM') }}</span>
+                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
                         </div>
-                        <div v-if="item.location"
-                             class="text-muted">{{ item.location }}</div>
-                        <div v-if="item.status">
-                            <span class="emoji">
-                                {{ statusList[item.status] }}
-                            </span>
-                            <span class="text-muted">
-                                {{ item.status }}
-                            </span>
+                        <div style="font-weight: bold"
+                            v-bind:class="{ 'text-muted': isCollapsed(item) }">
+                            
+                            {{ eventTypes[item.type] }} {{ item.name }}
+                            
+                            <a v-if="item.link"
+                            v-bind:href="item.link"
+                            class="emoji"
+                            style="text-decoration: none"
+                            target="_blank"><span class="glyphicon glyphicon-new-window"
+                                                    style="padding: 0 3px"></span></a>
                         </div>
-                    </div>
-                </div><!-- /panel-heading -->
+                        <div v-show="!isCollapsed(item)">
+                            <div v-if="item.date">
+                                <span class="text-muted">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>
+                                <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
+                                                    'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
+                                                    <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
+                                    ({{ howSoon(item.date) }})
+                                </span>
+                            </div>
+                            <div v-if="item.location"
+                                class="text-muted">{{ item.location }}</div>
+                            <div v-if="item.status">
+                                <span class="emoji">
+                                    {{ statusList[item.status] }}
+                                </span>
+                                <span class="text-muted">
+                                    {{ item.status }}
+                                </span>
+                            </div>
+                        </div>
+                    </div><!-- /panel-heading -->
+                </div>
             </div>
         </div>
 
