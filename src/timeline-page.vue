@@ -35,13 +35,13 @@
                     <div class="panel-heading">
                         <div v-if="isCollapsed(item) && item.date"
                             class="pull-right"
-                            v-bind:class="{'cancelled': item.name.includes('❌️')}">
+                            v-bind:class="{'cancelled': item.name.includes('❌')}">
                             <span class="text-muted">{{ item.date | formatDate('ddd D/MMM') }}</span>
                             <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
                         </div>
                         <div style="font-weight: bold"
                             v-bind:class="{ 'text-muted': isCollapsed(item),
-                                            'cancelled': item.name.includes('❌️') }">
+                                            'cancelled': item.name.includes('❌') }">
                             
                             {{ eventTypes[item.type] }} {{ item.name }}
                             
