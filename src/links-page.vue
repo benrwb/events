@@ -10,6 +10,9 @@
 
             <h1>{{ heading }}</h1>
 
+            <h5 v-if="heading == 'Venue'"
+                class="text-muted">Event listings by venue</h5>
+
             <div v-for="item in items"
                  v-bind:key="item.id"
                  class="panel panel-default"
