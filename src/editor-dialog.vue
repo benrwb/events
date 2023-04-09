@@ -148,6 +148,7 @@ import bootstrapDatepicker from './bootstrap-datepicker.vue'
 import Vue from './@types/vue'
 import * as $ from './@types/jquery'
 import { TimelineItem } from './@types/app';
+import SimpleMde from './simple-mde.vue';
 
 export default Vue.extend({
     components: {
@@ -256,9 +257,9 @@ export default Vue.extend({
             if (newValue == "notes") { 
                 // tell SimpleMDE to refresh 
                 // (otherwise the contents won't update until the control is focussed/clicked!)
-                var self = this;
+                var simplemde = this.$refs.simplemde as InstanceType<typeof SimpleMde>;
                 Vue.nextTick(function() { // wait for tab to become visible
-                    self.$refs.simplemde.refresh(); 
+                    simplemde.refresh(); 
                 });
             }
         }

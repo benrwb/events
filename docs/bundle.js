@@ -111,7 +111,8 @@ Vue.component('app-main', {
         },
         mounted: function() {
             var self = this;
-            this.$refs.dropbox.loadData(function(dropboxData) {
+            var dropbox = this.$refs.dropbox;
+            dropbox.loadData(function(dropboxData) {
                 self.connectedToDropbox = true; // show navbar & "Add event" button
                 self.dropboxData = dropboxData;
             });
@@ -124,24 +125,27 @@ Vue.component('app-main', {
                 this.previousTab = this.activeTab;
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "editor";
-                this.$refs.editor.openDialog(item);
+                var editor = this.$refs.editor;
+                editor.openDialog(item);
             },
             openLinkEditor: function (item) {
                 this.previousTab = this.activeTab;
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "linkeditor";
-                this.$refs.linkeditor.openDialog(item);
+                var linkeditor = this.$refs.linkeditor;
+                linkeditor.openDialog(item);
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
+                var dropbox = this.$refs.dropbox;
                 if (item.id == "") {
                     item.id = this.uuidv4();
-                    this.$refs.dropbox.addItem(item, function(dropboxData) {
+                    dropbox.addItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                     });
                 } else {
                     this.itemBeingUpdated = item.id;
-                    this.$refs.dropbox.editItem(item, function(dropboxData) {
+                    dropbox.editItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                         self.itemBeingUpdated = '';
                     });
@@ -522,9 +526,9 @@ Vue.component('editor-dialog', {
     watch: {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
-                var self = this;
+                var simplemde = this.$refs.simplemde;
                 Vue.nextTick(function() { // wait for tab to become visible
-                    self.$refs.simplemde.refresh(); 
+                    simplemde.refresh(); 
                 });
             }
         }

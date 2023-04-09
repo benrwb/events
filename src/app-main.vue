@@ -75,8 +75,10 @@
 
 <script lang="ts">
     import Vue from './@types/vue'
-    import * as moment from './@types/moment';
-import { _formatDate } from './common';
+    import { _formatDate } from './common';
+    import DropboxSync from './dropbox-sync.vue';
+    import EditorDialog from './editor-dialog.vue';
+    import LinkEditor from './link-editor.vue';
 
     // import dropboxSync from './dropbox-sync.vue'
     // import timelinePage from './timeline-page.vue'
@@ -129,7 +131,8 @@ import { _formatDate } from './common';
         },
         mounted: function() {
             var self = this;
-            this.$refs.dropbox.loadData(function(dropboxData) {
+            var dropbox = this.$refs.dropbox as InstanceType<typeof DropboxSync>;
+            dropbox.loadData(function(dropboxData) {
                 self.connectedToDropbox = true; // show navbar & "Add event" button
                 self.dropboxData = dropboxData;
             });
@@ -142,27 +145,30 @@ import { _formatDate } from './common';
                 this.previousTab = this.activeTab;
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "editor";
-                this.$refs.editor.openDialog(item);
+                var editor = this.$refs.editor as InstanceType<typeof EditorDialog>;
+                editor.openDialog(item);
             },
             openLinkEditor: function (item) {
                 this.previousTab = this.activeTab;
                 this.previousScrollPosition = document.documentElement.scrollTop;
                 this.activeTab = "linkeditor";
-                this.$refs.linkeditor.openDialog(item);
+                var linkeditor = this.$refs.linkeditor as InstanceType<typeof LinkEditor>;
+                linkeditor.openDialog(item);
             },
             updateItem: function (item, shouldCloseEditor) {
                 var self = this;
+                var dropbox = this.$refs.dropbox as InstanceType<typeof DropboxSync>;
                 if (item.id == "") {
                     // add new item
                     item.id = this.uuidv4();
-                    this.$refs.dropbox.addItem(item, function(dropboxData) {
+                    dropbox.addItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                     });
                 } else {
                     // edit existing item
                     ////Vue.set(this.dropboxData, this.dropboxData.findIndex(z => z.id === item.id), item); // replace item in array
                     this.itemBeingUpdated = item.id;
-                    this.$refs.dropbox.editItem(item, function(dropboxData) {
+                    dropbox.editItem(item, function(dropboxData) {
                         self.dropboxData = dropboxData;
                         self.itemBeingUpdated = '';
                     });
