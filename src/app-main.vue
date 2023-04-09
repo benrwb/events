@@ -15,7 +15,7 @@
             <nav class="navbar navbar-default">
                 <div class="container-fluid">
                     <p class="navbar-text pull-right">
-                        {{ currentTime | formatDate('dddd D MMMM') }}
+                        {{ formatDate(currentTime, 'dddd D MMMM') }}
                     </p>
                     <div class="navbar-header">
                         <a class="navbar-brand" href="#">
@@ -76,6 +76,7 @@
 <script lang="ts">
     import Vue from './@types/vue'
     import * as moment from './@types/moment';
+import { _formatDate } from './common';
 
     // import dropboxSync from './dropbox-sync.vue'
     // import timelinePage from './timeline-page.vue'
@@ -95,7 +96,7 @@
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
-                currentTime: new Date(),
+                currentTime: new Date().toISOString(),
                 itemBeingUpdated: '', // id (guid) of item currently being saved
 
                 eventTypes: {
@@ -133,7 +134,7 @@
                 self.dropboxData = dropboxData;
             });
             setInterval(function() {
-                self.currentTime = new Date()
+                self.currentTime = new Date().toISOString()
             }, 60000); // update currentTime every minute
         },
         methods: {
@@ -183,7 +184,8 @@
                 return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );
-            }
+            },
+            formatDate: _formatDate
         }
     });
 

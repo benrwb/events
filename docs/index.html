@@ -152,13 +152,6 @@
 
     <script type="text/javascript">
 
-        // Register global filter
-        Vue.filter("formatDate", function (datestr, dateformat) {
-            if (!datestr) return "";
-            if (!dateformat) dateformat = "DD/MM/YYYY";
-            return moment(datestr).format(dateformat);
-        });
-
         new Vue({
             el: "#app"
         });

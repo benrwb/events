@@ -15,7 +15,7 @@ Vue.component('app-main', {
 +"            <nav class=\"navbar navbar-default\">\n"
 +"                <div class=\"container-fluid\">\n"
 +"                    <p class=\"navbar-text pull-right\">\n"
-+"                        {{ currentTime | formatDate('dddd D MMMM') }}\n"
++"                        {{ formatDate(currentTime, 'dddd D MMMM') }}\n"
 +"                    </p>\n"
 +"                    <div class=\"navbar-header\">\n"
 +"                        <a class=\"navbar-brand\" href=\"#\">\n"
@@ -79,7 +79,7 @@ Vue.component('app-main', {
                 connectedToDropbox: false,
                 dropboxSyncStatus: "",
                 dropboxData: [],
-                currentTime: new Date(),
+                currentTime: new Date().toISOString(),
                 itemBeingUpdated: '', // id (guid) of item currently being saved
                 eventTypes: {
                     "Special occasion": "🎂",
@@ -116,7 +116,7 @@ Vue.component('app-main', {
                 self.dropboxData = dropboxData;
             });
             setInterval(function() {
-                self.currentTime = new Date()
+                self.currentTime = new Date().toISOString()
             }, 60000); // update currentTime every minute
         },
         methods: {
@@ -161,7 +161,8 @@ Vue.component('app-main', {
                 return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );
-            }
+            },
+            formatDate: _formatDate
         }
     });
 Vue.component('bootstrap-datepicker', {
@@ -226,6 +227,12 @@ Vue.component('bootstrap-nav', {
         }
     }
 });
+function _formatDate(datestr, dateformat) {
+    if (!datestr) return "";
+    if (!dateformat) dateformat = "DD/MM/YYYY";
+    return moment(datestr).format(dateformat);
+}
+
 Vue.component('dropbox-sync', {
     template: "   <div>\n"
 +"        <!-- <div v-show=\"dropboxSyncStatus\">\n"
@@ -887,7 +894,7 @@ Vue.component('timeline-page', {
 +"                        <div v-if=\"isCollapsed(item) && item.date\"\n"
 +"                            class=\"pull-right\"\n"
 +"                            v-bind:class=\"{'cancelled': item.name.includes('❌')}\">\n"
-+"                            <span class=\"text-muted\">{{ item.date | formatDate('ddd D/MMM') }}</span>\n"
++"                            <span class=\"text-muted\">{{ formatDate(item.date, 'ddd D/MMM') }}</span>\n"
 +"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ shorten(howSoon(item.date)) }})</span>\n"
 +"                        </div>\n"
 +"                        <div style=\"font-weight: bold\"\n"
@@ -905,7 +912,7 @@ Vue.component('timeline-page', {
 +"                        </div>\n"
 +"                        <div v-show=\"!isCollapsed(item)\">\n"
 +"                            <div v-if=\"item.date\">\n"
-+"                                <span class=\"text-muted\">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>\n"
++"                                <span class=\"text-muted\">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>\n"
 +"                                <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),\n"
 +"                                                    'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }\">\n"
 +"                                                    <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->\n"
@@ -993,7 +1000,8 @@ Vue.component('timeline-page', {
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
-        }
+        },
+        formatDate: _formatDate
     },
     computed: {
         orderedTimeline: function() {

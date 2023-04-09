@@ -36,7 +36,7 @@
                         <div v-if="isCollapsed(item) && item.date"
                             class="pull-right"
                             v-bind:class="{'cancelled': item.name.includes('❌')}">
-                            <span class="text-muted">{{ item.date | formatDate('ddd D/MMM') }}</span>
+                            <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
                             <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
                         </div>
                         <div style="font-weight: bold"
@@ -54,7 +54,7 @@
                         </div>
                         <div v-show="!isCollapsed(item)">
                             <div v-if="item.date">
-                                <span class="text-muted">{{ item.date | formatDate('dddd D MMMM YYYY') }}</span>
+                                <span class="text-muted">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>
                                 <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
                                                     'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
                                                     <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
@@ -88,6 +88,7 @@ import Vue, { PropType } from './@types/vue'
 import moment from './@types/moment';
 import { TimelineItem, TimelineWithHeadings } from './@types/app';
 import * as _ from './@types/lodash'
+import { _formatDate } from './common';
 
 export default Vue.extend({
     components: {
@@ -177,7 +178,8 @@ export default Vue.extend({
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
-        }
+        },
+        formatDate: _formatDate
     },
     computed: {
         orderedTimeline: function(): TimelineWithHeadings {
