@@ -60,7 +60,7 @@
                                 Name {{ locationIncludesName ? "/" : "" }}
                             </label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" v-model="dbitem.name">
+                                <input type="text" class="form-control" v-model.trim="dbitem.name">
                             </div>
                         </div>
 
@@ -68,7 +68,7 @@
                             <label class="col-xs-3 control-label">Location</label>
                             <div class="col-xs-9">
                                 <div v-bind:class="{ 'input-group': !!dbitem.location }">
-                                    <input type="text" class="form-control" v-model="dbitem.location">
+                                    <input type="text" class="form-control" v-model.trim="dbitem.location">
     
                                     <a v-show="!!dbitem.location"
                                         v-bind:href="mapUrl"
