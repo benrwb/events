@@ -84,13 +84,13 @@
 <script lang="ts">
 
 import editorDialog from './editor-dialog.vue'
-import Vue, { PropType } from './@types/vue'
-import moment from './@types/moment';
-import { TimelineItem, TimelineWithHeadings } from './@types/app';
-import * as _ from './@types/lodash'
+import { defineComponent, PropType } from 'vue';
+import * as moment from "moment";
+import { TimelineItem, TimelineWithHeadings } from './types/app';
+import * as _ from "lodash";
 import { _formatDate } from './common';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         editorDialog
     },

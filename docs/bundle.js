@@ -1,4 +1,6 @@
-Vue.component('app-main', {
+var nextTick = Vue.nextTick;
+var app = Vue.createApp();
+app.component('app-main', {
     template: "<div>\n"
 +"\n"
 +"    <div v-show=\"!!dropboxSyncStatus\"\n"
@@ -31,9 +33,9 @@ Vue.component('app-main', {
 +"                </div><!-- /.container-fluid -->\n"
 +"            </nav>\n"
 +"            <ul class=\"nav nav-tabs\">\n"
-+"                <bootstrap-nav value=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
-+"                <bootstrap-nav value=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
-+"                <bootstrap-nav value=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
++"                <bootstrap-nav code=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
++"                <bootstrap-nav code=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
++"                <bootstrap-nav code=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
 +"            </ul>\n"
 +"        </div>\n"
 +"\n"
@@ -157,7 +159,7 @@ Vue.component('app-main', {
             closeEditor: function () {
                 this.activeTab = this.previousTab;
                 var self = this;
-                Vue.nextTick(function () {
+                nextTick(function () {
                     document.documentElement.scrollTop = self.previousScrollPosition;
                 });
             },
@@ -169,14 +171,14 @@ Vue.component('app-main', {
             formatDate: _formatDate
         }
     });
-Vue.component('bootstrap-datepicker', {
+app.component('bootstrap-datepicker', {
     template: "    <input class='form-control' type='text' />\n",
     props: {
-        value: String, // accept a value prop (for use with v-model)
+        modelValue: String, // accept a modelValue prop (for use with v-model)
         format: String // custom date format
     },
     mounted: function () {
-        var modate = !this.value ? null : moment(this.value);
+        var modate = !this.modelValue ? null : moment(this.modelValue);
         if (modate != null && modate.isValid()) {
             $(this.$el).val(modate.format("DD/MM/YYYY"));
         }
@@ -193,7 +195,7 @@ Vue.component('bootstrap-datepicker', {
         });
     },
     watch: {
-        value: function (newValue) {
+        modelValue: function (newValue) {
             var modate = newValue == null ? null : moment(newValue); // handle null/undefined values
             if (modate != null && modate.isValid())
                 $(this.$el).datepicker("setDate", modate.toDate());
@@ -205,28 +207,24 @@ Vue.component('bootstrap-datepicker', {
         updateValue: function () {
             var jsDate = $(this.$el).datepicker("getDate");
             var dateVal = jsDate == null ? null : moment(jsDate).format('YYYY-MM-DD');
-            this.$emit('input', dateVal);
+            this.$emit('update:modelValue', dateVal);
         },
     }
 });
-Vue.component('bootstrap-nav', {
+app.component('bootstrap-nav', {
     template: "    <li role=\"presentation\"\n"
-+"        v-bind:class=\"{ 'active': value == groupValue }\">\n"
++"        v-bind:class=\"{ 'active': modelValue == code }\">\n"
 +"        <a href=\"#\" v-on:click=\"navClick($event)\">\n"
 +"            <slot></slot>\n"
 +"        </a>\n"
 +"    </li>\n",
-    model: { 
-        prop: 'groupValue',
-        event: 'input'
-    },
     props: {
-        "groupValue": String, // value of the currently-selected tab in the group (via v-model)
-        "value": String // value for *this* tab
+        "modelValue": String, // value of the currently-selected tab in the group (via v-model)
+        "code": String // value for *this* tab
     },
     methods: {
         navClick: function(event) {
-            this.$emit('input', this.value); // for use with v-model
+            this.$emit('update:modelValue', this.code); // for use with v-model
             event.preventDefault(); // don't jump to top of page
         }
     }
@@ -237,7 +235,7 @@ function _formatDate(datestr, dateformat) {
     return moment(datestr).format(dateformat);
 }
 
-Vue.component('dropbox-sync', {
+app.component('dropbox-sync', {
     template: "   <div>\n"
 +"        <!-- <div v-show=\"dropboxSyncStatus\">\n"
 +"            Dropbox sync status: {{ dropboxSyncStatus }}\n"
@@ -332,7 +330,7 @@ Vue.component('dropbox-sync', {
         }
     }
 });
-Vue.component('editor-dialog', {
+app.component('editor-dialog', {
     template: "<div class=\"editor-dialog\">\n"
 +"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" data-backdrop=\"static\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
@@ -341,14 +339,14 @@ Vue.component('editor-dialog', {
 +"                     style=\"border-bottom: none; padding: 0; background-color: #ddd\">\n"
 +"\n"
 +"                    <h4 class=\"modal-title\">\n"
-+"                        <ul class=\"nav nav-tabs\">       \n"
-+"                            <bootstrap-nav value=\"details\" v-model=\"activeTab\">Event details</bootstrap-nav> \n"
-+"                            <bootstrap-nav value=\"notes\"   v-model=\"activeTab\">\n"
++"                        <ul class=\"nav nav-tabs\">\n"
++"                            <bootstrap-nav code=\"details\" v-model=\"activeTab\">Event details</bootstrap-nav> \n"
++"                            <bootstrap-nav code=\"notes\"   v-model=\"activeTab\">\n"
 +"                                <span v-if=\"!dbitem.notes\">+</span>\n"
 +"                                <span v-if=\"!!dbitem.notes\">Notes</span>\n"
 +"                            </bootstrap-nav> \n"
 +"                            <!-- <bootstrap-nav v-show=\"!!dbitem.notes\"\n"
-+"                                           value=\"markdown\" v-model=\"activeTab\">\n"
++"                                           code=\"markdown\" v-model=\"activeTab\">\n"
 +"                                                M<span style=\"font-size: smaller\" class=\"glyphicon glyphicon-arrow-down\"></span>\n"
 +"                            </bootstrap-nav> -->\n"
 +"                        </ul>\n"
@@ -527,7 +525,7 @@ Vue.component('editor-dialog', {
         activeTab: function (newValue) {
             if (newValue == "notes") { 
                 var simplemde = this.$refs.simplemde;
-                Vue.nextTick(function() { // wait for tab to become visible
+                nextTick(function() { // wait for tab to become visible
                     simplemde.refresh(); 
                 });
             }
@@ -548,12 +546,12 @@ function new_timelineItem() {
         notes: ''
     };
 }
-Vue.component('expanding-textarea', {
+app.component('expanding-textarea', {
     template: "    <div>\n"
 +"\n"
 +"        <!-- \"hidden\" textarea, used to calculate height of text -->\n"
 +"        <div style=\"position: relative\">\n"
-+"            <textarea v-bind=\"$attrs\" class=\"form-control screenonly\" v-bind:value=\"value\" style=\"resize: none; position: absolute; z-index: -1\" tabindex=\"-1\" rows=\"1\"\n"
++"            <textarea v-bind=\"$attrs\" class=\"form-control screenonly\" v-bind:value=\"modelValue\" style=\"resize: none; position: absolute; z-index: -1\" tabindex=\"-1\" rows=\"1\"\n"
 +"                      ref=\"hiddenTextarea\"></textarea>\n"
 +"        </div>\n"
 +"\n"
@@ -563,21 +561,21 @@ Vue.component('expanding-textarea', {
 +"                  ref=\"txtarea\"></textarea>\n"
 +"\n"
 +"        <!-- print div -->\n"
-+"        <div style=\"white-space: pre-wrap; margin-bottom: 0\" class=\"well well-sm printonly\">{{ value }}</div>\n"
++"        <div style=\"white-space: pre-wrap; margin-bottom: 0\" class=\"well well-sm printonly\">{{ modelValue }}</div>\n"
 +"\n"
 +"    </div>\n",
         inheritAttrs: false, // e.g. so placeholder="..." is applied to <textarea> not root element
         props: {
-            value: String, // for use with v-model
+            modelValue: String, // for use with v-model
             minHeight: [Number,String]
         },
         computed: {
             theValue: {
                 get: function () {
-                    return this.value;
+                    return this.modelValue;
                 },
                 set: function (newValue) {
-                    this.$emit("input", newValue); // for use with v-model
+                    this.$emit("update:modelValue", newValue); // for use with v-model
                 }
             }
         },
@@ -586,7 +584,7 @@ Vue.component('expanding-textarea', {
                 var minHeight = this.minHeight ? Number(this.minHeight) : 54;
                 var textarea = this.$refs.txtarea;
                 var hiddenTextarea = this.$refs.hiddenTextarea;
-                Vue.nextTick(function () { // wait for hiddenTextarea to update
+                nextTick(function () { // wait for hiddenTextarea to update
                     textarea.style.height = Math.max(minHeight, (hiddenTextarea.scrollHeight + 2)) + "px";
                 });
             },
@@ -603,7 +601,7 @@ Vue.component('expanding-textarea', {
             window.removeEventListener("resize", this.autoResize);
         },
         watch: {
-            value: function () { // when value is changed (either through user input, or viewmodel change)
+            modelValue: function () { // when value is changed (either through user input, or viewmodel change)
                 this.autoResize();
             }
         }
@@ -625,7 +623,7 @@ Vue.component('expanding-textarea', {
     }`;
                     document.head.appendChild(componentStyles);
                 }
-Vue.component('link-editor', {
+app.component('link-editor', {
     template: "    <div class=\"editor-dialog\">\n"
 +"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
@@ -729,7 +727,7 @@ function new_linkItem() {
         notes: ''
     };
 }
-Vue.component('links-page', {
+app.component('links-page', {
     template: "    <div>\n"
 +"        <button class=\"btn btn-success\" \n"
 +"                v-on:click=\"addLink\">\n"
@@ -802,10 +800,10 @@ Vue.component('links-page', {
         }
     }
 });
-Vue.component('simple-mde', {
+app.component('simple-mde', {
     template: "    <textarea></textarea>\n",
     props: {
-        value: String // for use with v-model
+        modelValue: String // for use with v-model
     },
     data: function() {
         return { 
@@ -817,7 +815,7 @@ Vue.component('simple-mde', {
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
-            initialValue: this.value,
+            initialValue: this.modelValue,
             status: false, // hide the status bar
             autofocus: true,
             toolbar: ["bold", "italic", "heading", "|", 
@@ -829,7 +827,7 @@ Vue.component('simple-mde', {
         this.mde.codemirror.on("change", function() {
             var newValue = self.mde.value();
             self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
-            self.$emit("input", newValue); // for use with v-model
+            self.$emit("update:modelValue", newValue); // for use with v-model
         });
         this.mde.codemirror.on('refresh', function () {
             if (self.mde.isFullscreenActive()) {
@@ -844,7 +842,7 @@ Vue.component('simple-mde', {
         this.mde = null;
     },
     watch: {
-        value: function (newValue) {
+        modelValue: function (newValue) {
             var ignoreIdx = this.changesToIgnore.indexOf(newValue);
             if (ignoreIdx == -1) {
                 this.mde.value(newValue);
@@ -860,7 +858,7 @@ Vue.component('simple-mde', {
         }
     }
 });
-Vue.component('timeline-page', {
+app.component('timeline-page', {
     template: "    <div>\n"
 +"        <label v-if=\"!ideasOnly && needToBookCount > 0\"\n"
 +"              class=\"pull-right\">\n"

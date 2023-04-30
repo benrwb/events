@@ -31,9 +31,9 @@
                 </div><!-- /.container-fluid -->
             </nav>
             <ul class="nav nav-tabs">
-                <bootstrap-nav value="timeline" v-model="activeTab">Timeline</bootstrap-nav>
-                <bootstrap-nav value="links"    v-model="activeTab">Links</bootstrap-nav>
-                <bootstrap-nav value="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
+                <bootstrap-nav code="timeline" v-model="activeTab">Timeline</bootstrap-nav>
+                <bootstrap-nav code="links"    v-model="activeTab">Links</bootstrap-nav>
+                <bootstrap-nav code="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
             </ul>
         </div>
 
@@ -74,7 +74,7 @@
 </template>
 
 <script lang="ts">
-    import Vue from './@types/vue'
+    import { defineComponent, nextTick } from 'vue';
     import { _formatDate } from './common';
     import DropboxSync from './dropbox-sync.vue';
     import EditorDialog from './editor-dialog.vue';
@@ -84,7 +84,7 @@
     // import timelinePage from './timeline-page.vue'
     // import linksPage from './links-page.js'
     
-    export default Vue.extend({
+    export default defineComponent({
         // components: {
         //     timelinePage,
         //     linksPage,
@@ -181,12 +181,13 @@
             closeEditor: function () {
                 this.activeTab = this.previousTab;
                 var self = this;
-                Vue.nextTick(function () {
+                nextTick(function () {
                     document.documentElement.scrollTop = self.previousScrollPosition;
                 });
             },
             uuidv4: function () {
                 // from https://stackoverflow.com/a/2117523
+                //@ts-ignore
                 return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );

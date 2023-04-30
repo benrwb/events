@@ -70,11 +70,11 @@
 </template>
 
 <script lang="ts">
-import Vue from './@types/vue'
-import * as $ from './@types/jquery'
-import { LinkItem } from './@types/app';
+import { defineComponent } from 'vue';
+import * as $ from "jquery";
+import { LinkItem } from './types/app';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         linkTypes: Object
     },

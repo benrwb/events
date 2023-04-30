@@ -3,18 +3,19 @@
 </template>
 
 <script lang="ts">
-import Vue from './@types/vue'
-import moment from './@types/moment'
+import { defineComponent } from 'vue';
+import * as moment from "moment";
+import * as $ from "jquery";
 
-export default Vue.extend({
+export default defineComponent({
     props: {
-        value: String, // accept a value prop (for use with v-model)
+        modelValue: String, // accept a modelValue prop (for use with v-model)
         format: String // custom date format
     },
     mounted: function () {
         // Set initial value of the input to 'value'
         // (This will be picked up by the datepicker and used as the initial date)
-        var modate = !this.value ? null : moment(this.value);
+        var modate = !this.modelValue ? null : moment(this.modelValue);
         if (modate != null && modate.isValid()) {
             $(this.$el).val(modate.format("DD/MM/YYYY"));
         }
@@ -37,8 +38,8 @@ export default Vue.extend({
         });
     },
     watch: {
-        // watch the 'value' prop for changes and update the control accordingly
-        value: function (newValue) {
+        // watch the 'modelValue' prop for changes and update the control accordingly
+        modelValue: function (newValue) {
             var modate = newValue == null ? null : moment(newValue); // handle null/undefined values
             if (modate != null && modate.isValid())
                 $(this.$el).datepicker("setDate", modate.toDate());
@@ -52,7 +53,7 @@ export default Vue.extend({
         updateValue: function () {
             var jsDate = $(this.$el).datepicker("getDate");
             var dateVal = jsDate == null ? null : moment(jsDate).format('YYYY-MM-DD');
-            this.$emit('input', dateVal);
+            this.$emit('update:modelValue', dateVal);
         },
     }
 });

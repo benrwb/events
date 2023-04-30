@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts">
-import Vue from './@types/vue'
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         'filename': String, // user needs to create this file manually, initial contents should be an empty array []
     },

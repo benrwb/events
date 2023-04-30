@@ -7,14 +7,14 @@
                      style="border-bottom: none; padding: 0; background-color: #ddd">
 
                     <h4 class="modal-title">
-                        <ul class="nav nav-tabs">       
-                            <bootstrap-nav value="details" v-model="activeTab">Event details</bootstrap-nav> 
-                            <bootstrap-nav value="notes"   v-model="activeTab">
+                        <ul class="nav nav-tabs">
+                            <bootstrap-nav code="details" v-model="activeTab">Event details</bootstrap-nav> 
+                            <bootstrap-nav code="notes"   v-model="activeTab">
                                 <span v-if="!dbitem.notes">+</span>
                                 <span v-if="!!dbitem.notes">Notes</span>
                             </bootstrap-nav> 
                             <!-- <bootstrap-nav v-show="!!dbitem.notes"
-                                           value="markdown" v-model="activeTab">
+                                           code="markdown" v-model="activeTab">
                                                 M<span style="font-size: smaller" class="glyphicon glyphicon-arrow-down"></span>
                             </bootstrap-nav> -->
                         </ul>
@@ -145,12 +145,12 @@
 
 <script lang="ts">
 import bootstrapDatepicker from './bootstrap-datepicker.vue'
-import Vue from './@types/vue'
-import * as $ from './@types/jquery'
-import { TimelineItem } from './@types/app';
+import { defineComponent, nextTick } from 'vue';
+import * as $ from "jquery";
+import { TimelineItem } from './types/app';
 import SimpleMde from './simple-mde.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         bootstrapDatepicker
     },
@@ -258,7 +258,7 @@ export default Vue.extend({
                 // tell SimpleMDE to refresh 
                 // (otherwise the contents won't update until the control is focussed/clicked!)
                 var simplemde = this.$refs.simplemde as InstanceType<typeof SimpleMde>;
-                Vue.nextTick(function() { // wait for tab to become visible
+                nextTick(function() { // wait for tab to become visible
                     simplemde.refresh(); 
                 });
             }

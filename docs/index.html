@@ -14,7 +14,8 @@
     <!--        More themes available from https://bootswatch.com/3/ e.g. Simplex  vvvvvvv -->
     <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@3.4.1/simplex/bootstrap.min.css">-->
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.7/dist/vue.js"></script>
+    <!-- Vue 2  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.7/dist/vue.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.37/vue.global.min.js" integrity="sha512-rCO3ZZnxh9j/Y725Iq2Cqr2lc9fi83zVeN3PFTUosktylZsCFjD13PDbKrzKjKO/idjM4KlMQC52AsoGFTAe6A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 
@@ -31,113 +32,9 @@
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
 
+    <link rel="stylesheet" href="style.css" />
     <script src="bundle.js"></script>
-    
-    <style type="text/css">
-        [v-cloak] {
-            display: none;
-        }
-        .emoji {
-            font-family: 'Segoe UI Emoji';
-        }
-        .syncdiv {
-            position: fixed;
-            top: 5px;
-            left: 50%;
-            transform: translate(-50%, 0);
-            z-index: 1; /* display in front of navbar */
-        }
-        .faded {
-            opacity: 0.5;
-        }
-        .glow {
-            /* border-color: blue;
-            outline: solid 3px #eef; */
-            /* border-left: solid 5px steelblue; */
-            outline: solid 11px #c0d3e7;
-            background-color: #c0d3e7;
-            /* border-radius: 0; */
-        }
-        .cancelled {
-            text-decoration: line-through;
-        }
-        /* .glow>.panel-heading {
-            border-radius: 3px;
-        } */
-        div.glow + div:not(.glow) {
-            /* create extra spacing */
-            margin-top: 30px;
-        }
-        div:not(.glow) + div.glow {
-            /* create extra spacing */
-            margin-top: 30px;
-        }
 
-        .no-bottom-margin {
-            margin-bottom: 0;
-        }
-        
-        /* https://github.com/sparksuite/simplemde-markdown-editor/issues/263#issuecomment-262591099 */   
-        .simplemde-fullscreen .modal-dialog {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-width: 100%;
-            margin: 0;
-        }
-        
-        .EasyMDEContainer .CodeMirror {
-            /* for simplemde-markdown-editor */
-            /* height: 450px; */
-            box-sizing: content-box; /* see https://github.com/sparksuite/simplemde-markdown-editor/issues/619#issuecomment-374179389 */
-        }
-
-        .text-dark { /* used by timeline-page.vue */
-            color: #444; 
-        }
-
-        .cm-s-easymde .cm-comment {
-            /* show code blocks in monospace font (when editing) */
-            font-family: 'Courier New', Courier, monospace;
-            padding: 3px 0px; /* remove gaps from background */
-            /* (can't use horizontal padding because it breaks text selection) */
-            border-radius: 0;
-        }
-
-        .EasyMDEContainer blockquote {
-            /* reduce size of font and make left bar darker */
-            font-size: inherit;
-            border-left-color: #ddd;
-        }
-
-
-        @media (min-width: 768px) {
-            /* DESKTOP STYLING */
-            body {
-                background-color: #84c0c0; /* #ddd; */
-                overflow-y: scroll; /* always show scroll bar (this prevents
-                page jumping around when switching from list to editor) */
-            }
-            .container {
-                max-width: 800px !important; /* limit width when used on desktop */
-                background-color: white;
-                padding: 0 25px;
-            }
-        }
-        @media (max-width: 768px) {
-            /* MOBILE STYLING */
-            .editor-dialog {
-                margin-left: -15px; 
-                margin-right: -15px;
-                /* -15px margin to counteract the 15px margin added by div class="container" on parent.
-                This means that content (e.g. the markdown edit box) will go all the way 
-                to the sides of the screen. */
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -150,11 +47,12 @@
     </div>
     
 
-    <script type="text/javascript">
+    <script>
 
-        new Vue({
-            el: "#app"
-        });
+        app.mount("#app"); // app is set up by bundle.js
+        // Vue 2 // new Vue({
+        // Vue 2 //    el: "#app"
+        // Vue 2 // });
 
     </script>
 

@@ -21,6 +21,9 @@ public class Program
         string outputPath = Path.Combine(rootPath, "docs", "bundle.js");
 
         var output = new StringBuilder();
+        output.AppendLine("var nextTick = Vue.nextTick;");
+        output.AppendLine("var app = Vue.createApp();");
+
         foreach (FileInfo fi in new DirectoryInfo(componentsPath).GetFiles()) 
         {
             if (fi.Extension == ".vue") 
@@ -88,6 +91,7 @@ public class Program
     {
         string _filename;
         string _componentName;
+		bool _vue3;
 
 
         public VueLoader(string filename)
@@ -107,6 +111,8 @@ public class Program
             // "In most projects, component names should always be PascalCase in single-file 
             //  components and string templates - but kebab-case in DOM templates."
             // -- https://vuejs.org/v2/style-guide/
+
+            _vue3 = true;
 
             this.LoadSFC();
         }
@@ -200,10 +206,13 @@ public class Program
 
             if (templateLines.Count == 0)
                 errors.Add("<template> not found");
-
+            
             if (scriptLines.Count == 0)
                 errors.Add("<script> not found");
             
+            if (_vue3)
+                errors.AddRange(CheckForVue3Errors(templateLines, scriptLines));
+
             int exportDefaultIdx = -1;
             bool needToFixClosingBrace = false;
             if (scriptLines.Count > 0)
@@ -243,7 +252,24 @@ public class Program
 
 
             // Fix start of component
-            scriptLines[exportDefaultIdx] = "Vue.component('" + _componentName + "', {";
+            scriptLines[exportDefaultIdx] = (_vue3 ? "app" : "Vue") + ".component('" + _componentName + "', {";
+            // ^^^ Note (12/Aug/22): Originally I tried assigning components to variables
+            //                       and then referencing them in the components: section,
+            //                       e.g. var NumberInput = { template: `...
+            //                            var GridRow = { components: { NumberInput }, template: `...
+            //                       However I kept getting "failed to resolve component" errors.
+            //                       I discovered this was because the order in which the components
+            //                       appear is important, i.e. if a component tries to reference 
+            //                       another component that isn't defined until lower down in the
+            //                       file, then it will fail. 
+            //                       I thought of 2 possible solutions:
+            //                       (1) automatically build a dependency tree (complicated!)
+            //                       (2) manually build a dependency tree; create a list of all
+            //                           components in the app; include this list as part of the 
+            //                           build process, with child components listed first
+            //                           (so that they appear before components that use them)
+            //                       Neither of these seemed ideal (both would create more work),
+            //                       so I decided to register them using app.component instead.
             scriptLines.Insert(exportDefaultIdx + 1, "    template: " + BuildTemplateString(templateLines) + ",");
 
             // Fix end of component
@@ -259,6 +285,29 @@ public class Program
 
 
        
+        private List<string> CheckForVue3Errors(List<string> templateLines, List<string> scriptLines)
+        {
+            List<string> errors = new List<string>();
+
+            if (templateLines.First().Trim().StartsWith("<!--"))
+                errors.Add("Template starts with a comment: `this.$el` will not work");
+
+            if (templateLines.Last().Trim().EndsWith("-->"))
+                errors.Add("Template ends with a comment: `this.$el` will not work");
+
+            foreach (string line in scriptLines) 
+            {
+                if (line.Contains("$emit('input'") || line.Contains("$emit(\"input\""))
+                    errors.Add("Emits 'input' event (should be update:modelValue)");
+
+                if (line.Trim().StartsWith("value: ") 
+                 || line.Trim().StartsWith("'value': ")
+                 || line.Trim().StartsWith("\"value\": "))
+                    errors.Add("Use of `value` (should be `modelValue`)");
+            }
+
+            return errors;
+        }
 
         // Write HTML output
 //        public HtmlString Parse()

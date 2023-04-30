@@ -46,11 +46,11 @@
 
 <script lang="ts">
 
-import Vue, { PropType } from './@types/vue'
-import { LinkItem, LinksWithHeadings } from './@types/app';
-import * as _ from './@types/lodash';
+import { defineComponent,PropType } from 'vue';
+import { LinkItem, LinksWithHeadings } from './types/app';
+import * as _ from "lodash";
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         dropboxData: Array as PropType<LinkItem[]>,
         itemBeingUpdated: String, // id (guid) of item currently being saved

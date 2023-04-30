@@ -3,11 +3,11 @@
 </template>
 
 <script lang="ts">
-import Vue from './@types/vue'
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
-        value: String // for use with v-model
+        modelValue: String // for use with v-model
     },
     data: function() {
         return { 
@@ -19,7 +19,7 @@ export default Vue.extend({
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
-            initialValue: this.value,
+            initialValue: this.modelValue,
             status: false, // hide the status bar
             autofocus: true,
             toolbar: ["bold", "italic", "heading", "|", 
@@ -36,7 +36,7 @@ export default Vue.extend({
         this.mde.codemirror.on("change", function() {
             var newValue = self.mde.value();
             self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
-            self.$emit("input", newValue); // for use with v-model
+            self.$emit("update:modelValue", newValue); // for use with v-model
         });
 
         this.mde.codemirror.on('refresh', function () {
@@ -55,7 +55,7 @@ export default Vue.extend({
         this.mde = null;
     },
     watch: {
-        value: function (newValue) {
+        modelValue: function (newValue) {
             // Update when value changes
             var ignoreIdx = this.changesToIgnore.indexOf(newValue);
             if (ignoreIdx == -1) {
