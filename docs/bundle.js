@@ -565,6 +565,10 @@ app.component('expanding-textarea', {
 +"\n"
 +"    </div>\n",
         inheritAttrs: false, // e.g. so placeholder="..." is applied to <textarea> not root element
+        model: {
+            prop: "modelValue",
+            event: "update:modelValue"
+        },
         props: {
             modelValue: String, // for use with v-model
             minHeight: [Number,String]
@@ -588,6 +592,22 @@ app.component('expanding-textarea', {
                     textarea.style.height = Math.max(minHeight, (hiddenTextarea.scrollHeight + 2)) + "px";
                 });
             },
+            isVisible: function () {
+                if (!this.$el) { 
+                    return false; // Element doesn't exist, therefore isn't visible
+                }
+                if (!this.$el.checkVisibility) {
+                    return this.$el.offsetWidth > 0 && this.$el.offsetHeight > 0;
+                } else {
+                    return this.$el.checkVisibility();
+                }
+            },
+            deferredResize: function () {
+                if (this.isVisible())
+                    this.autoResize(); // element *is* visible, resize immediately
+                else
+                    setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+            },
             focus: function () {
                 var textarea = this.$refs.txtarea;
                 textarea.focus();
@@ -595,14 +615,14 @@ app.component('expanding-textarea', {
         },
         mounted: function () {
             window.addEventListener("resize", this.autoResize);
-            this.autoResize();
+            this.deferredResize();
         },
         beforeDestroy: function () {
             window.removeEventListener("resize", this.autoResize);
         },
         watch: {
             modelValue: function () { // when value is changed (either through user input, or viewmodel change)
-                this.autoResize();
+                this.deferredResize();
             }
         }
     });

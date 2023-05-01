@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class Program
 {
@@ -295,15 +296,20 @@ public class Program
             if (templateLines.Last().Trim().EndsWith("-->"))
                 errors.Add("Template ends with a comment: `this.$el` will not work");
 
+            var valueMatch = new Regex(@"(this|self)\.value[.);,[ \r\n]"); // match `this.value` or `self.value` followed by a full stop, closing bracket, semicolon, etc.
+
             foreach (string line in scriptLines) 
             {
                 if (line.Contains("$emit('input'") || line.Contains("$emit(\"input\""))
-                    errors.Add("Emits 'input' event (should be update:modelValue)");
+                    errors.Add("Emits `input` event (should be `update:modelValue`)");
 
-                if (line.Trim().StartsWith("value: ") 
-                 || line.Trim().StartsWith("'value': ")
-                 || line.Trim().StartsWith("\"value\": "))
-                    errors.Add("Use of `value` (should be `modelValue`)");
+                string trimmedLine = line.Trim();
+                if ((trimmedLine.StartsWith("value:") || trimmedLine.StartsWith("'value':") || trimmedLine.StartsWith("\"value\":"))
+                    && line.Contains("for use with v-model"))
+                    errors.Add("Use of `value` prop (should be `modelValue`)");
+
+                if (valueMatch.IsMatch(line))
+                    errors.Add("Use of `this.value` or `self.value` (should be `.modelValue`)");
             }
 
             return errors;
