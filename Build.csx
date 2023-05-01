@@ -298,6 +298,8 @@ public class Program
 
             var valueMatch = new Regex(@"(this|self)\.value[.);,[ \r\n]"); // match `this.value` or `self.value` followed by a full stop, closing bracket, semicolon, etc.
 
+            bool beforeDestroy = false, beforeUnmount = false;
+
             foreach (string line in scriptLines) 
             {
                 if (line.Contains("$emit('input'") || line.Contains("$emit(\"input\""))
@@ -310,7 +312,16 @@ public class Program
 
                 if (valueMatch.IsMatch(line))
                     errors.Add("Use of `this.value` or `self.value` (should be `.modelValue`)");
+
+                if (trimmedLine.StartsWith("beforeDestroy: function") || trimmedLine.StartsWith("beforeDestroy() {"))
+                    beforeDestroy = true;
+
+                if (trimmedLine.StartsWith("beforeUnmount: function") || trimmedLine.StartsWith("beforeUnmount() {"))
+                    beforeUnmount = true;
             }
+
+            if (beforeDestroy && !beforeUnmount)
+                errors.Add("`beforeDestroy` lifecycle option has been renamed to `beforeUnmount`");
 
             return errors;
         }

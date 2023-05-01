@@ -354,7 +354,10 @@ app.component('editor-dialog', {
 +"                </div>\n"
 +"                <div>\n"
 +"                    <!-- class=\"modal-body\" style=\"padding-bottom: 0\" -->\n"
-+"                    <div v-show=\"activeTab == 'notes'\">\n"
++"\n"
++"                    <!-- Need to use v-if instead of v-show to avoid the error\n"
++"                         \"easymde.min.js:7 Uncaught TypeError: Cannot read properties of undefined (reading 'map')\" -->\n"
++"                    <div v-if=\"activeTab == 'notes'\">\n"
 +"                        <simple-mde v-model=\"dbitem.notes\"\n"
 +"                                    ref=\"simplemde\"\n"
 +"                        ></simple-mde><!-- style=\"height: 200px\" -->\n"
@@ -521,16 +524,6 @@ app.component('editor-dialog', {
                 + this.dbitem.location;
         }
     },
-    watch: {
-        activeTab: function (newValue) {
-            if (newValue == "notes") { 
-                var simplemde = this.$refs.simplemde;
-                nextTick(function() { // wait for tab to become visible
-                    simplemde.refresh(); 
-                });
-            }
-        }
-    }
 });
 function new_timelineItem() {
     return {
@@ -603,10 +596,12 @@ app.component('expanding-textarea', {
                 }
             },
             deferredResize: function () {
-                if (this.isVisible())
-                    this.autoResize(); // element *is* visible, resize immediately
-                else
-                    setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+                nextTick(() => { // nextTick: wait for other changes to settle before checking visibility
+                    if (this.isVisible())
+                        this.autoResize(); // element *is* visible, resize immediately
+                    else
+                        setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+                });
             },
             focus: function () {
                 var textarea = this.$refs.txtarea;
@@ -617,7 +612,10 @@ app.component('expanding-textarea', {
             window.addEventListener("resize", this.autoResize);
             this.deferredResize();
         },
-        beforeDestroy: function () {
+        beforeDestroy: function () { // For Vue 2
+            window.removeEventListener("resize", this.autoResize);
+        },
+        beforeUnmount: function () { // For Vue 3
             window.removeEventListener("resize", this.autoResize);
         },
         watch: {
@@ -825,13 +823,13 @@ app.component('simple-mde', {
     props: {
         modelValue: String // for use with v-model
     },
-    data: function() {
+    data: function () {
         return { 
             mde: null,
             changesToIgnore: []
         }
     },
-    mounted: function() {
+    mounted: function () {
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
@@ -844,7 +842,7 @@ app.component('simple-mde', {
             minHeight: '100px'
         });
         var self = this;
-        this.mde.codemirror.on("change", function() {
+        this.mde.codemirror.on("change", function () {
             var newValue = self.mde.value();
             self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
             self.$emit("update:modelValue", newValue); // for use with v-model
@@ -857,7 +855,7 @@ app.component('simple-mde', {
             }
         });
     },
-    beforeDestroy: function() {
+    beforeUnmount: function () {
         this.mde.toTextArea();
         this.mde = null;
     },
@@ -872,11 +870,6 @@ app.component('simple-mde', {
             }
         }
     },
-    methods: {
-        refresh: function() { // NOTE: This function is called by parent (via $refs) so its name must not be changed!
-            this.mde.codemirror.refresh();
-        }
-    }
 });
 app.component('timeline-page', {
     template: "    <div>\n"

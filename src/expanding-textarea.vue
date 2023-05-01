@@ -108,10 +108,12 @@
                 // (element is not made visible immediately, because there is an 
                 //  animation while the modal is shown. So if the element isn't
                 //  visible, then wait 200ms before trying to resize the control)
-                if (this.isVisible())
-                    this.autoResize(); // element *is* visible, resize immediately
-                else
-                    setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+                nextTick(() => { // nextTick: wait for other changes to settle before checking visibility
+                    if (this.isVisible())
+                        this.autoResize(); // element *is* visible, resize immediately
+                    else
+                        setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+                });
             },
             focus: function () {
                 var textarea = this.$refs.txtarea as HTMLTextAreaElement;
@@ -122,7 +124,10 @@
             window.addEventListener("resize", this.autoResize);
             this.deferredResize();
         },
-        beforeDestroy: function () {
+        beforeDestroy: function () { // For Vue 2
+            window.removeEventListener("resize", this.autoResize);
+        },
+        beforeUnmount: function () { // For Vue 3
             window.removeEventListener("resize", this.autoResize);
         },
         watch: {

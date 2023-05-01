@@ -22,7 +22,10 @@
                 </div>
                 <div>
                     <!-- class="modal-body" style="padding-bottom: 0" -->
-                    <div v-show="activeTab == 'notes'">
+
+                    <!-- Need to use v-if instead of v-show to avoid the error
+                         "easymde.min.js:7 Uncaught TypeError: Cannot read properties of undefined (reading 'map')" -->
+                    <div v-if="activeTab == 'notes'">
                         <simple-mde v-model="dbitem.notes"
                                     ref="simplemde"
                         ></simple-mde><!-- style="height: 200px" -->
@@ -252,18 +255,21 @@ export default defineComponent({
                 + this.dbitem.location;
         }
     },
-    watch: {
-        activeTab: function (newValue) {
-            if (newValue == "notes") { 
-                // tell SimpleMDE to refresh 
-                // (otherwise the contents won't update until the control is focussed/clicked!)
-                var simplemde = this.$refs.simplemde as InstanceType<typeof SimpleMde>;
-                nextTick(function() { // wait for tab to become visible
-                    simplemde.refresh(); 
-                });
-            }
-        }
-    }
+    // May'23: `simplemde.refresh()` method not used anymore;
+    //         instead simplemde component is deleted and re-created using `v-if`
+    //         (`v-if="activeTab == 'notes'`)
+    // watch: {
+    //     activeTab: function (newValue) {
+    //         if (newValue == "notes") { 
+    //             // tell SimpleMDE to refresh 
+    //             // (otherwise the contents won't update until the control is focussed/clicked!)
+    //             var simplemde = this.$refs.simplemde as InstanceType<typeof SimpleMde>;
+    //             nextTick(function() { // wait for tab to become visible
+    //                 simplemde.refresh(); 
+    //             });
+    //         }
+    //     }
+    // }
 });
 
 function new_timelineItem(): TimelineItem {

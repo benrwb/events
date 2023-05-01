@@ -9,13 +9,13 @@ export default defineComponent({
     props: {
         modelValue: String // for use with v-model
     },
-    data: function() {
+    data: function () {
         return { 
             mde: null,
             changesToIgnore: []
         }
     },
-    mounted: function() {
+    mounted: function () {
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
@@ -33,7 +33,7 @@ export default defineComponent({
         });
         
         var self = this;
-        this.mde.codemirror.on("change", function() {
+        this.mde.codemirror.on("change", function () {
             var newValue = self.mde.value();
             self.changesToIgnore.push(newValue); // save this internal change so it can be ignored later
             self.$emit("update:modelValue", newValue); // for use with v-model
@@ -49,7 +49,7 @@ export default defineComponent({
             }
         });
     },
-    beforeDestroy: function() {
+    beforeUnmount: function () {
         // Remove SimpleMDE from textarea 
         this.mde.toTextArea();
         this.mde = null;
@@ -68,14 +68,17 @@ export default defineComponent({
             }
         }
     },
-    methods: {
-        refresh: function() { // NOTE: This function is called by parent (via $refs) so its name must not be changed!
-            // Useful for Bootstrap modal/tabs, 
-            // where the contents don't update until the control is focussed/clicked,
-            // so triggering a manual refresh is necessary.
-            // See https://github.com/F-loat/vue-simplemde/issues/20#issuecomment-326799643
-            this.mde.codemirror.refresh();
-        }
-    }
+    // May'23: `refresh()` method not used anymore;
+    //         instead component is deleted and re-created using `v-if`
+    //         in parent component (`v-if="activeTab == 'notes'`)
+    // methods: {
+    //     refresh: function () { // NOTE: This function is called by parent (via $refs) so its name must not be changed!
+    //         // Useful for Bootstrap modal/tabs, 
+    //         // where the contents don't update until the control is focussed/clicked,
+    //         // so triggering a manual refresh is necessary.
+    //         // See https://github.com/F-loat/vue-simplemde/issues/20#issuecomment-326799643
+    //         this.mde.codemirror.refresh();
+    //     }
+    // }
 });
 </script>
