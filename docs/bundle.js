@@ -910,7 +910,7 @@ app.component('timeline-page', {
 +"                            class=\"pull-right\"\n"
 +"                            v-bind:class=\"{'cancelled': item.name.includes('❌')}\">\n"
 +"                            <span class=\"text-muted\">{{ formatDate(item.date, 'ddd D/MMM') }}</span>\n"
-+"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">({{ shorten(howSoon(item.date)) }})</span>\n"
++"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\"> ({{ shorten(howSoon(item.date)) }})</span>\n"
 +"                        </div>\n"
 +"                        <div style=\"font-weight: bold\"\n"
 +"                            v-bind:class=\"{ 'text-muted': isCollapsed(item),\n"

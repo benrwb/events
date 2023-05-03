@@ -37,7 +37,7 @@
                             class="pull-right"
                             v-bind:class="{'cancelled': item.name.includes('❌')}">
                             <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
-                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">({{ shorten(howSoon(item.date)) }})</span>
+                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }"> ({{ shorten(howSoon(item.date)) }})</span>
                         </div>
                         <div style="font-weight: bold"
                             v-bind:class="{ 'text-muted': isCollapsed(item),
