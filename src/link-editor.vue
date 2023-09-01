@@ -95,11 +95,15 @@ export default defineComponent({
     // },
     methods: {
         openDialog: function (item) { // called by parent via $refs
-            if (!item) {
-                // create new item
-                this.item = new_linkItem();
-            } else {
-                // edit existing item
+            // Note that `this.item` is set to `new_linkItem`
+            // regardless of whether we are creating a new item
+            // or opening an existing one.
+            // The reason for this is because we want to trigger
+            // the <expanding-textarea> to auto-resize, 
+            // even if opening the same item twice in a row.
+            this.item = new_linkItem(); // reset the form
+            if (item) {
+                // editing an existing item
                 this.item = item;
             }
             //$(this.$el).modal('show');

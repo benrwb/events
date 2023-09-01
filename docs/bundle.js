@@ -720,9 +720,8 @@ app.component('link-editor', {
     },
     methods: {
         openDialog: function (item) { // called by parent via $refs
-            if (!item) {
-                this.item = new_linkItem();
-            } else {
+            this.item = new_linkItem(); // reset the form
+            if (item) {
                 this.item = item;
             }
         },
