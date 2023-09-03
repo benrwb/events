@@ -723,6 +723,7 @@ app.component('link-editor', {
             this.item = new_linkItem(); // reset the form
             if (item) {
                 this.item = item;
+                document.documentElement.scrollTop = 0;
             }
         },
         close: function () {

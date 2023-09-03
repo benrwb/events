@@ -105,6 +105,7 @@ export default defineComponent({
             if (item) {
                 // editing an existing item
                 this.item = item;
+                document.documentElement.scrollTop = 0;
             }
             //$(this.$el).modal('show');
         },
