@@ -158,20 +158,24 @@ export default defineComponent({
                     // Less than a week away - show # days
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < 10)
-                // Less than 10 weeks away - show in weeks/days
+            } else if (duration.asWeeks() < 13) {
+                // Less than 13 weeks away - show in weeks/days
+                // "Normally, the timetable for any particular day is confirmed 12 weeks in advance."
+                // -- https://www.nationalrail.co.uk/travel-information/temporary-timetable-changes/
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");
-            else if (duration.asYears() < 1)
+            } else if (duration.asYears() < 1) {
                 // Less than a year away - show in months
-                return pluralise(duration.months(), "month")
+                // (IDEA) var half = (duration.days() >= 15 ? "½" : "");
+                return pluralise(duration.months() /* (IDEA) + half */, "month")
                      + (isNegative ? " ago" : "");
-            else 
+            } else {
                 // More than a year away - show years/months
                 return pluralise(duration.years(), "year") + " "  
-                     + pluralise(duration.months(), "month")
-                     + (isNegative ? " ago" : "");
+                    + pluralise(duration.months(), "month")
+                    + (isNegative ? " ago" : "");
+            }
         },
         shorten: function (str: string) {
             return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");

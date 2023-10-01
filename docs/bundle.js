@@ -998,17 +998,18 @@ app.component('timeline-page', {
                 else 
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < 10)
+            } else if (duration.asWeeks() < 13) {
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");
-            else if (duration.asYears() < 1)
-                return pluralise(duration.months(), "month")
+            } else if (duration.asYears() < 1) {
+                return pluralise(duration.months() /* (IDEA) + half */, "month")
                      + (isNegative ? " ago" : "");
-            else 
+            } else {
                 return pluralise(duration.years(), "year") + " "  
-                     + pluralise(duration.months(), "month")
-                     + (isNegative ? " ago" : "");
+                    + pluralise(duration.months(), "month")
+                    + (isNegative ? " ago" : "");
+            }
         },
         shorten: function (str) {
             return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");
