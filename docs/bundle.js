@@ -998,7 +998,7 @@ app.component('timeline-page', {
                 else 
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < 13) {
+            } else if (duration.asWeeks() < 12) {
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");

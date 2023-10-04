@@ -158,8 +158,8 @@ export default defineComponent({
                     // Less than a week away - show # days
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < 13) {
-                // Less than 13 weeks away - show in weeks/days
+            } else if (duration.asWeeks() < 12) {
+                // Less than 12 weeks away - show in weeks/days
                 // "Normally, the timetable for any particular day is confirmed 12 weeks in advance."
                 // -- https://www.nationalrail.co.uk/travel-information/temporary-timetable-changes/
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
