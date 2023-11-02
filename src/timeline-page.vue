@@ -9,8 +9,10 @@
                 v-on:click="addEvent">
             Add Event
         </button>
-        <input type="text" placeholder="Search" v-model="search" />
-        <br /><br />
+
+        <search-box v-model="search"></search-box>
+
+        <br />
 
         <div v-for="(items, heading) in orderedTimeline"
              v-bind:key="heading">

@@ -4,7 +4,8 @@
                 v-on:click="addLink">
             Add Link
         </button>
-        <input type="text" placeholder="Search" v-model="search" />
+        
+        <search-box v-model="search"></search-box>
 
         <div v-for="(items, heading) in groupedLinks"
              v-bind:key="heading">

@@ -759,7 +759,8 @@ app.component('links-page', {
 +"                v-on:click=\"addLink\">\n"
 +"            Add Link\n"
 +"        </button>\n"
-+"        <input type=\"text\" placeholder=\"Search\" v-model=\"search\" />\n"
++"        \n"
++"        <search-box v-model=\"search\"></search-box>\n"
 +"\n"
 +"        <div v-for=\"(items, heading) in groupedLinks\"\n"
 +"             v-bind:key=\"heading\">\n"
@@ -830,6 +831,22 @@ app.component('links-page', {
         return { addLink, editEvent, groupedLinks, search };
     }
 });
+app.component('search-box', {
+    template: "    <div class=\"input-group\">\n"
++"        <input type=\"text\" class=\"form-control\" placeholder=\"Search\" \n"
++"               v-bind:value=\"modelValue\"\n"
++"               v-on:input=\"$emit('update:modelValue', $event.target.value)\"\n"
++"        />\n"
++"        <span class=\"input-group-btn\">\n"
++"            <button class=\"btn\" type=\"button\"\n"
++"            v-bind:class=\"{ 'btn-default': !modelValue, 'btn-danger': !!modelValue }\"\n"
++"                    v-on:click=\"$emit('update:modelValue', '')\">X</button>\n"
++"        </span>\n"
++"    </div>\n",
+        props: {
+            modelValue: String
+        }
+    });
 app.component('simple-mde', {
     template: "    <textarea></textarea>\n",
     props: {
@@ -894,8 +911,10 @@ app.component('timeline-page', {
 +"                v-on:click=\"addEvent\">\n"
 +"            Add Event\n"
 +"        </button>\n"
-+"        <input type=\"text\" placeholder=\"Search\" v-model=\"search\" />\n"
-+"        <br /><br />\n"
++"\n"
++"        <search-box v-model=\"search\"></search-box>\n"
++"\n"
++"        <br />\n"
 +"\n"
 +"        <div v-for=\"(items, heading) in orderedTimeline\"\n"
 +"             v-bind:key=\"heading\">\n"
