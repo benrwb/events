@@ -15,7 +15,10 @@
              v-bind:key="heading"
              v-bind:id="heading.toString()"><!-- for # links -->
 
-            <h1>{{ heading }}</h1>
+            <h1>
+                {{ heading }}
+                <a href="#">^</a><!-- link to go back to top -->
+            </h1>
 
             <h5 v-if="heading == 'Venue'"
                 class="text-muted">Event listings by venue</h5>

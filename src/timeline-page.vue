@@ -24,7 +24,10 @@
              v-bind:key="heading"
              v-bind:id="heading.toString()">
             
-            <h1 v-if="heading != 'N/A'">{{ heading }}</h1>
+            <h1 v-if="heading != 'N/A'">
+                {{ heading }}
+                <a href="#">^</a><!-- link to go back to top -->
+            </h1>
             
             <div v-for="item in items"
                  v-bind:key="item.id"
