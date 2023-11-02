@@ -113,9 +113,9 @@ const defineComponent = Vue.defineComponent;
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
                     "Venue": "🏛",
+                    "Restaurant": "🍽️",
                     "Holidays": "🌞",
-                    "Other": "💡",
-                    "Information": "ℹ"
+                    "Transport": "🚇",
                 }
             }
         },
@@ -844,7 +844,8 @@ app.component('search-box', {
 +"        />\n"
 +"        <span class=\"input-group-btn\">\n"
 +"            <button class=\"btn\" type=\"button\"\n"
-+"            v-bind:class=\"{ 'btn-default': !modelValue, 'btn-danger': !!modelValue }\"\n"
++"                    v-bind:class=\"{ 'btn-danger': !!modelValue }\"\n"
++"                    v-bind:disabled=\"!modelValue\"\n"
 +"                    v-on:click=\"$emit('update:modelValue', '')\">X</button>\n"
 +"        </span>\n"
 +"    </div>\n",

@@ -6,7 +6,8 @@
         />
         <span class="input-group-btn">
             <button class="btn" type="button"
-            v-bind:class="{ 'btn-default': !modelValue, 'btn-danger': !!modelValue }"
+                    v-bind:class="{ 'btn-danger': !!modelValue }"
+                    v-bind:disabled="!modelValue"
                     v-on:click="$emit('update:modelValue', '')">X</button>
         </span>
     </div>

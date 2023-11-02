@@ -123,9 +123,11 @@
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
                     "Venue": "🏛",
+                    "Restaurant": "🍽️",
                     "Holidays": "🌞",
-                    "Other": "💡",
-                    "Information": "ℹ"
+                    "Transport": "🚇",
+                    //"Information": "ℹ",
+                    //"Other": "💡"
                 }
             }
         },
