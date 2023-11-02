@@ -8,7 +8,7 @@
         <search-box v-model="search"></search-box>
 
         <span v-for="(_, heading) in groupedLinks">
-            <a class="badge" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
+            <a class="btn" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
         </span>
 
         <div v-for="(items, heading) in groupedLinks"
@@ -17,7 +17,7 @@
 
             <h1>
                 {{ heading }}
-                <a href="#">^</a><!-- link to go back to top -->
+                <a style="float: right" href="#">🔝</a><!-- link to go back to top -->
             </h1>
 
             <h5 v-if="heading == 'Venue'"

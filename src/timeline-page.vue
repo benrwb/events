@@ -14,7 +14,7 @@
         
         <template v-if="ideasOnly">
             <span v-for="(_, heading) in orderedTimeline">
-                <a class="badge" v-bind:href="'#' + heading">{{ eventTypes[heading] }} {{ heading }}</a>
+                <a class="btn" v-bind:href="'#' + heading">{{ eventTypes[heading] }} {{ heading }}</a>
             </span>
         </template>
 
@@ -26,7 +26,7 @@
             
             <h1 v-if="heading != 'N/A'">
                 {{ heading }}
-                <a href="#">^</a><!-- link to go back to top -->
+                <a style="float: right" href="#">🔝</a><!-- link to go back to top -->
             </h1>
             
             <div v-for="item in items"
