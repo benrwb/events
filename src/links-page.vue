@@ -7,8 +7,13 @@
         
         <search-box v-model="search"></search-box>
 
+        <span v-for="(_, heading) in groupedLinks">
+            <a class="badge" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
+        </span>
+
         <div v-for="(items, heading) in groupedLinks"
-             v-bind:key="heading">
+             v-bind:key="heading"
+             v-bind:id="heading.toString()"><!-- for # links -->
 
             <h1>{{ heading }}</h1>
 
