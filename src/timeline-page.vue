@@ -11,11 +11,18 @@
         </button>
 
         <search-box v-model="search"></search-box>
+        
+        <template v-if="ideasOnly">
+            <span v-for="(_, heading) in orderedTimeline">
+                <a class="badge" v-bind:href="'#' + heading">{{ eventTypes[heading] }} {{ heading }}</a>
+            </span>
+        </template>
 
         <br />
 
         <div v-for="(items, heading) in orderedTimeline"
-             v-bind:key="heading">
+             v-bind:key="heading"
+             v-bind:id="heading.toString()">
             
             <h1 v-if="heading != 'N/A'">{{ heading }}</h1>
             
