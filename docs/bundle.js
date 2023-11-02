@@ -1,6 +1,14 @@
-var nextTick = Vue.nextTick;
-var app = Vue.createApp();
-app.component('app-main', {
+const app = Vue.createApp();
+
+const nextTick = Vue.nextTick;
+const ref = Vue.ref;
+const watch = Vue.watch;
+const computed = Vue.computed;
+const reactive = Vue.reactive;
+const onMounted = Vue.onMounted;
+const onBeforeUnmount = Vue.onBeforeUnmount;
+const defineComponent = Vue.defineComponent;
+    app.component('app-main', {
     template: "<div>\n"
 +"\n"
 +"    <div v-show=\"!!dropboxSyncStatus\"\n"
@@ -794,28 +802,27 @@ app.component('links-page', {
         itemBeingUpdated: String, // id (guid) of item currently being saved
         linkTypes: Object
     },
-    methods: {
-        addLink: function () {
-            this.$emit('open-editor', null);
-        },
-        editEvent: function(itemId, event) {
+    setup: function (props, context) {
+        function addLink() {
+            context.emit('open-editor', null);
+        }
+        function editEvent(itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
                 return; // don't open the editor if the link was clicked
             }
-            var idx = this.dropboxData.findIndex(z => z.id === itemId);
-            var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
-            this.$emit('open-editor', copy);
+            var idx = props.dropboxData.findIndex(z => z.id === itemId);
+            var copy = Object.assign({}, props.dropboxData[idx]); // create a copy of the item for the editor to work with
+            context.emit('open-editor', copy);
         }
-    },
-    computed: {
-        groupedLinks: function () {
-            var filtered = this.dropboxData.filter(item => item.category == "Link");
+        const groupedLinks = computed(() => { // LinksWithHeadings
+            var filtered = props.dropboxData.filter(item => item.category == "Link");
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
                 item => (item.name.includes("📌") ? "!" : "") + item.name
             ]);
             return _.groupBy(ordered, 'type');
-        }
+        });
+        return { addLink, editEvent, groupedLinks };
     }
 });
 app.component('simple-mde', {
@@ -882,6 +889,7 @@ app.component('timeline-page', {
 +"                v-on:click=\"addEvent\">\n"
 +"            Add Event\n"
 +"        </button>\n"
++"        <input type=\"text\" placeholder=\"Search\" v-model=\"search\" />\n"
 +"        <br /><br />\n"
 +"\n"
 +"        <div v-for=\"(items, heading) in orderedTimeline\"\n"
@@ -961,7 +969,8 @@ app.component('timeline-page', {
     },
     data: function() {
         return {
-            showNeedToBookOnly: false
+            showNeedToBookOnly: false,
+            search: ""
         }
     },
     methods: {
@@ -1021,8 +1030,12 @@ app.component('timeline-page', {
     },
     computed: {
         orderedTimeline: function() {
+            let filteredTimeline = this.timeline;
+            if (this.search) {
+                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase()));
+            }
             if (this.ideasOnly) {
-                var filteredTimeline = this.timeline.filter(item =>
+                filteredTimeline = filteredTimeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
                 var orderedTimeline = _.sortBy(filteredTimeline, [
@@ -1031,7 +1044,7 @@ app.component('timeline-page', {
                 ]);
                 return _.groupBy(orderedTimeline, "type");
             } else {
-                var filteredTimeline = this.timeline.filter(item =>
+                filteredTimeline = filteredTimeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
                 if (this.showNeedToBookOnly) {

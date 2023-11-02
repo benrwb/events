@@ -46,7 +46,7 @@
 
 <script lang="ts">
 
-import { defineComponent,PropType } from 'vue';
+import { defineComponent,PropType, computed } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 
@@ -56,27 +56,30 @@ export default defineComponent({
         itemBeingUpdated: String, // id (guid) of item currently being saved
         linkTypes: Object
     },
-    methods: {
-        addLink: function () {
-            this.$emit('open-editor', null);
-        },
-        editEvent: function(itemId, event) {
+    setup: function (props, context) {
+
+        function addLink() {
+            context.emit('open-editor', null);
+        }
+
+        function editEvent(itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
                 return; // don't open the editor if the link was clicked
             }
-            var idx = this.dropboxData.findIndex(z => z.id === itemId);
-            var copy = Object.assign({}, this.dropboxData[idx]); // create a copy of the item for the editor to work with
-            this.$emit('open-editor', copy);
+            var idx = props.dropboxData.findIndex(z => z.id === itemId);
+            var copy = Object.assign({}, props.dropboxData[idx]); // create a copy of the item for the editor to work with
+            context.emit('open-editor', copy);
         }
-    },
-    computed: {
-        groupedLinks: function (): LinksWithHeadings {
-            var filtered = this.dropboxData.filter(item => item.category == "Link");
+
+        const groupedLinks = computed(() => { // LinksWithHeadings
+            var filtered = props.dropboxData.filter(item => item.category == "Link");
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
                 item => (item.name.includes("📌") ? "!" : "") + item.name
             ]);
             return _.groupBy(ordered, 'type');
-        }
+        });
+
+        return { addLink, editEvent, groupedLinks };
     }
 });

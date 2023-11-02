@@ -22,8 +22,20 @@ public class Program
         string outputPath = Path.Combine(rootPath, "docs", "bundle.js");
 
         var output = new StringBuilder();
-        output.AppendLine("var nextTick = Vue.nextTick;");
-        output.AppendLine("var app = Vue.createApp();");
+        /* for Vue 3, `app` has to be defined first, 
+         * so that we can use app.component() to define components below */ 
+        output.AppendLine("const app = Vue.createApp();");
+        /* Vue 2.7 or Vue 3: define composition API functions (to avoid having to prefix them with `Vue.`) */
+        output.Append(@"
+const nextTick = Vue.nextTick;
+const ref = Vue.ref;
+const watch = Vue.watch;
+const computed = Vue.computed;
+const reactive = Vue.reactive;
+const onMounted = Vue.onMounted;
+const onBeforeUnmount = Vue.onBeforeUnmount;
+const defineComponent = Vue.defineComponent;
+    ");
 
         foreach (FileInfo fi in new DirectoryInfo(componentsPath).GetFiles()) 
         {
