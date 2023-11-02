@@ -4,6 +4,7 @@
                 v-on:click="addLink">
             Add Link
         </button>
+        <input type="text" placeholder="Search" v-model="search" />
 
         <div v-for="(items, heading) in groupedLinks"
              v-bind:key="heading">
@@ -46,7 +47,7 @@
 
 <script lang="ts">
 
-import { defineComponent,PropType, computed } from 'vue';
+import { defineComponent,PropType, computed, ref } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 
@@ -57,6 +58,8 @@ export default defineComponent({
         linkTypes: Object
     },
     setup: function (props, context) {
+
+        const search = ref("");
 
         function addLink() {
             context.emit('open-editor', null);
@@ -73,6 +76,9 @@ export default defineComponent({
 
         const groupedLinks = computed(() => { // LinksWithHeadings
             var filtered = props.dropboxData.filter(item => item.category == "Link");
+            if (search.value) {
+                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(search.value.toLocaleLowerCase()));
+            }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
                 item => (item.name.includes("📌") ? "!" : "") + item.name
@@ -80,6 +86,6 @@ export default defineComponent({
             return _.groupBy(ordered, 'type');
         });
 
-        return { addLink, editEvent, groupedLinks };
+        return { addLink, editEvent, groupedLinks, search };
     }
 });

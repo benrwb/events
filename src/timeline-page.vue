@@ -9,6 +9,7 @@
                 v-on:click="addEvent">
             Add Event
         </button>
+        <input type="text" placeholder="Search" v-model="search" />
         <br /><br />
 
         <div v-for="(items, heading) in orderedTimeline"
@@ -103,7 +104,8 @@ export default defineComponent({
     },
     data: function() {
         return {
-            showNeedToBookOnly: false
+            showNeedToBookOnly: false,
+            search: ""
         }
     },
     methods: {
@@ -187,9 +189,13 @@ export default defineComponent({
     },
     computed: {
         orderedTimeline: function(): TimelineWithHeadings {
+            let filteredTimeline = this.timeline;
+            if (this.search) {
+                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase()));
+            }
             if (this.ideasOnly) {
-                // IDEAS
-                var filteredTimeline = this.timeline.filter(item =>
+                // "IDEAS" TAB
+                filteredTimeline = filteredTimeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !item.date);
                 var orderedTimeline = _.sortBy(filteredTimeline, [
@@ -198,8 +204,8 @@ export default defineComponent({
                 ]);
                 return _.groupBy(orderedTimeline, "type");
             } else {
-                // TIMELINE
-                var filteredTimeline = this.timeline.filter(item =>
+                // "TIMELINE" TAB
+                filteredTimeline = filteredTimeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
                 if (this.showNeedToBookOnly) {

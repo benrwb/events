@@ -759,6 +759,7 @@ app.component('links-page', {
 +"                v-on:click=\"addLink\">\n"
 +"            Add Link\n"
 +"        </button>\n"
++"        <input type=\"text\" placeholder=\"Search\" v-model=\"search\" />\n"
 +"\n"
 +"        <div v-for=\"(items, heading) in groupedLinks\"\n"
 +"             v-bind:key=\"heading\">\n"
@@ -803,6 +804,7 @@ app.component('links-page', {
         linkTypes: Object
     },
     setup: function (props, context) {
+        const search = ref("");
         function addLink() {
             context.emit('open-editor', null);
         }
@@ -816,13 +818,16 @@ app.component('links-page', {
         }
         const groupedLinks = computed(() => { // LinksWithHeadings
             var filtered = props.dropboxData.filter(item => item.category == "Link");
+            if (search.value) {
+                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(search.value.toLocaleLowerCase()));
+            }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
                 item => (item.name.includes("📌") ? "!" : "") + item.name
             ]);
             return _.groupBy(ordered, 'type');
         });
-        return { addLink, editEvent, groupedLinks };
+        return { addLink, editEvent, groupedLinks, search };
     }
 });
 app.component('simple-mde', {
