@@ -423,7 +423,7 @@ app.component('editor-dialog', {
 +"\n"
 +"                        <div class=\"form-group\">\n"
 +"                            <label class=\"col-xs-3 control-label\">Date</label>\n"
-+"                            <div class=\"col-xs-7\">\n"
++"                            <div class=\"col-xs-8\">\n"
 +"                                <div class=\"input-group\">\n"
 +"                                    <bootstrap-datepicker v-model=\"dbitem.date\"\n"
 +"                                                          format=\"D dd/mm/yyyy\"\n"
