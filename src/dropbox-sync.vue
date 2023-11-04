@@ -24,7 +24,7 @@ export default defineComponent({
         const editAccessToken = ref("");
         const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
         const dropboxSyncStatus = ref("");
-        const dropboxLastSyncTimestamp = ref(null);
+        //const dropboxLastSyncTimestamp = ref(null);
 
         function setSyncStatus(newStatus) {
             dropboxSyncStatus.value = newStatus;
@@ -76,7 +76,7 @@ export default defineComponent({
             })
             .then(function(response) {
                 setSyncStatus("");
-                dropboxLastSyncTimestamp.value = new Date();
+                //dropboxLastSyncTimestamp.value = new Date();
                 if (onComplete)
                     onComplete(dropboxData);
             })
@@ -84,18 +84,26 @@ export default defineComponent({
                 console.error(error);
                 alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
                 setSyncStatus("Error");
-                dropboxLastSyncTimestamp.value = "";
+                //dropboxLastSyncTimestamp.value = "";
             });
+        }
+        
+        function secondsSinceEpoch() {
+            return Math.round(new Date().getTime() / 1000);
+            // to convert this back to a date, do `new Date(value * 1000)`
         }
 
         function addItem(itemToAdd, onComplete) { // called by parent component
             // 1. Load data from dropbox
             loadData(function(dropboxData) {
 
-                // 2. Add new item to array
+                // 2. Set `lastUpdate` field (might be useful in future for syncing)
+                itemToAdd.lastUpdate = secondsSinceEpoch();
+
+                // 3. Add new item to array
                 dropboxData.push(itemToAdd);
 
-                // 3. Save updated data back to dropbox
+                // 4. Save updated data back to dropbox
                 saveData(dropboxData, onComplete); // save updated data
             });
         }
@@ -104,11 +112,14 @@ export default defineComponent({
             // 1. Load data from dropbox
             loadData(function(dropboxData) {
 
-                // 2. Replace item in array
+                // 2. Set `lastUpdate` field (might be useful in future for syncing)
+                itemToEdit.lastUpdate = secondsSinceEpoch();
+
+                // 3. Replace item in array
                 var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
                 dropboxData[idx] = itemToEdit; // replace item
 
-                // 3. Save updated data back to dropbox
+                // 4. Save updated data back to dropbox
                 saveData(dropboxData, onComplete); // save updated data
             });
         }

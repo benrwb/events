@@ -262,7 +262,6 @@ app.component('dropbox-sync', {
         const editAccessToken = ref("");
         const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
         const dropboxSyncStatus = ref("");
-        const dropboxLastSyncTimestamp = ref(null);
         function setSyncStatus(newStatus) {
             dropboxSyncStatus.value = newStatus;
             context.emit("sync-status-change", newStatus);
@@ -304,7 +303,6 @@ app.component('dropbox-sync', {
             })
             .then(function(response) {
                 setSyncStatus("");
-                dropboxLastSyncTimestamp.value = new Date();
                 if (onComplete)
                     onComplete(dropboxData);
             })
@@ -312,17 +310,21 @@ app.component('dropbox-sync', {
                 console.error(error);
                 alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
                 setSyncStatus("Error");
-                dropboxLastSyncTimestamp.value = "";
             });
+        }
+        function secondsSinceEpoch() {
+            return Math.round(new Date().getTime() / 1000);
         }
         function addItem(itemToAdd, onComplete) { // called by parent component
             loadData(function(dropboxData) {
+                itemToAdd.lastUpdate = secondsSinceEpoch();
                 dropboxData.push(itemToAdd);
                 saveData(dropboxData, onComplete); // save updated data
             });
         }
         function editItem(itemToEdit, onComplete) { // called by parent component
             loadData(function(dropboxData) {
+                itemToEdit.lastUpdate = secondsSinceEpoch();
                 var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
                 dropboxData[idx] = itemToEdit; // replace item
                 saveData(dropboxData, onComplete); // save updated data
