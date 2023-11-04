@@ -13,6 +13,8 @@
             </span>
         </template>
 
+        <br />
+        
         <div v-for="(items, heading) in groupedLinks"
              v-bind:key="heading"
              v-bind:id="heading.toString()"><!-- for # links -->
@@ -24,9 +26,6 @@
                 </h1>
                 <h5 v-if="heading == 'Venue'"
                     class="text-muted">Event listings by venue</h5>
-            </template>
-            <template v-else>
-                <br />
             </template>
 
             <div v-for="item in items"
