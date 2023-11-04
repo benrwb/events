@@ -263,7 +263,7 @@ app.component('dropbox-sync', {
         const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
         const dropboxSyncStatus = ref("");
         const dropboxLastSyncTimestamp = ref(null);
-        function setSyncStatus (newStatus) {
+        function setSyncStatus(newStatus) {
             dropboxSyncStatus.value = newStatus;
             context.emit("sync-status-change", newStatus);
         }
@@ -293,19 +293,6 @@ app.component('dropbox-sync', {
                     setSyncStatus("Error");
                 });
         }
-        function addItem(itemToAdd, onComplete) { // called by parent component
-            loadData(function(dropboxData) {
-                dropboxData.push(itemToAdd);
-                saveData(dropboxData, onComplete); // save updated data
-            });
-        }
-        function editItem(itemToEdit, onComplete) { // called by parent component
-            loadData(function(dropboxData) {
-                var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
-                dropboxData[idx] = itemToEdit; // replace item
-                saveData(dropboxData, onComplete); // save updated data
-            });
-        }
         function saveData(dropboxData, onComplete) {
             if (!dropboxAccessToken.value) return;
             setSyncStatus("Saving");
@@ -326,6 +313,19 @@ app.component('dropbox-sync', {
                 alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
                 setSyncStatus("Error");
                 dropboxLastSyncTimestamp.value = "";
+            });
+        }
+        function addItem(itemToAdd, onComplete) { // called by parent component
+            loadData(function(dropboxData) {
+                dropboxData.push(itemToAdd);
+                saveData(dropboxData, onComplete); // save updated data
+            });
+        }
+        function editItem(itemToEdit, onComplete) { // called by parent component
+            loadData(function(dropboxData) {
+                var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
+                dropboxData[idx] = itemToEdit; // replace item
+                saveData(dropboxData, onComplete); // save updated data
             });
         }
         return { editAccessToken, dropboxAccessToken, saveAccessToken,

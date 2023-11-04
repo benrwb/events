@@ -26,7 +26,7 @@ export default defineComponent({
         const dropboxSyncStatus = ref("");
         const dropboxLastSyncTimestamp = ref(null);
 
-        function setSyncStatus (newStatus) {
+        function setSyncStatus(newStatus) {
             dropboxSyncStatus.value = newStatus;
             context.emit("sync-status-change", newStatus);
         }
@@ -63,6 +63,31 @@ export default defineComponent({
                 });
         }
 
+        function saveData(dropboxData, onComplete) {
+            // Dropbox sync stage 3 - Save data back to Dropbox
+            if (!dropboxAccessToken.value) return;
+            setSyncStatus("Saving");
+            // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
+            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+            dbx.filesUpload({ 
+                path: '/' + props.filename, 
+                contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
+                mode: { '.tag': 'overwrite' }
+            })
+            .then(function(response) {
+                setSyncStatus("");
+                dropboxLastSyncTimestamp.value = new Date();
+                if (onComplete)
+                    onComplete(dropboxData);
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
+                setSyncStatus("Error");
+                dropboxLastSyncTimestamp.value = "";
+            });
+        }
+
         function addItem(itemToAdd, onComplete) { // called by parent component
             // 1. Load data from dropbox
             loadData(function(dropboxData) {
@@ -88,30 +113,6 @@ export default defineComponent({
             });
         }
 
-        function saveData(dropboxData, onComplete) {
-            // Dropbox sync stage 3 - Save data back to Dropbox
-            if (!dropboxAccessToken.value) return;
-            setSyncStatus("Saving");
-            // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
-            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
-            dbx.filesUpload({ 
-                path: '/' + props.filename, 
-                contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
-                mode: { '.tag': 'overwrite' }
-            })
-            .then(function(response) {
-                setSyncStatus("");
-                dropboxLastSyncTimestamp.value = new Date();
-                if (onComplete)
-                    onComplete(dropboxData);
-            })
-            .catch(function(error) {
-                console.error(error);
-                alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
-                setSyncStatus("Error");
-                dropboxLastSyncTimestamp.value = "";
-            });
-        }
         
         return { editAccessToken, dropboxAccessToken, saveAccessToken,
             loadData, addItem, editItem }; // `loadData`, `addItem`, and `editItem` are called by parent component
