@@ -7,21 +7,27 @@
         
         <search-box v-model="search"></search-box>
 
-        <span v-for="(_, heading) in groupedLinks">
-            <a class="btn" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
-        </span>
+        <template v-if="!search">
+            <span v-for="(_, heading) in groupedLinks">
+                <a class="btn" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
+            </span>
+        </template>
 
         <div v-for="(items, heading) in groupedLinks"
              v-bind:key="heading"
              v-bind:id="heading.toString()"><!-- for # links -->
 
-            <h1>
-                {{ heading }}
-                <a style="float: right" href="#">↑</a><!-- link to go back to top -->
-            </h1>
-
-            <h5 v-if="heading == 'Venue'"
-                class="text-muted">Event listings by venue</h5>
+            <template v-if="!search">
+                <h1 v-if="!search">
+                    {{ heading }}
+                    <a style="float: right" href="#">↑</a><!-- link to go back to top -->
+                </h1>
+                <h5 v-if="heading == 'Venue'"
+                    class="text-muted">Event listings by venue</h5>
+            </template>
+            <template v-else>
+                <br />
+            </template>
 
             <div v-for="item in items"
                  v-bind:key="item.id"

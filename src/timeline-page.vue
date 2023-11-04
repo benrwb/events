@@ -12,7 +12,7 @@
 
         <search-box v-model="search"></search-box>
         
-        <template v-if="ideasOnly">
+        <template v-if="ideasOnly && !search">
             <span v-for="(_, heading) in orderedTimeline">
                 <a class="btn" v-bind:href="'#' + heading">{{ eventTypes[heading] }} {{ heading }}</a>
             </span>
@@ -24,7 +24,7 @@
              v-bind:key="heading"
              v-bind:id="heading.toString()">
             
-            <h1 v-if="heading != 'N/A'">
+            <h1 v-if="heading != 'N/A' && !search">
                 {{ heading }}
                 <a style="float: right" href="#">↑</a><!-- link to go back to top -->
             </h1>
