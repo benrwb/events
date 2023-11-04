@@ -1,13 +1,12 @@
 <template>
-    <div class="input-group">
+    <div v-bind:class="{ 'input-group': !!modelValue }">
         <input type="text" class="form-control" placeholder="Search" 
                v-bind:value="modelValue"
                v-on:input="$emit('update:modelValue', $event.target.value)"
         />
-        <span class="input-group-btn">
-            <button class="btn" type="button"
-                    v-bind:class="{ 'btn-danger': !!modelValue }"
-                    v-bind:disabled="!modelValue"
+        <span v-if="!!modelValue"
+              class="input-group-btn">
+            <button type="button" class="btn btn-danger" 
                     v-on:click="$emit('update:modelValue', '')">X</button>
         </span>
     </div>

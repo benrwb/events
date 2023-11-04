@@ -840,15 +840,14 @@ app.component('links-page', {
     }
 });
 app.component('search-box', {
-    template: "    <div class=\"input-group\">\n"
+    template: "    <div v-bind:class=\"{ 'input-group': !!modelValue }\">\n"
 +"        <input type=\"text\" class=\"form-control\" placeholder=\"Search\" \n"
 +"               v-bind:value=\"modelValue\"\n"
 +"               v-on:input=\"$emit('update:modelValue', $event.target.value)\"\n"
 +"        />\n"
-+"        <span class=\"input-group-btn\">\n"
-+"            <button class=\"btn\" type=\"button\"\n"
-+"                    v-bind:class=\"{ 'btn-danger': !!modelValue }\"\n"
-+"                    v-bind:disabled=\"!modelValue\"\n"
++"        <span v-if=\"!!modelValue\"\n"
++"              class=\"input-group-btn\">\n"
++"            <button type=\"button\" class=\"btn btn-danger\" \n"
 +"                    v-on:click=\"$emit('update:modelValue', '')\">X</button>\n"
 +"        </span>\n"
 +"    </div>\n",
