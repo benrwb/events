@@ -17,7 +17,7 @@
 
             <h1>
                 {{ heading }}
-                <a style="float: right" href="#">^</a><!-- link to go back to top -->
+                <a style="float: right" href="#">↑</a><!-- link to go back to top -->
             </h1>
 
             <h5 v-if="heading == 'Venue'"

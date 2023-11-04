@@ -113,7 +113,7 @@ const defineComponent = Vue.defineComponent;
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
                     "Venue": "🏛",
-                    "Restaurant": "🍽️",
+                    "Restaurants": "🍽️",
                     "Holidays": "🌞",
                     "Transport": "🚇",
                 }
@@ -772,7 +772,7 @@ app.component('links-page', {
 +"\n"
 +"            <h1>\n"
 +"                {{ heading }}\n"
-+"                <a style=\"float: right\" href=\"#\">^</a><!-- link to go back to top -->\n"
++"                <a style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
 +"            </h1>\n"
 +"\n"
 +"            <h5 v-if=\"heading == 'Venue'\"\n"
@@ -936,7 +936,7 @@ app.component('timeline-page', {
 +"            \n"
 +"            <h1 v-if=\"heading != 'N/A'\">\n"
 +"                {{ heading }}\n"
-+"                <a style=\"float: right\" href=\"#\">^</a><!-- link to go back to top -->\n"
++"                <a style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
 +"            </h1>\n"
 +"            \n"
 +"            <div v-for=\"item in items\"\n"

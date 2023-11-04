@@ -123,7 +123,7 @@
                     "Ticket sales": "🎫",
                     "Event listings": "📰",
                     "Venue": "🏛",
-                    "Restaurant": "🍽️",
+                    "Restaurants": "🍽️",
                     "Holidays": "🌞",
                     "Transport": "🚇",
                     //"Information": "ℹ",

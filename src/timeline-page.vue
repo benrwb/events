@@ -26,7 +26,7 @@
             
             <h1 v-if="heading != 'N/A'">
                 {{ heading }}
-                <a style="float: right" href="#">^</a><!-- link to go back to top -->
+                <a style="float: right" href="#">↑</a><!-- link to go back to top -->
             </h1>
             
             <div v-for="item in items"
