@@ -272,7 +272,7 @@ app.component('dropbox-sync', {
             dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
             setSyncStatus("Please refresh the page to continue");
         }
-        function loadData(onComplete) { // called by parent
+        function loadData(onComplete) { // called by parent component
             if (!dropboxAccessToken.value) return;
             setSyncStatus("Loading");
             var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });

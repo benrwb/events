@@ -37,7 +37,7 @@ export default defineComponent({
             setSyncStatus("Please refresh the page to continue");
         }
 
-        function loadData(onComplete) { // called by parent
+        function loadData(onComplete) { // called by parent component
             // Dropbox sync stage 1 - Load existing data from Dropbox
             if (!dropboxAccessToken.value) return;
             setSyncStatus("Loading");
