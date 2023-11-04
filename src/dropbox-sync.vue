@@ -13,45 +13,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     props: {
-        'filename': String, // user needs to create this file manually, initial contents should be an empty array []
+        filename: String, // user needs to create this file manually, initial contents should be an empty array []
     },
-    data: function() {
-        return {
-            'editAccessToken': '',
-            'dropboxAccessToken': localStorage['dropboxAccessToken'] || '',
-            'dropboxSyncStatus': '',
-            'dropboxLastSyncTimestamp': null,
+    setup: function (props, context) {
+
+        const editAccessToken = ref("");
+        const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
+        const dropboxSyncStatus = ref("");
+        const dropboxLastSyncTimestamp = ref(null);
+
+        function setSyncStatus (newStatus) {
+            dropboxSyncStatus.value = newStatus;
+            context.emit("sync-status-change", newStatus);
         }
-    },
-    methods: {
-        setSyncStatus: function(newStatus) {
-            this.dropboxSyncStatus = newStatus;
-            this.$emit("sync-status-change", newStatus);
-        },
-        saveAccessToken: function() {
-            localStorage["dropboxAccessToken"] = this.editAccessToken;
-            this.dropboxAccessToken = this.editAccessToken; // hide "enter access token" controls
-            this.setSyncStatus("Please refresh the page to continue");
-        },
-        loadData: function(onComplete) { // called by parent
+
+        function saveAccessToken() {
+            localStorage["dropboxAccessToken"] = editAccessToken.value;
+            dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
+            setSyncStatus("Please refresh the page to continue");
+        }
+
+        function loadData(onComplete) { // called by parent
             // Dropbox sync stage 1 - Load existing data from Dropbox
-            if (!this.dropboxAccessToken) return;
-            this.setSyncStatus("Loading");
+            if (!dropboxAccessToken.value) return;
+            setSyncStatus("Loading");
 
             // See https://dropbox.github.io/dropbox-sdk-js/Dropbox.html#filesDownload__anchor
-            var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
-            var self = this;
-            dbx.filesDownload({ path: '/' + this.filename })
+            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+            dbx.filesDownload({ path: '/' + props.filename })
                 .then(function(data) {
                     var reader = new FileReader();
                     reader.addEventListener("loadend", function() {
                         var dropboxData = JSON.parse(reader.result);
                         //self.dropboxSyncStage2(dataToSync, dropboxData);
-                        self.setSyncStatus("");
+                        setSyncStatus("");
                         if (onComplete)
                             onComplete(dropboxData);
                     });
@@ -59,62 +58,63 @@ export default defineComponent({
                 })
                 .catch(function(error) {
                     console.error(error);
-                    alert("Failed to download " + self.filename + " from Dropbox - " + error.message);
-                    self.setSyncStatus("Error");
+                    alert("Failed to download " + props.filename + " from Dropbox - " + error.message);
+                    setSyncStatus("Error");
                 });
-        },
-        addItem: function(itemToAdd, onComplete) {
-            var self = this;
+        }
 
+        function addItem(itemToAdd, onComplete) { // called by parent component
             // 1. Load data from dropbox
-            this.loadData(function(dropboxData) {
+            loadData(function(dropboxData) {
 
                 // 2. Add new item to array
                 dropboxData.push(itemToAdd);
 
                 // 3. Save updated data back to dropbox
-                self.saveData(dropboxData, onComplete); // save updated data
+                saveData(dropboxData, onComplete); // save updated data
             });
-        },
-        editItem: function(itemToEdit, onComplete) {
-            var self = this;
+        }
 
+        function editItem(itemToEdit, onComplete) { // called by parent component
             // 1. Load data from dropbox
-            this.loadData(function(dropboxData) {
+            loadData(function(dropboxData) {
 
                 // 2. Replace item in array
                 var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
                 dropboxData[idx] = itemToEdit; // replace item
 
                 // 3. Save updated data back to dropbox
-                self.saveData(dropboxData, onComplete); // save updated data
+                saveData(dropboxData, onComplete); // save updated data
             });
-        },
-        saveData: function(dropboxData, onComplete) {
+        }
+
+        function saveData(dropboxData, onComplete) {
             // Dropbox sync stage 3 - Save data back to Dropbox
-            if (!this.dropboxAccessToken ) return;
-            this.setSyncStatus("Saving");
+            if (!dropboxAccessToken.value) return;
+            setSyncStatus("Saving");
             // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
-            var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
-            var self = this;
+            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
             dbx.filesUpload({ 
-                path: '/' + this.filename, 
+                path: '/' + props.filename, 
                 contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
                 mode: { '.tag': 'overwrite' }
             })
             .then(function(response) {
-                self.setSyncStatus("");
-                self.dropboxLastSyncTimestamp = new Date();
+                setSyncStatus("");
+                dropboxLastSyncTimestamp.value = new Date();
                 if (onComplete)
                     onComplete(dropboxData);
             })
             .catch(function(error) {
                 console.error(error);
-                alert("Failed to upload " + self.filename + " to Dropbox - " + error.message);
-                self.setSyncStatus("Error");
-                self.dropboxLastSyncTimestamp = "";
+                alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
+                setSyncStatus("Error");
+                dropboxLastSyncTimestamp.value = "";
             });
         }
+        
+        return { editAccessToken, dropboxAccessToken, saveAccessToken,
+            loadData, addItem, editItem }; // `loadData`, `addItem`, and `editItem` are called by parent component
     }
 });
 </script>

@@ -256,37 +256,32 @@ app.component('dropbox-sync', {
 +"        </div>\n"
 +"    </div>\n",
     props: {
-        'filename': String, // user needs to create this file manually, initial contents should be an empty array []
+        filename: String, // user needs to create this file manually, initial contents should be an empty array []
     },
-    data: function() {
-        return {
-            'editAccessToken': '',
-            'dropboxAccessToken': localStorage['dropboxAccessToken'] || '',
-            'dropboxSyncStatus': '',
-            'dropboxLastSyncTimestamp': null,
+    setup: function (props, context) {
+        const editAccessToken = ref("");
+        const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
+        const dropboxSyncStatus = ref("");
+        const dropboxLastSyncTimestamp = ref(null);
+        function setSyncStatus (newStatus) {
+            dropboxSyncStatus.value = newStatus;
+            context.emit("sync-status-change", newStatus);
         }
-    },
-    methods: {
-        setSyncStatus: function(newStatus) {
-            this.dropboxSyncStatus = newStatus;
-            this.$emit("sync-status-change", newStatus);
-        },
-        saveAccessToken: function() {
-            localStorage["dropboxAccessToken"] = this.editAccessToken;
-            this.dropboxAccessToken = this.editAccessToken; // hide "enter access token" controls
-            this.setSyncStatus("Please refresh the page to continue");
-        },
-        loadData: function(onComplete) { // called by parent
-            if (!this.dropboxAccessToken) return;
-            this.setSyncStatus("Loading");
-            var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
-            var self = this;
-            dbx.filesDownload({ path: '/' + this.filename })
+        function saveAccessToken() {
+            localStorage["dropboxAccessToken"] = editAccessToken.value;
+            dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
+            setSyncStatus("Please refresh the page to continue");
+        }
+        function loadData(onComplete) { // called by parent
+            if (!dropboxAccessToken.value) return;
+            setSyncStatus("Loading");
+            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+            dbx.filesDownload({ path: '/' + props.filename })
                 .then(function(data) {
                     var reader = new FileReader();
                     reader.addEventListener("loadend", function() {
                         var dropboxData = JSON.parse(reader.result);
-                        self.setSyncStatus("");
+                        setSyncStatus("");
                         if (onComplete)
                             onComplete(dropboxData);
                     });
@@ -294,48 +289,47 @@ app.component('dropbox-sync', {
                 })
                 .catch(function(error) {
                     console.error(error);
-                    alert("Failed to download " + self.filename + " from Dropbox - " + error.message);
-                    self.setSyncStatus("Error");
+                    alert("Failed to download " + props.filename + " from Dropbox - " + error.message);
+                    setSyncStatus("Error");
                 });
-        },
-        addItem: function(itemToAdd, onComplete) {
-            var self = this;
-            this.loadData(function(dropboxData) {
+        }
+        function addItem(itemToAdd, onComplete) { // called by parent component
+            loadData(function(dropboxData) {
                 dropboxData.push(itemToAdd);
-                self.saveData(dropboxData, onComplete); // save updated data
+                saveData(dropboxData, onComplete); // save updated data
             });
-        },
-        editItem: function(itemToEdit, onComplete) {
-            var self = this;
-            this.loadData(function(dropboxData) {
+        }
+        function editItem(itemToEdit, onComplete) { // called by parent component
+            loadData(function(dropboxData) {
                 var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
                 dropboxData[idx] = itemToEdit; // replace item
-                self.saveData(dropboxData, onComplete); // save updated data
+                saveData(dropboxData, onComplete); // save updated data
             });
-        },
-        saveData: function(dropboxData, onComplete) {
-            if (!this.dropboxAccessToken ) return;
-            this.setSyncStatus("Saving");
-            var dbx = new Dropbox.Dropbox({ accessToken: this.dropboxAccessToken });
-            var self = this;
+        }
+        function saveData(dropboxData, onComplete) {
+            if (!dropboxAccessToken.value) return;
+            setSyncStatus("Saving");
+            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
             dbx.filesUpload({ 
-                path: '/' + this.filename, 
+                path: '/' + props.filename, 
                 contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
                 mode: { '.tag': 'overwrite' }
             })
             .then(function(response) {
-                self.setSyncStatus("");
-                self.dropboxLastSyncTimestamp = new Date();
+                setSyncStatus("");
+                dropboxLastSyncTimestamp.value = new Date();
                 if (onComplete)
                     onComplete(dropboxData);
             })
             .catch(function(error) {
                 console.error(error);
-                alert("Failed to upload " + self.filename + " to Dropbox - " + error.message);
-                self.setSyncStatus("Error");
-                self.dropboxLastSyncTimestamp = "";
+                alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
+                setSyncStatus("Error");
+                dropboxLastSyncTimestamp.value = "";
             });
         }
+        return { editAccessToken, dropboxAccessToken, saveAccessToken,
+            loadData, addItem, editItem }; // `loadData`, `addItem`, and `editItem` are called by parent component
     }
 });
 app.component('editor-dialog', {
