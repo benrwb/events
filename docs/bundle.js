@@ -568,64 +568,53 @@ app.component('expanding-textarea', {
         },
         props: {
             modelValue: String, // for use with v-model
-            minHeight: [Number,String]
+            minHeight: [Number, String]
         },
-        computed: {
-            theValue: {
+        setup: function (props, context) {
+            const theValue = computed({
                 get: function () {
-                    return this.modelValue;
+                    return props.modelValue;
                 },
                 set: function (newValue) {
-                    this.$emit("update:modelValue", newValue); // for use with v-model
+                    context.emit("update:modelValue", newValue); // for use with v-model
                 }
-            }
-        },
-        methods: {
-            autoResize: function () {
-                var minHeight = this.minHeight ? Number(this.minHeight) : 54;
-                var textarea = this.$refs.txtarea;
-                var hiddenTextarea = this.$refs.hiddenTextarea;
-                nextTick(function () { // wait for hiddenTextarea to update
-                    textarea.style.height = Math.max(minHeight, (hiddenTextarea.scrollHeight + 2)) + "px";
+            });
+            const txtarea = ref(null);
+            const hiddenTextarea = ref(null);
+            function autoResize() {
+                var minHeight = props.minHeight ? Number(props.minHeight) : 54;
+                nextTick(() => { // wait for hiddenTextarea to update
+                    txtarea.value.style.height = Math.max(minHeight, (hiddenTextarea.value.scrollHeight + 2)) + "px";
                 });
-            },
-            isVisible: function () {
-                if (!this.$el) { 
-                    return false; // Element doesn't exist, therefore isn't visible
-                }
-                if (!this.$el.checkVisibility) {
-                    return this.$el.offsetWidth > 0 && this.$el.offsetHeight > 0;
-                } else {
-                    return this.$el.checkVisibility();
-                }
-            },
-            deferredResize: function () {
-                nextTick(() => { // nextTick: wait for other changes to settle before checking visibility
-                    if (this.isVisible())
-                        this.autoResize(); // element *is* visible, resize immediately
-                    else
-                        setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
+            }
+            watch(() => props.modelValue, () => { // when value is changed (either through user input, or viewmodel change)
+                autoResize();
+            });
+            let firstTime = true;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    let visible = entry.intersectionRatio > 0;
+                    if (visible && firstTime) {
+                        autoResize();
+                        firstTime = false; // only needs to be done once
+                    }
                 });
-            },
-            focus: function () {
-                var textarea = this.$refs.txtarea;
-                textarea.focus();
+            });
+            onMounted(() => {
+                window.addEventListener("resize", autoResize); // listen for window resize events
+                observer.observe(txtarea.value); // activate IntersectionObserver
+            });
+            onBeforeUnmount(() => { // clean up
+                window.removeEventListener("resize", autoResize);
+                observer.disconnect();
+            });
+            function focus() { // can be called by parent component
+                txtarea.value.focus();
             }
-        },
-        mounted: function () {
-            window.addEventListener("resize", this.autoResize);
-            this.deferredResize();
-        },
-        beforeDestroy: function () { // For Vue 2
-            window.removeEventListener("resize", this.autoResize);
-        },
-        beforeUnmount: function () { // For Vue 3
-            window.removeEventListener("resize", this.autoResize);
-        },
-        watch: {
-            modelValue: function () { // when value is changed (either through user input, or viewmodel change)
-                this.deferredResize();
-            }
+            return {
+                theValue, hiddenTextarea, txtarea,
+                focus // can be called by parent component
+            };
         }
     });
                 {   // this is wrapped in a block because there might be more than 
