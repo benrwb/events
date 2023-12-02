@@ -15,14 +15,15 @@
 
         <br />
         
-        <div v-for="(items, heading) in groupedLinks"
+        <div v-for="(items, heading, idx) in groupedLinks"
              v-bind:key="heading"
              v-bind:id="heading.toString()"><!-- for # links -->
 
             <template v-if="!search">
                 <h1 v-if="!search">
                     {{ heading }}
-                    <a style="float: right" href="#">↑</a><!-- link to go back to top -->
+                    <a v-if="idx > 0"
+                       style="float: right" href="#">↑</a><!-- link to go back to top -->
                 </h1>
                 <h5 v-if="heading == 'Venue'"
                     class="text-muted">Event listings by venue</h5>

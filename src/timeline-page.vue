@@ -20,13 +20,14 @@
 
         <br />
 
-        <div v-for="(items, heading) in orderedTimeline"
+        <div v-for="(items, heading, idx) in orderedTimeline"
              v-bind:key="heading"
              v-bind:id="heading.toString()">
             
             <h1 v-if="heading != 'N/A' && !search">
                 {{ heading }}
-                <a style="float: right" href="#">↑</a><!-- link to go back to top -->
+                <a v-if="idx > 0"
+                   style="float: right" href="#">↑</a><!-- link to go back to top -->
             </h1>
             
             <div v-for="item in items"
