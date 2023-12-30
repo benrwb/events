@@ -587,10 +587,11 @@ app.component('expanding-textarea', {
                     txtarea.value.style.height = Math.max(minHeight, (hiddenTextarea.value.scrollHeight + 2)) + "px";
                 });
             }
+            let firstTime = true; // used by IntersectionObserver
             watch(() => props.modelValue, () => { // when value is changed (either through user input, or viewmodel change)
                 autoResize();
+                firstTime = true; // re-activate IntersectionObserver
             });
-            let firstTime = true;
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     let visible = entry.intersectionRatio > 0;

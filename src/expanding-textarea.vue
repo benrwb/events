@@ -97,8 +97,13 @@
                 });
             }
 
+            let firstTime = true; // used by IntersectionObserver
+
             watch(() => props.modelValue, () => { // when value is changed (either through user input, or viewmodel change)
                 autoResize();
+                firstTime = true; // re-activate IntersectionObserver
+                                  // (in case textarea isn't currently visible - this will 
+                                  //  cause it to auto-resize as soon as it becomes visible)
             });
 
             //OLD//isVisible: function () {
@@ -125,8 +130,6 @@
             //OLD//            setTimeout(this.autoResize, 200); // *not* visible, try again in 200ms
             //OLD//    });
             //OLD//}
-
-            let firstTime = true;
 
             // Set up IntersectionObserver to detect when the element first becomes visible (added Nov'23)
             const observer = new IntersectionObserver((entries) => {
