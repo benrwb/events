@@ -635,7 +635,7 @@ app.component('expanding-textarea', {
                     document.head.appendChild(componentStyles);
                 }
 app.component('link-editor', {
-    template: "    <div class=\"editor-dialog\">\n"
+    template: "    <div class=\"editor-dialog\" ref=\"elementRef\">\n"
 +"    <!-- <div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">\n"
 +"        <div class=\"modal-dialog\" role=\"document\">\n"
 +"            <div class=\"modal-content\"> -->\n"
@@ -706,38 +706,37 @@ app.component('link-editor', {
     props: {
         linkTypes: Object
     },
-    data: function() {
-        return {
-            item: new_linkItem()
+    setup: function(props, context) {
+        function new_linkItem() {
+            return {
+                id: '', // will be set when saved
+                category: 'Link',
+                type: '',
+                name: '',
+                link: '',
+                notes: ''
+            };
         }
-    },
-    methods: {
-        openDialog: function (item) { // called by parent via $refs
-            this.item = new_linkItem(); // reset the form
-            if (item) {
-                this.item = item;
+        const item = ref(new_linkItem());
+        function openDialog(itemToOpen) { // called by parent via $refs
+            if (!itemToOpen) {
+                item.value = new_linkItem(); // reset the form
+            } else {
+                item.value = itemToOpen;
                 document.documentElement.scrollTop = 0;
             }
-        },
-        close: function () {
-            this.$emit('close');
-        },
-        save: function () {
-            this.$emit('save', this.item);
-            $(this.$el).modal('hide');
         }
+        function close() {
+            context.emit('close');
+        }
+        const elementRef = ref(null);
+        function save() {
+            context.emit('save', item.value);
+            $(elementRef.value).modal('hide');
+        }
+        return { item, elementRef, openDialog, save, close };
     }
 });
-function new_linkItem() {
-    return {
-        id: '', // will be set when saved
-        category: 'Link',
-        type: '',
-        name: '',
-        link: '',
-        notes: ''
-    };
-}
 app.component('links-page', {
     template: "    <div>\n"
 +"        <button class=\"btn btn-success\" \n"

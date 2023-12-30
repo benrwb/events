@@ -1,5 +1,5 @@
 <template>
-    <div class="editor-dialog">
+    <div class="editor-dialog" ref="elementRef">
     <!-- <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content"> -->
@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import * as $ from "jquery";
 import { LinkItem } from './types/app';
 
@@ -78,55 +78,57 @@ export default defineComponent({
     props: {
         linkTypes: Object
     },
-    data: function() {
-        return {
-            item: new_linkItem()
+    setup: function(props, context) {
+
+        function new_linkItem(): LinkItem {
+            return {
+                id: '', // will be set when saved
+                category: 'Link',
+                type: '',
+                name: '',
+                link: '',
+                notes: ''
+            };
         }
-    },
-    // mounted: function () {
-    //     var self = this;
-    //     $(this.$el).on('shown.bs.modal', function () {
-    //         // resize textarea when modal is shown
-    //         self.$refs.textarea.autoResize();
-    //     });
-    // },
-    // beforeDestroy: function () {
-    //     $(this.$el).off('shown.bs.modal'); // remove event listener
-    // },
-    methods: {
-        openDialog: function (item) { // called by parent via $refs
-            // Note that `this.item` is set to `new_linkItem`
-            // regardless of whether we are creating a new item
-            // or opening an existing one.
-            // The reason for this is because we want to trigger
-            // the <expanding-textarea> to auto-resize, 
-            // even if opening the same item twice in a row.
-            this.item = new_linkItem(); // reset the form
-            if (item) {
+        
+        const item = ref(new_linkItem());
+
+        // mounted: function () {
+        //     var self = this;
+        //     $(this.$el).on('shown.bs.modal', function () {
+        //         // resize textarea when modal is shown
+        //         self.$refs.textarea.autoResize();
+        //     });
+        // },
+        // beforeDestroy: function () {
+        //     $(this.$el).off('shown.bs.modal'); // remove event listener
+        // },
+
+        function openDialog(itemToOpen) { // called by parent via $refs
+            if (!itemToOpen) {
+                // create new item
+                item.value = new_linkItem(); // reset the form
+            } else {
                 // editing an existing item
-                this.item = item;
+                item.value = itemToOpen;
                 document.documentElement.scrollTop = 0;
             }
             //$(this.$el).modal('show');
-        },
-        close: function () {
-            this.$emit('close');
-        },
-        save: function () {
-            this.$emit('save', this.item);
-            $(this.$el).modal('hide');
         }
+       
+        function close() {
+            context.emit('close');
+        }
+
+        const elementRef = ref(null);
+
+        function save() {
+            context.emit('save', item.value);
+            $(elementRef.value).modal('hide');
+        }
+
+        return { item, elementRef, openDialog, save, close };
     }
 });
 
-function new_linkItem(): LinkItem {
-    return {
-        id: '', // will be set when saved
-        category: 'Link',
-        type: '',
-        name: '',
-        link: '',
-        notes: ''
-    };
-}
 </script>
