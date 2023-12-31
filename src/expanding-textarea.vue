@@ -97,13 +97,8 @@
                 });
             }
 
-            let firstTime = true; // used by IntersectionObserver
-
             watch(() => props.modelValue, () => { // when value is changed (either through user input, or viewmodel change)
                 autoResize();
-                firstTime = true; // re-activate IntersectionObserver
-                                  // (in case textarea isn't currently visible - this will 
-                                  //  cause it to auto-resize as soon as it becomes visible)
             });
 
             //OLD//isVisible: function () {
@@ -131,21 +126,20 @@
             //OLD//    });
             //OLD//}
 
-            // Set up IntersectionObserver to detect when the element first becomes visible (added Nov'23)
+            // Set up IntersectionObserver to detect when the element's visibility changes (added Nov'23)
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     let visible = entry.intersectionRatio > 0;
-                    //console.log(visible ? 'visible' : 'invisible');
-                    if (visible && firstTime) {
-                        // resize textarea when element first becomes visible on screen
-                        // (there could be a delay of several seconds (or even minutes)
-                        //  between the component being mounted and the element becoming visible
-                        //  on-screen, for example (a) if it's on a tabbed page which is initially 
-                        //  hidden with v-show, or (b) if it's part of a Bootstrap modal and there
-                        //  is a short delay caused by the animation when the modal is shown)
+                    if (visible) {
+                        // resize textarea when element becomes visible on screen
+                        // (i.e. both when 
+                        //       (a) the element first appears on screen, and
+                        //       (b) when the element is hidden and then becomes visible again)
+                        // (this is useful in situations when the element is initially hidden
+                        //  and then becomes visible later, for example if it's on a tabbed page
+                        //  or is part of a modal dialog.)
                         //console.log("resize");
                         autoResize();
-                        firstTime = false; // only needs to be done once
                     }
                 });
             });
