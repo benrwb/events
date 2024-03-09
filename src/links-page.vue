@@ -9,7 +9,7 @@
 
         <template v-if="!search">
             <span v-for="(_, heading) in groupedLinks">
-                <a class="btn" v-bind:href="'#' + heading">{{ linkTypes[heading] }} {{ heading }}</a>
+                <a class="btn" v-bind:href="'#' + heading">{{ store.linkTypes[heading] }} {{ heading }}</a>
             </span>
         </template>
 
@@ -38,7 +38,7 @@
 
                 <div class="panel-heading">
                     <div>
-                        {{ linkTypes[item.type] }} 
+                        {{ store.linkTypes[item.type] }} 
                         <span style="font-weight: bold">{{ item.name }}</span>
 
                         <a v-if="item.link"
@@ -65,12 +65,12 @@
 import { defineComponent,PropType, computed, ref } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
+import { store } from "./store";
 
 export default defineComponent({
     props: {
         dropboxData: Array as PropType<LinkItem[]>,
-        itemBeingUpdated: String, // id (guid) of item currently being saved
-        linkTypes: Object
+        itemBeingUpdated: String // id (guid) of item currently being saved
     },
     setup: function (props, context) {
 
@@ -101,6 +101,6 @@ export default defineComponent({
             return _.groupBy(ordered, 'type');
         });
 
-        return { addLink, editEvent, groupedLinks, search };
+        return { addLink, editEvent, groupedLinks, search, store };
     }
 });

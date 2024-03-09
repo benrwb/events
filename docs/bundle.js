@@ -57,7 +57,6 @@ const defineComponent = Vue.defineComponent;
 +"        </timeline-page>\n"
 +"\n"
 +"        <links-page v-show=\"activeTab == 'links'\"\n"
-+"                    v-bind:link-types=\"linkTypes\"\n"
 +"                    v-bind:dropbox-data=\"dropboxData\"\n"
 +"                    v-bind:item-being-updated=\"itemBeingUpdated\"\n"
 +"                    v-on:open-editor=\"openLinkEditor\">\n"
@@ -73,7 +72,6 @@ const defineComponent = Vue.defineComponent;
 +"\n"
 +"        <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
 +"                     ref=\"linkeditor\"\n"
-+"                     v-bind:link-types=\"linkTypes\"\n"
 +"                     v-on:save=\"updateItem($event, true)\"\n"
 +"                     v-on:close=\"closeEditor\">\n"
 +"        </link-editor>\n"
@@ -109,14 +107,6 @@ const defineComponent = Vue.defineComponent;
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
-                linkTypes: {
-                    "Ticket sales": "🎫",
-                    "Event listings": "📰",
-                    "Venue": "🏛",
-                    "Restaurants": "🍽️",
-                    "Holidays": "🌞",
-                    "Transport": "🚇",
-                }
             }
         },
         mounted: function() {
@@ -651,7 +641,7 @@ app.component('link-editor', {
 +"                            <label class=\"col-xs-3 control-label\">Type</label>\n"
 +"                            <div class=\"col-xs-7\">\n"
 +"                                <select class=\"form-control\" v-model=\"item.type\">\n"
-+"                                    <option v-for=\"(value, key) in linkTypes\"\n"
++"                                    <option v-for=\"(value, key) in store.linkTypes\"\n"
 +"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>\n"
 +"                                </select>\n"
 +"                            </div>\n"
@@ -701,9 +691,6 @@ app.component('link-editor', {
 +"            <!-- </div>\n"
 +"        </div> -->\n"
 +"    </div> \n",
-    props: {
-        linkTypes: Object
-    },
     setup: function(props, context) {
         function new_linkItem() {
             return {
@@ -732,7 +719,7 @@ app.component('link-editor', {
             context.emit('save', item.value);
             $(elementRef.value).modal('hide');
         }
-        return { item, elementRef, openDialog, save, close };
+        return { item, elementRef, openDialog, save, close, store };
     }
 });
 app.component('links-page', {
@@ -746,7 +733,7 @@ app.component('links-page', {
 +"\n"
 +"        <template v-if=\"!search\">\n"
 +"            <span v-for=\"(_, heading) in groupedLinks\">\n"
-+"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ linkTypes[heading] }} {{ heading }}</a>\n"
++"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ store.linkTypes[heading] }} {{ heading }}</a>\n"
 +"            </span>\n"
 +"        </template>\n"
 +"\n"
@@ -775,7 +762,7 @@ app.component('links-page', {
 +"\n"
 +"                <div class=\"panel-heading\">\n"
 +"                    <div>\n"
-+"                        {{ linkTypes[item.type] }} \n"
++"                        {{ store.linkTypes[item.type] }} \n"
 +"                        <span style=\"font-weight: bold\">{{ item.name }}</span>\n"
 +"\n"
 +"                        <a v-if=\"item.link\"\n"
@@ -797,8 +784,7 @@ app.component('links-page', {
 +"    </div>\n",
     props: {
         dropboxData: Array,
-        itemBeingUpdated: String, // id (guid) of item currently being saved
-        linkTypes: Object
+        itemBeingUpdated: String // id (guid) of item currently being saved
     },
     setup: function (props, context) {
         const search = ref("");
@@ -824,7 +810,7 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
-        return { addLink, editEvent, groupedLinks, search };
+        return { addLink, editEvent, groupedLinks, search, store };
     }
 });
 app.component('search-box', {
@@ -896,6 +882,17 @@ app.component('simple-mde', {
         }
     },
 });
+const store = reactive({
+    linkTypes: {
+        "Ticket sales": "🎫",
+        "Event listings": "📰",
+        "Venue": "🏛",
+        "Restaurants": "🍽️",
+        "Holidays": "🌞",
+        "Transport": "🚇",
+    }
+});
+
 app.component('timeline-page', {
     template: "    <div>\n"
 +"        <label v-if=\"!ideasOnly && needToBookCount > 0\"\n"

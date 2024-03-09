@@ -47,7 +47,6 @@
         </timeline-page>
 
         <links-page v-show="activeTab == 'links'"
-                    v-bind:link-types="linkTypes"
                     v-bind:dropbox-data="dropboxData"
                     v-bind:item-being-updated="itemBeingUpdated"
                     v-on:open-editor="openLinkEditor">
@@ -63,7 +62,6 @@
 
         <link-editor v-show="activeTab == 'linkeditor'"
                      ref="linkeditor"
-                     v-bind:link-types="linkTypes"
                      v-on:save="updateItem($event, true)"
                      v-on:close="closeEditor">
         </link-editor>
@@ -119,16 +117,7 @@
                     "Went":"🙂",
                     "Didn't go": "🙁"
                 },
-                linkTypes: {
-                    "Ticket sales": "🎫",
-                    "Event listings": "📰",
-                    "Venue": "🏛",
-                    "Restaurants": "🍽️",
-                    "Holidays": "🌞",
-                    "Transport": "🚇",
-                    //"Information": "ℹ",
-                    //"Other": "💡"
-                }
+                
             }
         },
         mounted: function() {

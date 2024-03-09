@@ -17,7 +17,7 @@
                             <label class="col-xs-3 control-label">Type</label>
                             <div class="col-xs-7">
                                 <select class="form-control" v-model="item.type">
-                                    <option v-for="(value, key) in linkTypes"
+                                    <option v-for="(value, key) in store.linkTypes"
                                             v-bind:value="key">{{ value }} {{ key }}</option>
                                 </select>
                             </div>
@@ -73,11 +73,9 @@
 import { defineComponent, ref } from 'vue';
 import * as $ from "jquery";
 import { LinkItem } from './types/app';
+import { store } from "./store";
 
 export default defineComponent({
-    props: {
-        linkTypes: Object
-    },
     setup: function(props, context) {
 
         function new_linkItem(): LinkItem {
@@ -127,7 +125,7 @@ export default defineComponent({
             $(elementRef.value).modal('hide');
         }
 
-        return { item, elementRef, openDialog, save, close };
+        return { item, elementRef, openDialog, save, close, store };
     }
 });
 
