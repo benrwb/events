@@ -704,9 +704,9 @@ app.component('links-page', {
 +"            Add Link\n"
 +"        </button>\n"
 +"        \n"
-+"        <search-box v-model=\"search\"></search-box>\n"
++"        <search-box v-model=\"store.search\"></search-box>\n"
 +"\n"
-+"        <template v-if=\"!search\">\n"
++"        <template v-if=\"!store.search\">\n"
 +"            <span v-for=\"(_, heading) in groupedLinks\">\n"
 +"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ store.linkTypes[heading] }} {{ heading }}</a>\n"
 +"            </span>\n"
@@ -718,8 +718,8 @@ app.component('links-page', {
 +"             v-bind:key=\"heading\"\n"
 +"             v-bind:id=\"heading.toString()\"><!-- for # links -->\n"
 +"\n"
-+"            <template v-if=\"!search\">\n"
-+"                <h1 v-if=\"!search\">\n"
++"            <template v-if=\"!store.search\">\n"
++"                <h1 v-if=\"!store.search\">\n"
 +"                    {{ heading }}\n"
 +"                    <a v-if=\"idx > 0\"\n"
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
@@ -762,7 +762,6 @@ app.component('links-page', {
         itemBeingUpdated: String // id (guid) of item currently being saved
     },
     setup: function (props, context) {
-        const search = ref("");
         function addLink() {
             context.emit('open-editor', null);
         }
@@ -776,8 +775,8 @@ app.component('links-page', {
         }
         const groupedLinks = computed(() => { // LinksWithHeadings
             var filtered = props.dropboxData.filter(item => item.category == "Link");
-            if (search.value) {
-                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(search.value.toLocaleLowerCase()));
+            if (store.search) {
+                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(store.search.toLocaleLowerCase()));
             }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
@@ -785,7 +784,7 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
-        return { addLink, editEvent, groupedLinks, search, store };
+        return { addLink, editEvent, groupedLinks, store };
     }
 });
 app.component('search-box', {
@@ -858,6 +857,7 @@ app.component('simple-mde', {
     },
 });
 const store = reactive({
+    search: "",
     eventTypes: {
         "Special occasion": "🎂",
         "Restaurant": "🍽️",
@@ -898,9 +898,9 @@ app.component('timeline-page', {
 +"            Add Event\n"
 +"        </button>\n"
 +"\n"
-+"        <search-box v-model=\"search\"></search-box>\n"
++"        <search-box v-model=\"store.search\"></search-box>\n"
 +"        \n"
-+"        <template v-if=\"ideasOnly && !search\">\n"
++"        <template v-if=\"ideasOnly && !store.search\">\n"
 +"            <span v-for=\"(_, heading) in orderedTimeline\">\n"
 +"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ store.eventTypes[heading] }} {{ heading }}</a>\n"
 +"            </span>\n"
@@ -912,7 +912,7 @@ app.component('timeline-page', {
 +"             v-bind:key=\"heading\"\n"
 +"             v-bind:id=\"heading.toString()\">\n"
 +"            \n"
-+"            <h1 v-if=\"heading != 'N/A' && !search\">\n"
++"            <h1 v-if=\"heading != 'N/A' && !store.search\">\n"
 +"                {{ heading }}\n"
 +"                <a v-if=\"idx > 0\"\n"
 +"                   style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
@@ -989,7 +989,6 @@ app.component('timeline-page', {
     data: function() {
         return {
             showNeedToBookOnly: false,
-            search: "",
             store: store
         }
     },
@@ -1051,8 +1050,8 @@ app.component('timeline-page', {
     computed: {
         orderedTimeline: function() {
             let filteredTimeline = this.timeline;
-            if (this.search) {
-                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase()));
+            if (this.store.search) {
+                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.store.search.toLocaleLowerCase()));
             }
             if (this.ideasOnly) {
                 filteredTimeline = filteredTimeline.filter(item =>

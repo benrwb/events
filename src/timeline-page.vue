@@ -10,9 +10,9 @@
             Add Event
         </button>
 
-        <search-box v-model="search"></search-box>
+        <search-box v-model="store.search"></search-box>
         
-        <template v-if="ideasOnly && !search">
+        <template v-if="ideasOnly && !store.search">
             <span v-for="(_, heading) in orderedTimeline">
                 <a class="btn" v-bind:href="'#' + heading">{{ store.eventTypes[heading] }} {{ heading }}</a>
             </span>
@@ -24,7 +24,7 @@
              v-bind:key="heading"
              v-bind:id="heading.toString()">
             
-            <h1 v-if="heading != 'N/A' && !search">
+            <h1 v-if="heading != 'N/A' && !store.search">
                 {{ heading }}
                 <a v-if="idx > 0"
                    style="float: right" href="#">↑</a><!-- link to go back to top -->
@@ -117,7 +117,6 @@ export default defineComponent({
     data: function() {
         return {
             showNeedToBookOnly: false,
-            search: "",
             store: store
         }
     },
@@ -203,8 +202,8 @@ export default defineComponent({
     computed: {
         orderedTimeline: function(): TimelineWithHeadings {
             let filteredTimeline = this.timeline;
-            if (this.search) {
-                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase()));
+            if (this.store.search) {
+                filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.store.search.toLocaleLowerCase()));
             }
             if (this.ideasOnly) {
                 // "IDEAS" TAB

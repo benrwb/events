@@ -2,6 +2,8 @@ import { reactive } from "vue";
 
 export const store = reactive({
 
+    search: "",
+    
     eventTypes: {
         "Special occasion": "🎂",
         "Restaurant": "🍽️",
@@ -20,7 +22,7 @@ export const store = reactive({
         "Went":"🙂",
         "Didn't go": "🙁"
     },
-    
+
     linkTypes: {
         "Ticket sales": "🎫",
         "Event listings": "📰",

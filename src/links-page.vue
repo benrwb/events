@@ -5,9 +5,9 @@
             Add Link
         </button>
         
-        <search-box v-model="search"></search-box>
+        <search-box v-model="store.search"></search-box>
 
-        <template v-if="!search">
+        <template v-if="!store.search">
             <span v-for="(_, heading) in groupedLinks">
                 <a class="btn" v-bind:href="'#' + heading">{{ store.linkTypes[heading] }} {{ heading }}</a>
             </span>
@@ -19,8 +19,8 @@
              v-bind:key="heading"
              v-bind:id="heading.toString()"><!-- for # links -->
 
-            <template v-if="!search">
-                <h1 v-if="!search">
+            <template v-if="!store.search">
+                <h1 v-if="!store.search">
                     {{ heading }}
                     <a v-if="idx > 0"
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
@@ -74,8 +74,6 @@ export default defineComponent({
     },
     setup: function (props, context) {
 
-        const search = ref("");
-
         function addLink() {
             context.emit('open-editor', null);
         }
@@ -91,8 +89,8 @@ export default defineComponent({
 
         const groupedLinks = computed(() => { // LinksWithHeadings
             var filtered = props.dropboxData.filter(item => item.category == "Link");
-            if (search.value) {
-                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(search.value.toLocaleLowerCase()));
+            if (store.search) {
+                filtered = filtered.filter(item => item.name.toLocaleLowerCase().includes(store.search.toLocaleLowerCase()));
             }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
@@ -101,6 +99,6 @@ export default defineComponent({
             return _.groupBy(ordered, 'type');
         });
 
-        return { addLink, editEvent, groupedLinks, search, store };
+        return { addLink, editEvent, groupedLinks, store };
     }
 });
