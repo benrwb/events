@@ -51,7 +51,7 @@
                             <label class="col-xs-3 control-label">Type</label>
                             <div class="col-xs-8">
                                 <select class="form-control" v-model="dbitem.type">
-                                    <option v-for="(value, key) in eventTypes"
+                                    <option v-for="(value, key) in store.eventTypes"
                                             v-bind:value="key">{{ value }} {{ key }}</option>
                                 </select>
                             </div>
@@ -104,7 +104,7 @@
                             <label class="col-xs-3 control-label">Status</label>
                             <div class="col-xs-7">
                                 <select class="form-control" v-model="dbitem.status">
-                                    <option v-for="(value, key) in statusList"
+                                    <option v-for="(value, key) in store.statusList"
                                             v-bind:value="key">{{ value }} {{ key }}</option>
                                 </select>
                             </div>
@@ -152,19 +152,17 @@ import { defineComponent, nextTick } from 'vue';
 import * as $ from "jquery";
 import { TimelineItem } from './types/app';
 import SimpleMde from './simple-mde.vue';
+import { store } from "./store";
 
 export default defineComponent({
     components: {
         bootstrapDatepicker
     },
-    props: {
-        eventTypes: Object,
-        statusList: Object
-    },
     data: function() {
         return {
             dbitem: new_timelineItem(),
-            activeTab: 'details' // 'details' or 'notes'
+            activeTab: 'details', // 'details' or 'notes'
+            store: store
         }
     },
     methods: {

@@ -51,8 +51,6 @@ const defineComponent = Vue.defineComponent;
 +"                       v-bind:ideas-only=\"activeTab == 'ideas'\"\n"
 +"                       v-bind:timeline=\"dropboxData\"\n"
 +"                       v-bind:item-being-updated=\"itemBeingUpdated\"\n"
-+"                       v-bind:event-types=\"eventTypes\"\n"
-+"                       v-bind:status-list=\"statusList\"\n"
 +"                       v-on:open-editor=\"openEditor\">\n"
 +"        </timeline-page>\n"
 +"\n"
@@ -64,8 +62,6 @@ const defineComponent = Vue.defineComponent;
 +"\n"
 +"        <editor-dialog v-show=\"activeTab == 'editor'\"\n"
 +"                       ref=\"editor\"\n"
-+"                       v-bind:event-types=\"eventTypes\"\n"
-+"                       v-bind:status-list=\"statusList\"\n"
 +"                       v-on:save=\"updateItem($event, true)\"\n"
 +"                       v-on:close=\"closeEditor\">\n"
 +"        </editor-dialog>\n"
@@ -88,25 +84,7 @@ const defineComponent = Vue.defineComponent;
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date().toISOString(),
-                itemBeingUpdated: '', // id (guid) of item currently being saved
-                eventTypes: {
-                    "Special occasion": "🎂",
-                    "Restaurant": "🍽️",
-                    "Film": "🎬",
-                    "Live Entertainment": "🎭",
-                    "Music": "🎵",
-                    "Excursion": "🚶‍",
-                    "Holiday - Abroad": "🌞",
-                    "Holiday - UK": "🇬🇧"
-                },
-                statusList: {
-                    "": "",
-                    "Going": "✔",
-                    "Interested": "⭐",
-                    "Need to book": "🎟",
-                    "Went":"🙂",
-                    "Didn't go": "🙁"
-                },
+                itemBeingUpdated: '' // id (guid) of item currently being saved
             }
         },
         mounted: function() {
@@ -377,7 +355,7 @@ app.component('editor-dialog', {
 +"                            <label class=\"col-xs-3 control-label\">Type</label>\n"
 +"                            <div class=\"col-xs-8\">\n"
 +"                                <select class=\"form-control\" v-model=\"dbitem.type\">\n"
-+"                                    <option v-for=\"(value, key) in eventTypes\"\n"
++"                                    <option v-for=\"(value, key) in store.eventTypes\"\n"
 +"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>\n"
 +"                                </select>\n"
 +"                            </div>\n"
@@ -430,7 +408,7 @@ app.component('editor-dialog', {
 +"                            <label class=\"col-xs-3 control-label\">Status</label>\n"
 +"                            <div class=\"col-xs-7\">\n"
 +"                                <select class=\"form-control\" v-model=\"dbitem.status\">\n"
-+"                                    <option v-for=\"(value, key) in statusList\"\n"
++"                                    <option v-for=\"(value, key) in store.statusList\"\n"
 +"                                            v-bind:value=\"key\">{{ value }} {{ key }}</option>\n"
 +"                                </select>\n"
 +"                            </div>\n"
@@ -470,14 +448,11 @@ app.component('editor-dialog', {
 +"        </div>\n"
 +"    </div> -->\n"
 +"</div>\n",
-    props: {
-        eventTypes: Object,
-        statusList: Object
-    },
     data: function() {
         return {
             dbitem: new_timelineItem(),
-            activeTab: 'details' // 'details' or 'notes'
+            activeTab: 'details', // 'details' or 'notes'
+            store: store
         }
     },
     methods: {
@@ -883,6 +858,24 @@ app.component('simple-mde', {
     },
 });
 const store = reactive({
+    eventTypes: {
+        "Special occasion": "🎂",
+        "Restaurant": "🍽️",
+        "Film": "🎬",
+        "Live Entertainment": "🎭",
+        "Music": "🎵",
+        "Excursion": "🚶‍",
+        "Holiday - Abroad": "🌞",
+        "Holiday - UK": "🇬🇧"
+    },
+    statusList: {
+        "": "",
+        "Going": "✔",
+        "Interested": "⭐",
+        "Need to book": "🎟",
+        "Went":"🙂",
+        "Didn't go": "🙁"
+    },
     linkTypes: {
         "Ticket sales": "🎫",
         "Event listings": "📰",
@@ -909,7 +902,7 @@ app.component('timeline-page', {
 +"        \n"
 +"        <template v-if=\"ideasOnly && !search\">\n"
 +"            <span v-for=\"(_, heading) in orderedTimeline\">\n"
-+"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ eventTypes[heading] }} {{ heading }}</a>\n"
++"                <a class=\"btn\" v-bind:href=\"'#' + heading\">{{ store.eventTypes[heading] }} {{ heading }}</a>\n"
 +"            </span>\n"
 +"        </template>\n"
 +"\n"
@@ -952,7 +945,7 @@ app.component('timeline-page', {
 +"                            v-bind:class=\"{ 'text-muted': isCollapsed(item),\n"
 +"                                            'cancelled': item.name.includes('❌') }\">\n"
 +"                            \n"
-+"                            {{ eventTypes[item.type] }} {{ item.name }}\n"
++"                            {{ store.eventTypes[item.type] }} {{ item.name }}\n"
 +"                            \n"
 +"                            <a v-if=\"item.link\"\n"
 +"                            v-bind:href=\"item.link\"\n"
@@ -974,7 +967,7 @@ app.component('timeline-page', {
 +"                                class=\"text-muted\">{{ item.location }}</div>\n"
 +"                            <div v-if=\"item.status\">\n"
 +"                                <span class=\"emoji\">\n"
-+"                                    {{ statusList[item.status] }}\n"
++"                                    {{ store.statusList[item.status] }}\n"
 +"                                </span>\n"
 +"                                <span class=\"text-muted\">\n"
 +"                                    {{ item.status }}\n"
@@ -992,13 +985,12 @@ app.component('timeline-page', {
         timeline: Array,
         itemBeingUpdated: String, // id (guid) of item currently being saved
         ideasOnly: Boolean,
-        eventTypes: Object,
-        statusList: Object
     },
     data: function() {
         return {
             showNeedToBookOnly: false,
-            search: ""
+            search: "",
+            store: store
         }
     },
     methods: {

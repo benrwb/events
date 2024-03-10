@@ -14,7 +14,7 @@
         
         <template v-if="ideasOnly && !search">
             <span v-for="(_, heading) in orderedTimeline">
-                <a class="btn" v-bind:href="'#' + heading">{{ eventTypes[heading] }} {{ heading }}</a>
+                <a class="btn" v-bind:href="'#' + heading">{{ store.eventTypes[heading] }} {{ heading }}</a>
             </span>
         </template>
 
@@ -57,7 +57,7 @@
                             v-bind:class="{ 'text-muted': isCollapsed(item),
                                             'cancelled': item.name.includes('❌') }">
                             
-                            {{ eventTypes[item.type] }} {{ item.name }}
+                            {{ store.eventTypes[item.type] }} {{ item.name }}
                             
                             <a v-if="item.link"
                             v-bind:href="item.link"
@@ -79,7 +79,7 @@
                                 class="text-muted">{{ item.location }}</div>
                             <div v-if="item.status">
                                 <span class="emoji">
-                                    {{ statusList[item.status] }}
+                                    {{ store.statusList[item.status] }}
                                 </span>
                                 <span class="text-muted">
                                     {{ item.status }}
@@ -103,6 +103,7 @@ import * as moment from "moment";
 import { TimelineItem, TimelineWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { _formatDate } from './common';
+import { store } from "./store";
 
 export default defineComponent({
     components: {
@@ -112,13 +113,12 @@ export default defineComponent({
         timeline: Array as PropType<TimelineItem[]>,
         itemBeingUpdated: String, // id (guid) of item currently being saved
         ideasOnly: Boolean,
-        eventTypes: Object,
-        statusList: Object
     },
     data: function() {
         return {
             showNeedToBookOnly: false,
-            search: ""
+            search: "",
+            store: store
         }
     },
     methods: {

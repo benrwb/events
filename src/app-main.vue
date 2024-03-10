@@ -41,8 +41,6 @@
                        v-bind:ideas-only="activeTab == 'ideas'"
                        v-bind:timeline="dropboxData"
                        v-bind:item-being-updated="itemBeingUpdated"
-                       v-bind:event-types="eventTypes"
-                       v-bind:status-list="statusList"
                        v-on:open-editor="openEditor">
         </timeline-page>
 
@@ -54,8 +52,6 @@
 
         <editor-dialog v-show="activeTab == 'editor'"
                        ref="editor"
-                       v-bind:event-types="eventTypes"
-                       v-bind:status-list="statusList"
                        v-on:save="updateItem($event, true)"
                        v-on:close="closeEditor">
         </editor-dialog>
@@ -97,27 +93,7 @@
                 dropboxSyncStatus: "",
                 dropboxData: [],
                 currentTime: new Date().toISOString(),
-                itemBeingUpdated: '', // id (guid) of item currently being saved
-
-                eventTypes: {
-                    "Special occasion": "🎂",
-                    "Restaurant": "🍽️",
-                    "Film": "🎬",
-                    "Live Entertainment": "🎭",
-                    "Music": "🎵",
-                    "Excursion": "🚶‍",
-                    "Holiday - Abroad": "🌞",
-                    "Holiday - UK": "🇬🇧"
-                },
-                statusList: {
-                    "": "",
-                    "Going": "✔",
-                    "Interested": "⭐",
-                    "Need to book": "🎟",
-                    "Went":"🙂",
-                    "Didn't go": "🙁"
-                },
-                
+                itemBeingUpdated: '' // id (guid) of item currently being saved
             }
         },
         mounted: function() {
