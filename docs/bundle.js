@@ -723,11 +723,19 @@ app.component('links-page', {
 +"                    {{ heading }}\n"
 +"                    <a v-if=\"idx > 0\"\n"
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
++"                    <button v-if=\"heading == 'Event listings'\"\n"
++"                        @click=\"openRandomLink(items)\"\n"
++"                        class=\"btn btn-info\">Open random link\n"
++"                    </button>\n"
 +"                </h1>\n"
 +"                <h5 v-if=\"heading == 'Venue'\"\n"
 +"                    class=\"text-muted\">Event listings by venue</h5>\n"
++"                   \n"
 +"            </template>\n"
 +"\n"
++"                    \n"
++"            \n"
++"        \n"
 +"            <div v-for=\"item in items\"\n"
 +"                 v-bind:key=\"item.id\"\n"
 +"                 class=\"panel panel-default\"\n"
@@ -780,11 +788,17 @@ app.component('links-page', {
             }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
-                item => (item.name.includes("📌") ? "!" : "") + item.name
+                item => !item.name.includes("📌"), // sort pinned items to the top
+                item => item.name.includes("🎟️"), // sort ticket websites to the bottom
+                item => item.name,
             ]);
             return _.groupBy(ordered, 'type');
         });
-        return { addLink, editEvent, groupedLinks, store };
+        function openRandomLink(items) {
+            let number = Math.floor(Math.random() * items.length);
+            window.open(items[number].link);
+        }
+        return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }
 });
 app.component('search-box', {

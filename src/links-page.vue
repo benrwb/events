@@ -24,11 +24,19 @@
                     {{ heading }}
                     <a v-if="idx > 0"
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
+                    <button v-if="heading == 'Event listings'"
+                        @click="openRandomLink(items)"
+                        class="btn btn-info">Open random link
+                    </button>
                 </h1>
                 <h5 v-if="heading == 'Venue'"
                     class="text-muted">Event listings by venue</h5>
+                   
             </template>
 
+                    
+            
+        
             <div v-for="item in items"
                  v-bind:key="item.id"
                  class="panel panel-default"
@@ -94,11 +102,18 @@ export default defineComponent({
             }
             var ordered = _.sortBy(filtered, [ // sort by [type,name]; pinned items first
                 item => item.type,
-                item => (item.name.includes("📌") ? "!" : "") + item.name
+                item => !item.name.includes("📌"), // sort pinned items to the top
+                item => item.name.includes("🎟️"), // sort ticket websites to the bottom
+                item => item.name,
             ]);
             return _.groupBy(ordered, 'type');
         });
 
-        return { addLink, editEvent, groupedLinks, store };
+        function openRandomLink(items: LinkItem[]) {
+            let number = Math.floor(Math.random() * items.length);
+            window.open(items[number].link);
+        }
+
+        return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }
 });
