@@ -965,7 +965,7 @@ app.component('timeline-page', {
 +"                            v-bind:href=\"item.link\"\n"
 +"                            class=\"emoji\"\n"
 +"                            style=\"text-decoration: none\"\n"
-+"                            target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"\n"
++"                            ><span class=\"glyphicon glyphicon-new-window\"\n"
 +"                                                    style=\"padding: 0 3px\"></span></a>\n"
 +"                        </div>\n"
 +"                        <div v-show=\"!isCollapsed(item)\">\n"
