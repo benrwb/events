@@ -63,7 +63,7 @@
                             v-bind:href="item.link"
                             class="emoji"
                             style="text-decoration: none"
-                            ><span class="glyphicon glyphicon-new-window"
+                            ><span class="glyphicon glyphicon-link"
                                                     style="padding: 0 3px"></span></a>
                         </div>
                         <div v-show="!isCollapsed(item)">
