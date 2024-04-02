@@ -726,7 +726,7 @@ app.component('links-page', {
 +"                    {{ heading }}\n"
 +"                    <a v-if=\"idx > 0\"\n"
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
-+"                    <button v-if=\"heading == 'Event listings'\"\n"
++"                    <button v-if=\"heading == 'Event listings' || heading == 'Venue'\"\n"
 +"                        @click=\"openRandomLink(items)\"\n"
 +"                        class=\"btn btn-info\">Open random link\n"
 +"                    </button>\n"

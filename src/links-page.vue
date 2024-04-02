@@ -24,7 +24,7 @@
                     {{ heading }}
                     <a v-if="idx > 0"
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
-                    <button v-if="heading == 'Event listings'"
+                    <button v-if="heading == 'Event listings' || heading == 'Venue'"
                         @click="openRandomLink(items)"
                         class="btn btn-info">Open random link
                     </button>
