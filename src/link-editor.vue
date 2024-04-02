@@ -38,9 +38,10 @@
                                     <input type="text" class="form-control" v-model="item.link">
     
                                     <a v-show="!!item.link"
-                                        v-bind:href="item.link"
-                                        class="input-group-addon emoji"
-                                        target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
+                                       v-bind:href="item.link"
+                                       v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                                       class="input-group-addon emoji"
+                                       ><span class="glyphicon glyphicon-new-window"></span></a>
                                 </div>
                             </div>
                         </div>

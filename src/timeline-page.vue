@@ -60,11 +60,11 @@
                             {{ store.eventTypes[item.type] }} {{ item.name }}
                             
                             <a v-if="item.link"
-                            v-bind:href="item.link"
-                            class="emoji"
-                            style="text-decoration: none"
-                            ><span class="glyphicon glyphicon-link"
-                                                    style="padding: 0 3px"></span></a>
+                               v-bind:href="item.link" v-on:click.stop
+                               v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                               class="emoji" style="text-decoration: none"
+                               ><span class="glyphicon glyphicon-new-window"
+                                      style="padding: 0 3px"></span></a>
                         </div>
                         <div v-show="!isCollapsed(item)">
                             <div v-if="item.date">

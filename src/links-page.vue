@@ -50,11 +50,11 @@
                         <span style="font-weight: bold">{{ item.name }}</span>
 
                         <a v-if="item.link"
-                           v-bind:href="item.link"
-                           class="emoji"
-                           style="text-decoration: none"
-                           target="_blank"><span class="glyphicon glyphicon-new-window"
-                                                 style="padding: 0 3px"></span></a>
+                           v-bind:href="item.link" v-on:click.stop
+                           v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                           class="emoji" style="text-decoration: none"
+                           ><span class="glyphicon glyphicon-new-window"
+                                  style="padding: 0 3px"></span></a>
                     </div>
                     <div v-show="!!item.notes"
                          class="text-muted"
@@ -64,13 +64,16 @@
             </div><!-- /panel-heading -->
         </div>
 
-        
+        <label>
+            <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
+        </label>
+        <br /><br />
     </div>
 </template>
 
 <script lang="ts">
 
-import { defineComponent,PropType, computed, ref } from 'vue';
+import { defineComponent,PropType, computed, ref, watch } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { store } from "./store";
@@ -111,8 +114,22 @@ export default defineComponent({
 
         function openRandomLink(items: LinkItem[]) {
             let number = Math.floor(Math.random() * items.length);
-            window.open(items[number].link);
+            if (store.openLinksInNewWindow) {
+                window.open(items[number].link);    
+            } else {
+                window.location.href = items[number].link;
+            }
         }
+
+        watch(() => store.openLinksInNewWindow, (newVal) => {
+            // Note the checkbox value and localStorage are opposites ('New' vs 'Same').
+            // This is because the default localStorage value is `false` (missing value)
+            // whereas we want the default checkbox value to be `true` (open in new).
+            if (newVal)
+                localStorage.removeItem("events_openLinksInSameWindow");
+            else 
+                localStorage.setItem("events_openLinksInSameWindow", "yes");
+        });
 
         return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }

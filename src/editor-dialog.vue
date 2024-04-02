@@ -74,9 +74,10 @@
                                     <input type="text" class="form-control" v-model.trim="dbitem.location">
     
                                     <a v-show="!!dbitem.location"
-                                        v-bind:href="mapUrl"
-                                        class="input-group-addon emoji"
-                                        target="_blank"><span class="glyphicon glyphicon-map-marker"></span></a>
+                                       v-bind:href="mapUrl"
+                                       v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                                       class="input-group-addon emoji"
+                                       ><span class="glyphicon glyphicon-map-marker"></span></a>
                                 </div>
                             </div>
                         </div>
@@ -117,9 +118,10 @@
                                     <input type="text" class="form-control" v-model="dbitem.link">
     
                                     <a v-show="!!dbitem.link"
-                                        v-bind:href="dbitem.link"
-                                        class="input-group-addon emoji"
-                                        target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
+                                       v-bind:href="dbitem.link"
+                                       v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                                       class="input-group-addon emoji"
+                                       ><span class="glyphicon glyphicon-new-window"></span></a>
                                 </div>
                             </div>
                         </div>

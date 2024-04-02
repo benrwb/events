@@ -32,6 +32,8 @@ export const store = reactive({
         "Transport": "🚇",
         //"Information": "ℹ",
         //"Other": "💡"
-    }
+    },
+
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
 
 });

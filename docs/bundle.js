@@ -378,9 +378,10 @@ app.component('editor-dialog', {
 +"                                    <input type=\"text\" class=\"form-control\" v-model.trim=\"dbitem.location\">\n"
 +"    \n"
 +"                                    <a v-show=\"!!dbitem.location\"\n"
-+"                                        v-bind:href=\"mapUrl\"\n"
-+"                                        class=\"input-group-addon emoji\"\n"
-+"                                        target=\"_blank\"><span class=\"glyphicon glyphicon-map-marker\"></span></a>\n"
++"                                       v-bind:href=\"mapUrl\"\n"
++"                                       v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                                       class=\"input-group-addon emoji\"\n"
++"                                       ><span class=\"glyphicon glyphicon-map-marker\"></span></a>\n"
 +"                                </div>\n"
 +"                            </div>\n"
 +"                        </div>\n"
@@ -421,9 +422,10 @@ app.component('editor-dialog', {
 +"                                    <input type=\"text\" class=\"form-control\" v-model=\"dbitem.link\">\n"
 +"    \n"
 +"                                    <a v-show=\"!!dbitem.link\"\n"
-+"                                        v-bind:href=\"dbitem.link\"\n"
-+"                                        class=\"input-group-addon emoji\"\n"
-+"                                        target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"></span></a>\n"
++"                                       v-bind:href=\"dbitem.link\"\n"
++"                                       v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                                       class=\"input-group-addon emoji\"\n"
++"                                       ><span class=\"glyphicon glyphicon-new-window\"></span></a>\n"
 +"                                </div>\n"
 +"                            </div>\n"
 +"                        </div>\n"
@@ -637,9 +639,10 @@ app.component('link-editor', {
 +"                                    <input type=\"text\" class=\"form-control\" v-model=\"item.link\">\n"
 +"    \n"
 +"                                    <a v-show=\"!!item.link\"\n"
-+"                                        v-bind:href=\"item.link\"\n"
-+"                                        class=\"input-group-addon emoji\"\n"
-+"                                        target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"></span></a>\n"
++"                                       v-bind:href=\"item.link\"\n"
++"                                       v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                                       class=\"input-group-addon emoji\"\n"
++"                                       ><span class=\"glyphicon glyphicon-new-window\"></span></a>\n"
 +"                                </div>\n"
 +"                            </div>\n"
 +"                        </div>\n"
@@ -749,11 +752,11 @@ app.component('links-page', {
 +"                        <span style=\"font-weight: bold\">{{ item.name }}</span>\n"
 +"\n"
 +"                        <a v-if=\"item.link\"\n"
-+"                           v-bind:href=\"item.link\"\n"
-+"                           class=\"emoji\"\n"
-+"                           style=\"text-decoration: none\"\n"
-+"                           target=\"_blank\"><span class=\"glyphicon glyphicon-new-window\"\n"
-+"                                                 style=\"padding: 0 3px\"></span></a>\n"
++"                           v-bind:href=\"item.link\" v-on:click.stop\n"
++"                           v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                           class=\"emoji\" style=\"text-decoration: none\"\n"
++"                           ><span class=\"glyphicon glyphicon-new-window\"\n"
++"                                  style=\"padding: 0 3px\"></span></a>\n"
 +"                    </div>\n"
 +"                    <div v-show=\"!!item.notes\"\n"
 +"                         class=\"text-muted\"\n"
@@ -763,7 +766,10 @@ app.component('links-page', {
 +"            </div><!-- /panel-heading -->\n"
 +"        </div>\n"
 +"\n"
-+"        \n"
++"        <label>\n"
++"            <input type=\"checkbox\" v-model=\"store.openLinksInNewWindow\"> Open links in new window\n"
++"        </label>\n"
++"        <br /><br />\n"
 +"    </div>\n",
     props: {
         dropboxData: Array,
@@ -796,8 +802,18 @@ app.component('links-page', {
         });
         function openRandomLink(items) {
             let number = Math.floor(Math.random() * items.length);
-            window.open(items[number].link);
+            if (store.openLinksInNewWindow) {
+                window.open(items[number].link);    
+            } else {
+                window.location.href = items[number].link;
+            }
         }
+        watch(() => store.openLinksInNewWindow, (newVal) => {
+            if (newVal)
+                localStorage.removeItem("events_openLinksInSameWindow");
+            else 
+                localStorage.setItem("events_openLinksInSameWindow", "yes");
+        });
         return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }
 });
@@ -897,7 +913,8 @@ const store = reactive({
         "Restaurants": "🍽️",
         "Holidays": "🌞",
         "Transport": "🚇",
-    }
+    },
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
 });
 
 app.component('timeline-page', {
@@ -962,11 +979,11 @@ app.component('timeline-page', {
 +"                            {{ store.eventTypes[item.type] }} {{ item.name }}\n"
 +"                            \n"
 +"                            <a v-if=\"item.link\"\n"
-+"                            v-bind:href=\"item.link\"\n"
-+"                            class=\"emoji\"\n"
-+"                            style=\"text-decoration: none\"\n"
-+"                            ><span class=\"glyphicon glyphicon-link\"\n"
-+"                                                    style=\"padding: 0 3px\"></span></a>\n"
++"                               v-bind:href=\"item.link\" v-on:click.stop\n"
++"                               v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                               class=\"emoji\" style=\"text-decoration: none\"\n"
++"                               ><span class=\"glyphicon glyphicon-new-window\"\n"
++"                                      style=\"padding: 0 3px\"></span></a>\n"
 +"                        </div>\n"
 +"                        <div v-show=\"!isCollapsed(item)\">\n"
 +"                            <div v-if=\"item.date\">\n"
