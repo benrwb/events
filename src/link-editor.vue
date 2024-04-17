@@ -47,8 +47,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-xs-3 control-label">Notes</label>
-                            <div class="col-xs-9">
+                            <label class="col-sm-3 control-label">Notes</label>
+                            <!-- Note: `sm` not `xs` to make notes box wider on mobile -->
+                            <div class="col-sm-9">
                                 <expanding-textarea v-model="item.notes" 
                                                     min-height="34"
                                                     ref="textarea" />
