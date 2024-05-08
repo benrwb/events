@@ -85,6 +85,7 @@
         //     dropboxSync
         // },
         data: function() {
+            window.location.hash = ""; // clear hash
             return {
                 activeTab: "timeline",
                 previousTab: "", // to restore previously-active tab when editor closed

@@ -76,6 +76,7 @@ const defineComponent = Vue.defineComponent;
 +"\n"
 +"</div>\n",
         data: function() {
+            window.location.hash = ""; // clear hash
             return {
                 activeTab: "timeline",
                 previousTab: "", // to restore previously-active tab when editor closed
