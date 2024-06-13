@@ -15,6 +15,7 @@ export interface TimelineItem extends BaseItem {
     date: string;
     schoolHolidays: boolean;
     status: string;
+    showNotesOnTimeline: boolean;
 }
 
 export interface TimelineWithHeadings {

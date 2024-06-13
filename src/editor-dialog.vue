@@ -126,11 +126,17 @@
                             </div>
                         </div>
 
-                        
 
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <div v-if="activeTab == 'notes'"
+                         class="checkbox" style="float: left; margin-top: 0">
+                        <label>
+                            <input type="checkbox" v-model="dbitem.showNotesOnTimeline" />
+                            Show Notes on Timeline
+                        </label>
+                    </div>
                     <!--<div v-show="activeTab == 'notes'"
                          style="float: left">
                         <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
@@ -283,7 +289,8 @@ function new_timelineItem(): TimelineItem {
         schoolHolidays: false,
         status: '',
         link: '',
-        notes: ''
+        notes: '',
+        showNotesOnTimeline: undefined
     };
 }
 </script>

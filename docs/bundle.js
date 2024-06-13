@@ -431,11 +431,17 @@ app.component('editor-dialog', {
 +"                            </div>\n"
 +"                        </div>\n"
 +"\n"
-+"                        \n"
 +"\n"
 +"                    </div>\n"
 +"                </div>\n"
 +"                <div class=\"modal-footer\">\n"
++"                    <div v-if=\"activeTab == 'notes'\"\n"
++"                         class=\"checkbox\" style=\"float: left; margin-top: 0\">\n"
++"                        <label>\n"
++"                            <input type=\"checkbox\" v-model=\"dbitem.showNotesOnTimeline\" />\n"
++"                            Show Notes on Timeline\n"
++"                        </label>\n"
++"                    </div>\n"
 +"                    <!--<div v-show=\"activeTab == 'notes'\"\n"
 +"                         style=\"float: left\">\n"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertTodo\">⏹</button>\n"
@@ -508,7 +514,8 @@ function new_timelineItem() {
         schoolHolidays: false,
         status: '',
         link: '',
-        notes: ''
+        notes: '',
+        showNotesOnTimeline: undefined
     };
 }
 app.component('expanding-textarea', {
@@ -1007,6 +1014,10 @@ app.component('timeline-page', {
 +"                                </span>\n"
 +"                            </div>\n"
 +"                        </div>\n"
++"                        <div v-if=\"item.showNotesOnTimeline\"\n"
++"                             v-html=\"convertMarkdownToHtml(item.notes)\"\n"
++"                             style=\"background: transparent\"\n"
++"                             class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders)-->\n"
 +"                    </div><!-- /panel-heading -->\n"
 +"                </div>\n"
 +"            </div>\n"
@@ -1031,7 +1042,10 @@ app.component('timeline-page', {
         },
         editEvent: function (itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
-                return; // don't open the editor if the link was clicked
+                return; // don't open the editor if the link icon ↗️ was clicked
+            }
+            if (event.target.tagName == 'A') {
+                return; // don't open the editor if a link in the Notes was clicked (added for `showNotesOnTimeline` feature)
             }
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
@@ -1077,6 +1091,13 @@ app.component('timeline-page', {
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
+        },
+        convertMarkdownToHtml: function (markdown) {
+            var converter = new showdown.Converter({ 
+                tables: true, // enable support for tables
+                openLinksInNewWindow: store.openLinksInNewWindow 
+            });
+            return converter.makeHtml(markdown);
         },
         formatDate: _formatDate
     },
