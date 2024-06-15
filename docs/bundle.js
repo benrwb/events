@@ -1018,8 +1018,11 @@ app.component('timeline-page', {
 +"                        </div>\n"
 +"                        <div v-if=\"item.showNotesOnTimeline\"\n"
 +"                             v-html=\"convertMarkdownToHtml(item.notes)\"\n"
-+"                             style=\"background: transparent\"\n"
-+"                             class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders)-->\n"
++"                             style=\"background: transparent; cursor:auto\"\n"
++"                             v-on:click.stop=\"\"\n"
++"                             class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
++"                                                      <!-- `click.stop` so that clicking on the Notes doesn't open the editor \n"
++"                                                           (this is to enable selecting text and clicking links)-->\n"
 +"                    </div><!-- /panel-heading -->\n"
 +"                </div>\n"
 +"            </div>\n"
@@ -1045,9 +1048,6 @@ app.component('timeline-page', {
         editEvent: function (itemId, event) {
             if (event.target.classList.contains("glyphicon-new-window")) {
                 return; // don't open the editor if the link icon ↗️ was clicked
-            }
-            if (event.target.tagName == 'A') {
-                return; // don't open the editor if a link in the Notes was clicked (added for `showNotesOnTimeline` feature)
             }
             var idx = this.timeline.findIndex(z => z.id === itemId);
             var copy = Object.assign({}, this.timeline[idx]); // create a copy of the item for the editor to work with
