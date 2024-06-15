@@ -19,7 +19,7 @@
                             </bootstrap-nav> -->
                         </ul>
                     </h4>
-                </div>
+                </div><!-- /modal-header -->
                 <div>
                     <!-- class="modal-body" style="padding-bottom: 0" -->
 
@@ -127,16 +127,18 @@
                         </div>
 
 
-                    </div>
-                </div>
-                <div class="modal-footer">
+                    </div><!-- /activeTab == 'details' -->
+
                     <div v-if="activeTab == 'notes'"
-                         class="checkbox" style="float: left; margin-top: 0">
+                         class="checkbox">
                         <label>
                             <input type="checkbox" v-model="dbitem.showNotesOnTimeline" />
                             Show Notes on Timeline
                         </label>
                     </div>
+
+                </div><!-- /"modal-body" -->
+                <div class="modal-footer">
                     <!--<div v-show="activeTab == 'notes'"
                          style="float: left">
                         <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
