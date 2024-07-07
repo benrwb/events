@@ -148,6 +148,19 @@ const defineComponent = Vue.defineComponent;
             formatDate: _formatDate
         }
     });
+                {   // this is wrapped in a block because there might be more than 
+                    // one component with styles, in which case we will have 
+                    // multiple 'componentStyles' variables and don't want them to clash!
+                    const componentStyles = document.createElement('style');
+                    componentStyles.textContent = `    .syncdiv {
+        position: fixed;
+        top: 5px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 1; /* display in front of navbar */
+    }`;
+                    document.head.appendChild(componentStyles);
+                }
 app.component('bootstrap-datepicker', {
     template: "    <input class='form-control' type='text' />\n",
     props: {
@@ -520,6 +533,15 @@ function new_timelineItem() {
         showNotesOnTimeline: undefined
     };
 }
+                {   // this is wrapped in a block because there might be more than 
+                    // one component with styles, in which case we will have 
+                    // multiple 'componentStyles' variables and don't want them to clash!
+                    const componentStyles = document.createElement('style');
+                    componentStyles.textContent = `    .no-bottom-margin {
+        margin-bottom: 0;
+    }`;
+                    document.head.appendChild(componentStyles);
+                }
 app.component('expanding-textarea', {
     template: "    <div>\n"
 +"\n"
@@ -952,80 +974,75 @@ app.component('timeline-page', {
 +"\n"
 +"        <div v-for=\"(items, heading, idx) in orderedTimeline\"\n"
 +"             v-bind:key=\"heading\"\n"
-+"             v-bind:id=\"heading.toString()\">\n"
++"             v-bind:id=\"heading.toString()\"\n"
++"             v-bind:class=\"{ 'school-holidays': items[0].schoolHolidays }\">\n"
 +"            \n"
-+"            <h1 v-if=\"heading != 'N/A' && !store.search\">\n"
++"            <h1 v-if=\"!heading.startsWith('N/A') && !store.search\">\n"
 +"                {{ heading }}\n"
 +"                <a v-if=\"idx > 0\"\n"
 +"                   style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
 +"            </h1>\n"
 +"            \n"
 +"            <div v-for=\"item in items\"\n"
-+"                 v-bind:key=\"item.id\"\n"
-+"                 v-bind:class=\"{ 'glow': item.schoolHolidays }\">\n"
-+"                 <!-- ^^^ `glow` class is applied to *parent* div (above)\n"
-+"                          as opposed to panel (below); this allows the \n"
-+"                          panel below to keep its rounded corners (border-radius),\n"
-+"                          which we would otherwise have to remove\n"
-+"                          to ensure that the `glow` outline was rectangular. -->\n"
-+"                <div class=\"panel\"\n"
++"                    v-bind:key=\"item.id\"\n"
++"                    class=\"panel\"\n"
 +"                    v-on:click=\"editEvent(item.id, $event)\"\n"
 +"                    style=\"cursor: pointer\"\n"
 +"                    v-bind:class=\"{ 'panel-success': item.status == 'Going',\n"
 +"                                    'panel-default': item.status == 'Interested',\n"
 +"                                    'panel-danger': item.status == 'Need to book',\n"
 +"                                    'panel-warning': !item.status,\n"
-+"                                    'faded': item.id == itemBeingUpdated }\">\n"
-+"                    <div class=\"panel-heading\">\n"
-+"                        <div v-if=\"isCollapsed(item) && item.date\"\n"
-+"                            class=\"pull-right\"\n"
-+"                            v-bind:class=\"{'cancelled': item.name.includes('❌')}\">\n"
-+"                            <span class=\"text-muted\">{{ formatDate(item.date, 'ddd D/MMM') }}</span>\n"
-+"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\"> ({{ shorten(howSoon(item.date)) }})</span>\n"
++"                                    'faded': item.id == itemBeingUpdated,\n"
++"                                    'same-date': nextItemIsSameDate(item, items) }\">\n"
++"                <div class=\"panel-heading\">\n"
++"                    <div v-if=\"isCollapsed(item) && item.date\"\n"
++"                        class=\"pull-right\"\n"
++"                        v-bind:class=\"{'cancelled': item.name.includes('❌')}\">\n"
++"                        <span class=\"text-muted\">{{ formatDate(item.date, 'ddd D/MMM') }}</span>\n"
++"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\"> ({{ shorten(howSoon(item.date)) }})</span>\n"
++"                    </div>\n"
++"                    <div style=\"font-weight: bold\"\n"
++"                        v-bind:class=\"{ 'text-muted': isCollapsed(item),\n"
++"                                        'cancelled': item.name.includes('❌') }\">\n"
++"                        \n"
++"                        {{ store.eventTypes[item.type] }} {{ item.name }}\n"
++"                        \n"
++"                        <a v-if=\"item.link\"\n"
++"                            v-bind:href=\"item.link\" v-on:click.stop\n"
++"                            v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
++"                            class=\"emoji\" style=\"text-decoration: none\"\n"
++"                            ><span class=\"glyphicon glyphicon-new-window\"\n"
++"                                    style=\"padding: 0 3px\"></span></a>\n"
++"                    </div>\n"
++"                    <div v-show=\"!isCollapsed(item)\">\n"
++"                        <div v-if=\"item.date\">\n"
++"                            <span class=\"text-muted\">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>\n"
++"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),\n"
++"                                                'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }\">\n"
++"                                                <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->\n"
++"                                ({{ howSoon(item.date) }})\n"
++"                            </span>\n"
 +"                        </div>\n"
-+"                        <div style=\"font-weight: bold\"\n"
-+"                            v-bind:class=\"{ 'text-muted': isCollapsed(item),\n"
-+"                                            'cancelled': item.name.includes('❌') }\">\n"
-+"                            \n"
-+"                            {{ store.eventTypes[item.type] }} {{ item.name }}\n"
-+"                            \n"
-+"                            <a v-if=\"item.link\"\n"
-+"                               v-bind:href=\"item.link\" v-on:click.stop\n"
-+"                               v-bind:target=\"store.openLinksInNewWindow ? '_blank' : null\"\n"
-+"                               class=\"emoji\" style=\"text-decoration: none\"\n"
-+"                               ><span class=\"glyphicon glyphicon-new-window\"\n"
-+"                                      style=\"padding: 0 3px\"></span></a>\n"
++"                        <div v-if=\"item.location\"\n"
++"                            class=\"text-muted\">{{ item.location }}</div>\n"
++"                        <div v-if=\"item.status\">\n"
++"                            <span class=\"emoji\">\n"
++"                                {{ store.statusList[item.status] }}\n"
++"                            </span>\n"
++"                            <span class=\"text-muted\">\n"
++"                                {{ item.status }}\n"
++"                            </span>\n"
 +"                        </div>\n"
-+"                        <div v-show=\"!isCollapsed(item)\">\n"
-+"                            <div v-if=\"item.date\">\n"
-+"                                <span class=\"text-muted\">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>\n"
-+"                                <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),\n"
-+"                                                    'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }\">\n"
-+"                                                    <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->\n"
-+"                                    ({{ howSoon(item.date) }})\n"
-+"                                </span>\n"
-+"                            </div>\n"
-+"                            <div v-if=\"item.location\"\n"
-+"                                class=\"text-muted\">{{ item.location }}</div>\n"
-+"                            <div v-if=\"item.status\">\n"
-+"                                <span class=\"emoji\">\n"
-+"                                    {{ store.statusList[item.status] }}\n"
-+"                                </span>\n"
-+"                                <span class=\"text-muted\">\n"
-+"                                    {{ item.status }}\n"
-+"                                </span>\n"
-+"                            </div>\n"
-+"                        </div>\n"
-+"                        <div v-if=\"item.showNotesOnTimeline\"\n"
-+"                             v-html=\"convertMarkdownToHtml(item.notes)\"\n"
-+"                             style=\"background: transparent; cursor:auto\"\n"
-+"                             v-on:click.stop=\"\"\n"
-+"                             class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
-+"                                                      <!-- `click.stop` so that clicking on the Notes doesn't open the editor \n"
-+"                                                           (this is to enable selecting text and clicking links)-->\n"
-+"                    </div><!-- /panel-heading -->\n"
-+"                </div>\n"
-+"            </div>\n"
++"                    </div>\n"
++"                    <div v-if=\"item.showNotesOnTimeline\"\n"
++"                            v-html=\"convertMarkdownToHtml(item.notes)\"\n"
++"                            style=\"background: transparent; cursor:auto\"\n"
++"                            v-on:click.stop=\"\"\n"
++"                            class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
++"                                                    <!-- `click.stop` so that clicking on the Notes doesn't open the editor \n"
++"                                                        (this is to enable selecting text and clicking links)-->\n"
++"                </div><!-- /panel-heading -->\n"
++"            </div><!-- /panel -->\n"
 +"        </div>\n"
 +"\n"
 +"        \n"
@@ -1101,6 +1118,36 @@ app.component('timeline-page', {
             });
             return converter.makeHtml(markdown);
         },
+        nextItemIsSameDate: function (item, items) {
+            if (!item.date) return false; // e.g. on "Ideas" tab
+            let nextIdx = items.indexOf(item) + 1;
+            if (nextIdx < items.length) {
+                return item.date == items[nextIdx].date;
+            }
+            return false;
+        },
+        groupBySchoolHolidays: function (events) {
+            if (!events || events.length == 0) return {};
+            let timeline = {};
+            let curGroup = [];
+            let groupNumber = 1;
+            let inSchoolHolidays = events[0].schoolHolidays;
+            function newGroup() {
+                let groupName = "N/A " + (groupNumber++).toString().padStart(2, '0');
+                timeline[groupName] = curGroup; // add current group to timeline
+            }
+            events.forEach(item => {
+                if (inSchoolHolidays == item.schoolHolidays) {
+                    curGroup.push(item);
+                } else {
+                    newGroup();
+                    inSchoolHolidays = item.schoolHolidays;
+                    curGroup = [item];
+                }
+            });
+            newGroup(); // save last group
+            return timeline;
+        },
         formatDate: _formatDate
     },
     computed: {
@@ -1126,7 +1173,7 @@ app.component('timeline-page', {
                     filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
                 }
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
-                return { 'N/A': orderedTimeline };
+                return this.groupBySchoolHolidays(orderedTimeline);
             }
         },
         needToBookCount: function() {
@@ -1135,3 +1182,30 @@ app.component('timeline-page', {
         }
     }
 });
+                {   // this is wrapped in a block because there might be more than 
+                    // one component with styles, in which case we will have 
+                    // multiple 'componentStyles' variables and don't want them to clash!
+                    const componentStyles = document.createElement('style');
+                    componentStyles.textContent = `    div.same-date {
+        margin-bottom: 0; /* no spacing betweens events taking place on the same date */
+    }
+    div.school-holidays {
+        outline: solid 11px #c0d3e7;
+        background-color: #c0d3e7;
+    }
+    div.school-holidays + div:not(.school-holidays) {
+        /* create extra spacing */
+        margin-top: 30px;
+    }
+    div:not(.school-holidays) + div.school-holidays {
+        /* create extra spacing */
+        margin-top: 30px;
+    }
+    .cancelled {
+        text-decoration: line-through;
+    }
+    .text-dark {
+        color: #444; 
+    }`;
+                    document.head.appendChild(componentStyles);
+                }

@@ -1,3 +1,12 @@
+<style>
+    .syncdiv {
+        position: fixed;
+        top: 5px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 1; /* display in front of navbar */
+    }
+</style>
 <template>
 <div>
 

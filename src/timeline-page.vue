@@ -1,3 +1,26 @@
+<style>
+    div.same-date {
+        margin-bottom: 0; /* no spacing betweens events taking place on the same date */
+    }
+    div.school-holidays {
+        outline: solid 11px #c0d3e7;
+        background-color: #c0d3e7;
+    }
+    div.school-holidays + div:not(.school-holidays) {
+        /* create extra spacing */
+        margin-top: 30px;
+    }
+    div:not(.school-holidays) + div.school-holidays {
+        /* create extra spacing */
+        margin-top: 30px;
+    }
+    .cancelled {
+        text-decoration: line-through;
+    }
+    .text-dark {
+        color: #444; 
+    }
+</style>
 <template>
     <div>
         <label v-if="!ideasOnly && needToBookCount > 0"
@@ -22,80 +45,75 @@
 
         <div v-for="(items, heading, idx) in orderedTimeline"
              v-bind:key="heading"
-             v-bind:id="heading.toString()">
+             v-bind:id="heading.toString()"
+             v-bind:class="{ 'school-holidays': items[0].schoolHolidays }">
             
-            <h1 v-if="heading != 'N/A' && !store.search">
+            <h1 v-if="!heading.startsWith('N/A') && !store.search">
                 {{ heading }}
                 <a v-if="idx > 0"
                    style="float: right" href="#">↑</a><!-- link to go back to top -->
             </h1>
             
             <div v-for="item in items"
-                 v-bind:key="item.id"
-                 v-bind:class="{ 'glow': item.schoolHolidays }">
-                 <!-- ^^^ `glow` class is applied to *parent* div (above)
-                          as opposed to panel (below); this allows the 
-                          panel below to keep its rounded corners (border-radius),
-                          which we would otherwise have to remove
-                          to ensure that the `glow` outline was rectangular. -->
-                <div class="panel"
+                    v-bind:key="item.id"
+                    class="panel"
                     v-on:click="editEvent(item.id, $event)"
                     style="cursor: pointer"
                     v-bind:class="{ 'panel-success': item.status == 'Going',
                                     'panel-default': item.status == 'Interested',
                                     'panel-danger': item.status == 'Need to book',
                                     'panel-warning': !item.status,
-                                    'faded': item.id == itemBeingUpdated }">
-                    <div class="panel-heading">
-                        <div v-if="isCollapsed(item) && item.date"
-                            class="pull-right"
-                            v-bind:class="{'cancelled': item.name.includes('❌')}">
-                            <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
-                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }"> ({{ shorten(howSoon(item.date)) }})</span>
+                                    'faded': item.id == itemBeingUpdated,
+                                    'same-date': nextItemIsSameDate(item, items) }">
+                <div class="panel-heading">
+                    <div v-if="isCollapsed(item) && item.date"
+                        class="pull-right"
+                        v-bind:class="{'cancelled': item.name.includes('❌')}">
+                        <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
+                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }"> ({{ shorten(howSoon(item.date)) }})</span>
+                    </div>
+                    <div style="font-weight: bold"
+                        v-bind:class="{ 'text-muted': isCollapsed(item),
+                                        'cancelled': item.name.includes('❌') }">
+                        
+                        {{ store.eventTypes[item.type] }} {{ item.name }}
+                        
+                        <a v-if="item.link"
+                            v-bind:href="item.link" v-on:click.stop
+                            v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
+                            class="emoji" style="text-decoration: none"
+                            ><span class="glyphicon glyphicon-new-window"
+                                    style="padding: 0 3px"></span></a>
+                    </div>
+                    <div v-show="!isCollapsed(item)">
+                        <div v-if="item.date">
+                            <span class="text-muted">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>
+                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
+                                                'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
+                                                <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
+                                ({{ howSoon(item.date) }})
+                            </span>
                         </div>
-                        <div style="font-weight: bold"
-                            v-bind:class="{ 'text-muted': isCollapsed(item),
-                                            'cancelled': item.name.includes('❌') }">
-                            
-                            {{ store.eventTypes[item.type] }} {{ item.name }}
-                            
-                            <a v-if="item.link"
-                               v-bind:href="item.link" v-on:click.stop
-                               v-bind:target="store.openLinksInNewWindow ? '_blank' : null"
-                               class="emoji" style="text-decoration: none"
-                               ><span class="glyphicon glyphicon-new-window"
-                                      style="padding: 0 3px"></span></a>
+                        <div v-if="item.location"
+                            class="text-muted">{{ item.location }}</div>
+                        <div v-if="item.status">
+                            <span class="emoji">
+                                {{ store.statusList[item.status] }}
+                            </span>
+                            <span class="text-muted">
+                                {{ item.status }}
+                            </span>
                         </div>
-                        <div v-show="!isCollapsed(item)">
-                            <div v-if="item.date">
-                                <span class="text-muted">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>
-                                <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
-                                                    'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
-                                                    <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
-                                    ({{ howSoon(item.date) }})
-                                </span>
-                            </div>
-                            <div v-if="item.location"
-                                class="text-muted">{{ item.location }}</div>
-                            <div v-if="item.status">
-                                <span class="emoji">
-                                    {{ store.statusList[item.status] }}
-                                </span>
-                                <span class="text-muted">
-                                    {{ item.status }}
-                                </span>
-                            </div>
-                        </div>
-                        <div v-if="item.showNotesOnTimeline"
-                             v-html="convertMarkdownToHtml(item.notes)"
-                             style="background: transparent; cursor:auto"
-                             v-on:click.stop=""
-                             class="editor-preview" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->
-                                                      <!-- `click.stop` so that clicking on the Notes doesn't open the editor 
-                                                           (this is to enable selecting text and clicking links)-->
-                    </div><!-- /panel-heading -->
-                </div>
-            </div>
+                    </div>
+                    <div v-if="item.showNotesOnTimeline"
+                            v-html="convertMarkdownToHtml(item.notes)"
+                            style="background: transparent; cursor:auto"
+                            v-on:click.stop=""
+                            class="editor-preview" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->
+                                                    <!-- `click.stop` so that clicking on the Notes doesn't open the editor 
+                                                        (this is to enable selecting text and clicking links)-->
+                </div><!-- /panel-heading -->
+            </div><!-- /panel -->
         </div>
 
         
@@ -105,7 +123,7 @@
 <script lang="ts">
 
 import editorDialog from './editor-dialog.vue'
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, isMemoSame, PropType } from 'vue';
 import * as moment from "moment";
 import { TimelineItem, TimelineWithHeadings } from './types/app';
 import * as _ from "lodash";
@@ -211,6 +229,42 @@ export default defineComponent({
             });
             return converter.makeHtml(markdown);
         },
+        nextItemIsSameDate: function (item: TimelineItem, items: TimelineItem[]) {
+            if (!item.date) return false; // e.g. on "Ideas" tab
+            let nextIdx = items.indexOf(item) + 1;
+            if (nextIdx < items.length) {
+                return item.date == items[nextIdx].date;
+            }
+            return false;
+        },
+        groupBySchoolHolidays: function (events: TimelineItem[]): TimelineWithHeadings {
+            // Group events according to `schoolHolidays` (while still keeping them in date order).
+            // This allows a background colour / border (outline) to be applied to events in the school hols.
+            // Group name begins with "N/A" to hide the heading.
+            // e.g. {"N/A 01": [events from June-mid July], "N/A 02": [events in summer hols], "N/A 03": [events in September etc]}
+            if (!events || events.length == 0) return {};
+            let timeline = {} as TimelineWithHeadings;
+            let curGroup = [] as TimelineItem[];
+            let groupNumber = 1;
+            let inSchoolHolidays = events[0].schoolHolidays;
+            function newGroup() {
+                let groupName = "N/A " + (groupNumber++).toString().padStart(2, '0');
+                timeline[groupName] = curGroup; // add current group to timeline
+            }
+            events.forEach(item => {
+                if (inSchoolHolidays == item.schoolHolidays) {
+                    // continue adding to current group
+                    curGroup.push(item);
+                } else {
+                    // start a new group
+                    newGroup();
+                    inSchoolHolidays = item.schoolHolidays;
+                    curGroup = [item];
+                }
+            });
+            newGroup(); // save last group
+            return timeline;
+        },
         formatDate: _formatDate
     },
     computed: {
@@ -238,7 +292,7 @@ export default defineComponent({
                     filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
                 }
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
-                return { 'N/A': orderedTimeline };
+                return this.groupBySchoolHolidays(orderedTimeline);
             }
         },
         needToBookCount: function(): number {

@@ -1,3 +1,8 @@
+<style>
+    .no-bottom-margin {
+        margin-bottom: 0;
+    }
+</style>
 <template>
 <div class="editor-dialog">
     <!-- <div class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">

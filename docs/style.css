@@ -1,45 +1,12 @@
-[v-cloak] {
-    display: none;
-}
+
 .emoji {
     font-family: 'Segoe UI Emoji';
 }
-.syncdiv {
-    position: fixed;
-    top: 5px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    z-index: 1; /* display in front of navbar */
-}
+
 .faded {
     opacity: 0.5;
 }
-.glow {
-    /* border-color: blue;
-    outline: solid 3px #eef; */
-    /* border-left: solid 5px steelblue; */
-    outline: solid 11px #c0d3e7;
-    background-color: #c0d3e7;
-    /* border-radius: 0; */
-}
-.cancelled {
-    text-decoration: line-through;
-}
-/* .glow>.panel-heading {
-    border-radius: 3px;
-} */
-div.glow + div:not(.glow) {
-    /* create extra spacing */
-    margin-top: 30px;
-}
-div:not(.glow) + div.glow {
-    /* create extra spacing */
-    margin-top: 30px;
-}
 
-.no-bottom-margin {
-    margin-bottom: 0;
-}
 
 /* https://github.com/sparksuite/simplemde-markdown-editor/issues/263#issuecomment-262591099 */   
 .simplemde-fullscreen .modal-dialog {
@@ -57,10 +24,6 @@ div:not(.glow) + div.glow {
     /* for simplemde-markdown-editor */
     /* height: 450px; */
     box-sizing: content-box; /* see https://github.com/sparksuite/simplemde-markdown-editor/issues/619#issuecomment-374179389 */
-}
-
-.text-dark { /* used by timeline-page.vue */
-    color: #444; 
 }
 
 .cm-s-easymde .cm-comment {
