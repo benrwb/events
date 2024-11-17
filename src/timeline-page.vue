@@ -70,7 +70,10 @@
                         class="pull-right"
                         v-bind:class="{'cancelled': item.name.includes('❌')}">
                         <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
-                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }"> ({{ shorten(howSoon(item.date)) }})</span>
+                        <span v-bind:title="howSoon(item.date, true)"
+                              v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">
+                            ({{ shorten(howSoon(item.date)) }})
+                        </span>
                     </div>
                     <div style="font-weight: bold"
                         v-bind:class="{ 'text-muted': isCollapsed(item),
@@ -88,8 +91,9 @@
                     <div v-show="!isCollapsed(item)">
                         <div v-if="item.date">
                             <span class="text-muted">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>
-                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
-                                                'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
+                            <span v-bind:title="howSoon(item.date, true)"
+                                  v-bind:class="{ 'text-danger': dateIsInPast(item.date),
+                                                  'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
                                                 <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
                                 ({{ howSoon(item.date) }})
                             </span>
@@ -160,7 +164,7 @@ export default defineComponent({
         isCollapsed: function(item) { 
             return item.status == "Interested";
         },
-        howSoon: function(date) {
+        howSoon: function(date: string, showAsWeeks?: boolean) {
             // NOTE: Using UTC for date comparisons, to avoid problems caused by 
             //       comparing dates from different timezones (due to daylight savings):
             // EXAMPLE (LOCAL TIME):    
@@ -190,6 +194,9 @@ export default defineComponent({
                 isNegative = true;
             }
 
+            // `showAsWeeks`: e.g. show "12 weeks" instead of "3 months"
+            let weeksThreshold = showAsWeeks ? 52 : 8;
+
             if (duration.asDays() < 7) {
                 if (duration.days() == 0)
                     return "Today";
@@ -197,8 +204,8 @@ export default defineComponent({
                     // Less than a week away - show # days
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < 12) {
-                // Less than 12 weeks away - show in weeks/days
+            } else if (duration.asWeeks() < weeksThreshold) {
+                // Less than `weeksThreshold` weeks away - show in weeks/days
                 // "Normally, the timetable for any particular day is confirmed 12 weeks in advance."
                 // -- https://www.nationalrail.co.uk/travel-information/temporary-timetable-changes/
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
