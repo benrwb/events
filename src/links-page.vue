@@ -112,13 +112,44 @@ export default defineComponent({
             return _.groupBy(ordered, 'type');
         });
 
+        let countLookup = {}; // a count of how many times each link has been opened
+                              // { key: link (string), value: count (number) }
+                              // (this is to avoid opening the same link many times in a row,
+                              //  which can happen when using `Math.random()`)
+
         function openRandomLink(items: LinkItem[]) {
-            let number = Math.floor(Math.random() * items.length);
+            if (items.length == 0)
+                return; // nothing to do
+
+            // Ensure that `countLookup` contains an entry for each link in `items`,
+            // and find the lowest count.
+            let lowestCount = 999;
+            items.forEach(item => {
+                if (!countLookup.hasOwnProperty(item.link)) {
+                    countLookup[item.link] = 0; // add new item
+                }
+                if (countLookup[item.link] < lowestCount) {
+                    lowestCount = countLookup[item.link]; // update `lowestCount`
+                }
+            })
+
+            // Build a list of links which have been used `lowestCount` times,
+            // and pick one at random
+            let linksToSelectFrom = items
+                .filter(item => countLookup[item.link] == lowestCount)
+                .map(item => item.link);
+            let index = Math.floor(Math.random() * linksToSelectFrom.length);
+            let link = linksToSelectFrom[index];
+
+            // Open the link
             if (store.openLinksInNewWindow) {
-                window.open(items[number].link);    
+                window.open(link);    
             } else {
-                window.location.href = items[number].link;
+                window.location.href = link;
             }
+
+            // Update count
+            countLookup[link]++;
         }
 
         watch(() => store.openLinksInNewWindow, (newVal) => {

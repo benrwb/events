@@ -833,13 +833,30 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
+        let countLookup = {}; // a count of how many times each link has been opened
         function openRandomLink(items) {
-            let number = Math.floor(Math.random() * items.length);
+            if (items.length == 0)
+                return; // nothing to do
+            let lowestCount = 999;
+            items.forEach(item => {
+                if (!countLookup.hasOwnProperty(item.link)) {
+                    countLookup[item.link] = 0; // add new item
+                }
+                if (countLookup[item.link] < lowestCount) {
+                    lowestCount = countLookup[item.link]; // update `lowestCount`
+                }
+            })
+            let linksToSelectFrom = items
+                .filter(item => countLookup[item.link] == lowestCount)
+                .map(item => item.link);
+            let index = Math.floor(Math.random() * linksToSelectFrom.length);
+            let link = linksToSelectFrom[index];
             if (store.openLinksInNewWindow) {
-                window.open(items[number].link);    
+                window.open(link);    
             } else {
-                window.location.href = items[number].link;
+                window.location.href = link;
             }
+            countLookup[link]++;
         }
         watch(() => store.openLinksInNewWindow, (newVal) => {
             if (newVal)
