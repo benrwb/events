@@ -12,7 +12,8 @@ export const store = reactive({
         "Music": "🎵",
         "Excursion": "🚶‍",
         "Holiday - Abroad": "🌞",
-        "Holiday - UK": "🇬🇧"
+        "Holiday - UK": "🇬🇧",
+        "Tech": "🤓",
     },
     statusList: {
         "": "",
