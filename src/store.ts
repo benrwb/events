@@ -13,7 +13,7 @@ export const store = reactive({
         "Excursion": "🚶‍",
         "Holiday - Abroad": "🌞",
         "Holiday - UK": "🇬🇧",
-        "Tech": "🤓",
+        "Tech": "💻",
     },
     statusList: {
         "": "",
