@@ -1017,8 +1017,7 @@ app.component('timeline-page', {
 +"                        class=\"pull-right\"\n"
 +"                        v-bind:class=\"{'cancelled': item.name.includes('❌')}\">\n"
 +"                        <span class=\"text-muted\">{{ formatDate(item.date, 'ddd D/MMM') }}</span>\n"
-+"                        <span v-bind:title=\"howSoon(item.date, true)\"\n"
-+"                              v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">\n"
++"                        <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date) }\">\n"
 +"                            ({{ shorten(howSoon(item.date)) }})\n"
 +"                        </span>\n"
 +"                    </div>\n"
@@ -1038,8 +1037,7 @@ app.component('timeline-page', {
 +"                    <div v-show=\"!isCollapsed(item)\">\n"
 +"                        <div v-if=\"item.date\">\n"
 +"                            <span class=\"text-muted\">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>\n"
-+"                            <span v-bind:title=\"howSoon(item.date, true)\"\n"
-+"                                  v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),\n"
++"                            <span v-bind:class=\"{ 'text-danger': dateIsInPast(item.date),\n"
 +"                                                  'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }\">\n"
 +"                                                <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->\n"
 +"                                ({{ howSoon(item.date) }})\n"
@@ -1095,7 +1093,7 @@ app.component('timeline-page', {
         isCollapsed: function(item) { 
             return item.status == "Interested";
         },
-        howSoon: function(date, showAsWeeks) {
+        howSoon: function(date) {
             var eventDate = moment.utc(date);
             var nowDate = moment.utc(moment().format("YYYY-MM-DD"));
             var duration = moment.duration(eventDate.diff(nowDate));
@@ -1108,19 +1106,23 @@ app.component('timeline-page', {
                 duration = moment.duration(0 - duration.asMilliseconds(), 'milliseconds');
                 isNegative = true;
             }
-            let weeksThreshold = showAsWeeks ? 52 : 8;
             if (duration.asDays() < 7) {
                 if (duration.days() == 0)
                     return "Today";
                 else 
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < weeksThreshold) {
+            } else if (duration.asWeeks() < 8) {
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");
-            } else if (duration.asYears() < 1) {
-                return pluralise(duration.months() /* (IDEA) + half */, "month")
+            } else if (duration.asMonths() < 4) {
+                return pluralise(duration.months(), "month")
+                    + "/" + Math.floor(duration.asWeeks()) + "w " + Math.floor(duration.asDays() % 7) + "d"
+                     + (isNegative ? " ago" : "");
+            }
+            else if (duration.asYears() < 1) {
+                return pluralise(duration.months(), "month")
                      + (isNegative ? " ago" : "");
             } else {
                 return pluralise(duration.years(), "year") + " "  
@@ -1129,7 +1131,12 @@ app.component('timeline-page', {
             }
         },
         shorten: function (str) {
-            return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");
+            str = str.replace(/ week[s]?/,"w")
+                     .replace(/ day[s]?/, "d");
+            let slashIdx = str.indexOf("/")
+            if (slashIdx != -1)
+                str = str.substring(0, slashIdx);
+            return str;
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();

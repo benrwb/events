@@ -70,8 +70,7 @@
                         class="pull-right"
                         v-bind:class="{'cancelled': item.name.includes('❌')}">
                         <span class="text-muted">{{ formatDate(item.date, 'ddd D/MMM') }}</span>
-                        <span v-bind:title="howSoon(item.date, true)"
-                              v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">
+                        <span v-bind:class="{ 'text-danger': dateIsInPast(item.date) }">
                             ({{ shorten(howSoon(item.date)) }})
                         </span>
                     </div>
@@ -91,8 +90,7 @@
                     <div v-show="!isCollapsed(item)">
                         <div v-if="item.date">
                             <span class="text-muted">{{ formatDate(item.date, 'dddd D MMMM YYYY') }}</span>
-                            <span v-bind:title="howSoon(item.date, true)"
-                                  v-bind:class="{ 'text-danger': dateIsInPast(item.date),
+                            <span v-bind:class="{ 'text-danger': dateIsInPast(item.date),
                                                   'text-dark':  !dateIsInPast(item.date) && item.status == 'Need to book' }">
                                                 <!-- ^^ change colour from red to dark gray, as red is reserved for dates in the past. -->
                                 ({{ howSoon(item.date) }})
@@ -164,7 +162,7 @@ export default defineComponent({
         isCollapsed: function(item) { 
             return item.status == "Interested";
         },
-        howSoon: function(date: string, showAsWeeks?: boolean) {
+        howSoon: function(date: string) {
             // NOTE: Using UTC for date comparisons, to avoid problems caused by 
             //       comparing dates from different timezones (due to daylight savings):
             // EXAMPLE (LOCAL TIME):    
@@ -194,9 +192,6 @@ export default defineComponent({
                 isNegative = true;
             }
 
-            // `showAsWeeks`: e.g. show "12 weeks" instead of "3 months"
-            let weeksThreshold = showAsWeeks ? 52 : 8;
-
             if (duration.asDays() < 7) {
                 if (duration.days() == 0)
                     return "Today";
@@ -204,18 +199,29 @@ export default defineComponent({
                     // Less than a week away - show # days
                     return pluralise(duration.days(), "day") 
                          + (isNegative ? " ago" : "");
-            } else if (duration.asWeeks() < weeksThreshold) {
-                // Less than `weeksThreshold` weeks away - show in weeks/days
-                // "Normally, the timetable for any particular day is confirmed 12 weeks in advance."
-                // -- https://www.nationalrail.co.uk/travel-information/temporary-timetable-changes/
+            } else if (duration.asWeeks() < 8) {
+                // Less than 8 weeks away - show in weeks/days
                 return pluralise(Math.floor(duration.asWeeks()), "week") + " " 
                      + pluralise(Math.floor(duration.asDays() % 7), "day")
                      + (isNegative ? " ago" : "");
-            } else if (duration.asYears() < 1) {
-                // Less than a year away - show in months
-                // (IDEA) var half = (duration.days() >= 15 ? "½" : "");
-                return pluralise(duration.months() /* (IDEA) + half */, "month")
+            } else if (duration.asMonths() < 4) {
+                // Less than 4 months (~17 weeks) away - show months, but also weeks/days
+                // "Normally, the timetable for any particular day is confirmed 12 weeks in advance."
+                // -- https://www.nationalrail.co.uk/travel-information/temporary-timetable-changes/
+                return pluralise(duration.months(), "month")
+                    + "/" + Math.floor(duration.asWeeks()) + "w " + Math.floor(duration.asDays() % 7) + "d"
+                    // ^^^ Note that this extra information is removed by `shorten` function
                      + (isNegative ? " ago" : "");
+            }
+            else if (duration.asYears() < 1) {
+                // Less than a year away - show in months
+                return pluralise(duration.months(), "month")
+                     + (isNegative ? " ago" : "");
+            // half month idea // } else if (duration.asYears() < 1) {
+            // half month idea //     // Less than a year away - show in months
+            // half month idea //     // (IDEA) var half = (duration.days() >= 15 ? "½" : "");
+            // half month idea //     return pluralise(duration.months() /* (IDEA) + half */, "month")
+            // half month idea //          + (isNegative ? " ago" : "");
             } else {
                 // More than a year away - show years/months
                 return pluralise(duration.years(), "year") + " "  
@@ -224,7 +230,16 @@ export default defineComponent({
             }
         },
         shorten: function (str: string) {
-            return str.replace(/ week[s]?/,"w").replace(/ day[s]?/, "d");
+            str = str.replace(/ week[s]?/,"w")
+                     .replace(/ day[s]?/, "d");
+
+            // If `str` is in the format "{months}/{weeks}{days}",
+            // then remove the information after the slash.
+            let slashIdx = str.indexOf("/")
+            if (slashIdx != -1)
+                str = str.substring(0, slashIdx);
+            
+            return str;
         },
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
