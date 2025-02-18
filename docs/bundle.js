@@ -895,6 +895,16 @@ app.component('simple-mde', {
         }
     },
     mounted: function () {
+        function convertMarkdownToHtml(text) {
+            var converter = new showdown.Converter({ 
+                tables: true, // enable support for tables
+                openLinksInNewWindow: store.openLinksInNewWindow,
+                simpleLineBreaks: true,
+                strikethrough: true,
+                simplifiedAutoLink: true
+            });
+            return converter.makeHtml(text);
+        }
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
@@ -904,7 +914,8 @@ app.component('simple-mde', {
             toolbar: ["bold", "italic", "heading", "|", 
                       "preview", "side-by-side", "fullscreen", "|", 
                       ],
-            minHeight: '100px'
+            minHeight: '100px',
+            previewRender: convertMarkdownToHtml
         });
         var self = this;
         this.mde.codemirror.on("change", function () {
