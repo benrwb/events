@@ -1246,8 +1246,8 @@ app.component('timeline-page', {
     }
     .timeline-notes>p {
         margin-left: 13px;
-        margin-top: -5px;
-        margin-bottom: -10px;
+        margin-top: -9px;
+        margin-bottom: -8px;
         color: dimgray;
     }`;
                     document.head.appendChild(componentStyles);
