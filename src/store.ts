@@ -35,6 +35,19 @@ export const store = reactive({
         //"Other": "💡"
     },
 
-    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow"), // note opposite name ('Same' vs 'New')
 
+    convertMarkdownToHtml: function (text) {
+        // https://github.com/showdownjs/showdown/wiki/Showdown-options
+        var converter = new showdown.Converter({ 
+            tables: true, // enable support for tables
+            openLinksInNewWindow: store.openLinksInNewWindow,
+            simpleLineBreaks: true,
+            // KNOWN ISSUE: Some line breaks aren't preserved,
+            //              e.g. inside of ~~strikethough~~ or ***bold+italic***
+            strikethrough: true,
+            simplifiedAutoLink: true
+        });
+        return converter.makeHtml(text);
+    }
 });

@@ -895,16 +895,6 @@ app.component('simple-mde', {
         }
     },
     mounted: function () {
-        function convertMarkdownToHtml(text) {
-            var converter = new showdown.Converter({ 
-                tables: true, // enable support for tables
-                openLinksInNewWindow: store.openLinksInNewWindow,
-                simpleLineBreaks: true,
-                strikethrough: true,
-                simplifiedAutoLink: true
-            });
-            return converter.makeHtml(text);
-        }
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
@@ -915,7 +905,7 @@ app.component('simple-mde', {
                       "preview", "side-by-side", "fullscreen", "|", 
                       ],
             minHeight: '100px',
-            previewRender: convertMarkdownToHtml
+            previewRender: store.convertMarkdownToHtml
         });
         var self = this;
         this.mde.codemirror.on("change", function () {
@@ -976,7 +966,17 @@ const store = reactive({
         "Holidays": "🌞",
         "Transport": "🚇",
     },
-    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow"), // note opposite name ('Same' vs 'New')
+    convertMarkdownToHtml: function (text) {
+        var converter = new showdown.Converter({ 
+            tables: true, // enable support for tables
+            openLinksInNewWindow: store.openLinksInNewWindow,
+            simpleLineBreaks: true,
+            strikethrough: true,
+            simplifiedAutoLink: true
+        });
+        return converter.makeHtml(text);
+    }
 });
 
 app.component('timeline-page', {
@@ -1069,7 +1069,7 @@ app.component('timeline-page', {
 +"                            v-html=\"convertMarkdownToHtml(item.notes)\"\n"
 +"                            style=\"background: transparent; cursor:auto\"\n"
 +"                            v-on:click.stop=\"\"\n"
-+"                            class=\"editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
++"                            class=\"timeline-notes editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
 +"                                                    <!-- `click.stop` so that clicking on the Notes doesn't open the editor \n"
 +"                                                        (this is to enable selecting text and clicking links)-->\n"
 +"                </div><!-- /panel-heading -->\n"
@@ -1153,11 +1153,7 @@ app.component('timeline-page', {
             return moment(datestr).isBefore();
         },
         convertMarkdownToHtml: function (markdown) {
-            var converter = new showdown.Converter({ 
-                tables: true, // enable support for tables
-                openLinksInNewWindow: store.openLinksInNewWindow 
-            });
-            return converter.makeHtml(markdown);
+            return store.convertMarkdownToHtml(markdown);
         },
         nextItemIsSameDate: function (item, items) {
             if (!item.date) return false; // e.g. on "Ideas" tab
@@ -1247,6 +1243,12 @@ app.component('timeline-page', {
     }
     .text-dark {
         color: #444; 
+    }
+    .timeline-notes>p {
+        margin-left: 13px;
+        margin-top: -5px;
+        margin-bottom: -10px;
+        color: dimgray;
     }`;
                     document.head.appendChild(componentStyles);
                 }

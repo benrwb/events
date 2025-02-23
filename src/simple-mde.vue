@@ -18,20 +18,6 @@ export default defineComponent({
     },
     mounted: function () {
 
-        function convertMarkdownToHtml(text) {
-            // https://github.com/showdownjs/showdown/wiki/Showdown-options
-            var converter = new showdown.Converter({ 
-                tables: true, // enable support for tables
-                openLinksInNewWindow: store.openLinksInNewWindow,
-                simpleLineBreaks: true,
-                // KNOWN ISSUE: Some line breaks aren't preserved,
-                //              e.g. inside of ~~strikethough~~ or ***bold+italic***
-                strikethrough: true,
-                simplifiedAutoLink: true
-            });
-            return converter.makeHtml(text);
-        }
-
         this.mde = new EasyMDE({ 
             element: this.$el,
             spellChecker: false,
@@ -53,7 +39,7 @@ export default defineComponent({
             // * As part of this, links are changed to always open in new tabs
             //   (using `addAnchorTargetBlank` function)
             // * This default rendering can be overriden using `previewRender` option:
-            previewRender: convertMarkdownToHtml
+            previewRender: store.convertMarkdownToHtml
             // ^^^ override the default renderer to allow switching on/off 
             //     "links open in new tab" feature 
             //     (based on `store.openLinksInNewWindow` setting)

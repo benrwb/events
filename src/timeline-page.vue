@@ -20,6 +20,12 @@
     .text-dark {
         color: #444; 
     }
+    .timeline-notes>p {
+        margin-left: 13px;
+        margin-top: -5px;
+        margin-bottom: -10px;
+        color: dimgray;
+    }
 </style>
 <template>
     <div>
@@ -111,7 +117,7 @@
                             v-html="convertMarkdownToHtml(item.notes)"
                             style="background: transparent; cursor:auto"
                             v-on:click.stop=""
-                            class="editor-preview" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->
+                            class="timeline-notes editor-preview" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->
                                                     <!-- `click.stop` so that clicking on the Notes doesn't open the editor 
                                                         (this is to enable selecting text and clicking links)-->
                 </div><!-- /panel-heading -->
@@ -245,11 +251,7 @@ export default defineComponent({
             return moment(datestr).isBefore();
         },
         convertMarkdownToHtml: function (markdown) {
-            var converter = new showdown.Converter({ 
-                tables: true, // enable support for tables
-                openLinksInNewWindow: store.openLinksInNewWindow 
-            });
-            return converter.makeHtml(markdown);
+            return store.convertMarkdownToHtml(markdown);
         },
         nextItemIsSameDate: function (item: TimelineItem, items: TimelineItem[]) {
             if (!item.date) return false; // e.g. on "Ideas" tab
