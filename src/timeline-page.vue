@@ -114,7 +114,7 @@
                         </div>
                     </div>
                     <div v-if="item.showNotesOnTimeline"
-                            v-html="convertMarkdownToHtml(item.notes)"
+                            v-html="getNotesForTimeline(item.notes)"
                             style="background: transparent; cursor:auto"
                             v-on:click.stop=""
                             class="timeline-notes editor-preview" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->
@@ -250,8 +250,15 @@ export default defineComponent({
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
         },
-        convertMarkdownToHtml: function (markdown) {
-            return store.convertMarkdownToHtml(markdown);
+        getNotesForTimeline: function (notes) {
+            if (!notes) return "";
+            let lineIdx = notes.indexOf("---");
+            if (lineIdx != -1)
+                // If `notes` includes a horizontal line (---),
+                // then only include the part *before* the line
+                // and ignore everything else after it.
+                notes = notes.substring(0, lineIdx);
+            return store.convertMarkdownToHtml(notes);
         },
         nextItemIsSameDate: function (item: TimelineItem, items: TimelineItem[]) {
             if (!item.date) return false; // e.g. on "Ideas" tab

@@ -449,7 +449,7 @@ app.component('editor-dialog', {
 +"\n"
 +"                    <div v-if=\"activeTab == 'notes'\"\n"
 +"                         class=\"checkbox\">\n"
-+"                        <label>\n"
++"                        <label title=\"Tip: To only show *some* of the Notes on the timeline, insert a horizontal line (---) to indicate where the timeline notes end.\">\n"
 +"                            <input type=\"checkbox\" v-model=\"dbitem.showNotesOnTimeline\" />\n"
 +"                            Show Notes on Timeline\n"
 +"                        </label>\n"
@@ -1066,7 +1066,7 @@ app.component('timeline-page', {
 +"                        </div>\n"
 +"                    </div>\n"
 +"                    <div v-if=\"item.showNotesOnTimeline\"\n"
-+"                            v-html=\"convertMarkdownToHtml(item.notes)\"\n"
++"                            v-html=\"getNotesForTimeline(item.notes)\"\n"
 +"                            style=\"background: transparent; cursor:auto\"\n"
 +"                            v-on:click.stop=\"\"\n"
 +"                            class=\"timeline-notes editor-preview\" /><!-- `editor-preview` to get styles from easymde.min.css (e.g. table borders) -->\n"
@@ -1152,8 +1152,12 @@ app.component('timeline-page', {
         dateIsInPast: function (datestr) {
             return moment(datestr).isBefore();
         },
-        convertMarkdownToHtml: function (markdown) {
-            return store.convertMarkdownToHtml(markdown);
+        getNotesForTimeline: function (notes) {
+            if (!notes) return "";
+            let lineIdx = notes.indexOf("---");
+            if (lineIdx != -1)
+                notes = notes.substring(0, lineIdx);
+            return store.convertMarkdownToHtml(notes);
         },
         nextItemIsSameDate: function (item, items) {
             if (!item.date) return false; // e.g. on "Ideas" tab

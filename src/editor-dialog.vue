@@ -136,7 +136,7 @@
 
                     <div v-if="activeTab == 'notes'"
                          class="checkbox">
-                        <label>
+                        <label title="Tip: To only show *some* of the Notes on the timeline, insert a horizontal line (---) to indicate where the timeline notes end.">
                             <input type="checkbox" v-model="dbitem.showNotesOnTimeline" />
                             Show Notes on Timeline
                         </label>
