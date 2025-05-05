@@ -24,11 +24,13 @@
                     {{ heading }}
                     <a v-if="idx > 0"
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
-                    <button v-if="heading == 'Event listings' || heading == 'Venue'"
-                        @click="openRandomLink(items, heading)"
-                        v-bind:class="allLinksOpened.includes(heading) ? 'btn-default' : 'btn-info'"
-                        class="btn">Open random link
-                    </button>
+                    <template v-if="heading == 'Event listings' || heading == 'Venue'">
+                        <button @click="openRandomLink(items, heading)"
+                                class="btn btn-info">Open random link
+                        </button>
+                        <progress style="width: 100px; vertical-align: middle;"
+                                  :max="items.length" :value="numLinksOpened[heading]"></progress>
+                    </template>
                 </h1>
                 <h5 v-if="heading == 'Venue'"
                     class="text-muted">Event listings by venue</h5>
@@ -78,7 +80,7 @@ import { defineComponent,PropType, computed, ref, watch, Ref } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { store } from "./store";
-import { pickRandomLink } from './randomise';
+import { pickRandomLink, getNumLinksOpened } from './randomise';
 
 export default defineComponent({
     props: {
@@ -119,7 +121,10 @@ export default defineComponent({
         // OLD //                      // (this is to avoid opening the same link many times in a row,
         // OLD //                      //  which can happen when using `Math.random()`)
 
-        const allLinksOpened = ref([]) as Ref<string[]>;
+        const numLinksOpened = ref({ // for progress bar
+            "Venue": getNumLinksOpened("Venue"),
+            "Event listings": getNumLinksOpened("Event listings")
+        });
 
         function openRandomLink(items: LinkItem[], heading: string) {
             if (items.length == 0)
@@ -145,11 +150,10 @@ export default defineComponent({
             // OLD // let index = Math.floor(Math.random() * linksToSelectFrom.length);
             // OLD // let link = linksToSelectFrom[index];
 
-            let [link, allDone] = pickRandomLink(items, heading);
+            let [link, linksOpenedCount] = pickRandomLink(items, heading);
 
-            if (allDone && !allLinksOpened.value.includes(heading))
-                allLinksOpened.value.push(heading); // change colour of button
-                                                    // to indicate that all links have been opened
+            numLinksOpened.value[heading] = linksOpenedCount; // update progress bar
+
             // Open the link
             if (store.openLinksInNewWindow) {
                 window.open(link);    
@@ -172,7 +176,7 @@ export default defineComponent({
         });
 
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, allLinksOpened };
+            openRandomLink, numLinksOpened };
     }
 });
 

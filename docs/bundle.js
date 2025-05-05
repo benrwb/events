@@ -759,11 +759,13 @@ app.component('links-page', {
 +"                    {{ heading }}\n"
 +"                    <a v-if=\"idx > 0\"\n"
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
-+"                    <button v-if=\"heading == 'Event listings' || heading == 'Venue'\"\n"
-+"                        @click=\"openRandomLink(items, heading)\"\n"
-+"                        v-bind:class=\"allLinksOpened.includes(heading) ? 'btn-default' : 'btn-info'\"\n"
-+"                        class=\"btn\">Open random link\n"
-+"                    </button>\n"
++"                    <template v-if=\"heading == 'Event listings' || heading == 'Venue'\">\n"
++"                        <button @click=\"openRandomLink(items, heading)\"\n"
++"                                class=\"btn btn-info\">Open random link\n"
++"                        </button>\n"
++"                        <progress style=\"width: 100px; vertical-align: middle;\"\n"
++"                                  :max=\"items.length\" :value=\"numLinksOpened[heading]\"></progress>\n"
++"                    </template>\n"
 +"                </h1>\n"
 +"                <h5 v-if=\"heading == 'Venue'\"\n"
 +"                    class=\"text-muted\">Event listings by venue</h5>\n"
@@ -834,13 +836,15 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
-        const allLinksOpened = ref([]);
+        const numLinksOpened = ref({ // for progress bar
+            "Venue": getNumLinksOpened("Venue"),
+            "Event listings": getNumLinksOpened("Event listings")
+        });
         function openRandomLink(items, heading) {
             if (items.length == 0)
                 return; // nothing to do
-            let [link, allDone] = pickRandomLink(items, heading);
-            if (allDone && !allLinksOpened.value.includes(heading))
-                allLinksOpened.value.push(heading); // change colour of button
+            let [link, linksOpenedCount] = pickRandomLink(items, heading);
+            numLinksOpened.value[heading] = linksOpenedCount; // update progress bar
             if (store.openLinksInNewWindow) {
                 window.open(link);    
             } else {
@@ -854,26 +858,35 @@ app.component('links-page', {
                 localStorage.setItem("events_openLinksInSameWindow", "yes");
         });
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, allLinksOpened };
+            openRandomLink, numLinksOpened };
     }
 });
-function pickRandomLink(items, heading) {
-    let storageKeyName = "linksAlreadyOpened_" + heading;
+function getStorageKeyName(heading) {
+    return "linksAlreadyOpened_" + heading;;
+}
+function getLinksAlreadyOpened(heading) {
+    let storageKeyName = getStorageKeyName(heading);
     let str = sessionStorage.getItem(storageKeyName);
     let alreadyOpened = (str == null) ? [] : JSON.parse(str);
+    return alreadyOpened;
+}
+function getNumLinksOpened(heading) {
+    return getLinksAlreadyOpened(heading).length;
+}
+function pickRandomLink(items, heading) {
+    let alreadyOpened = getLinksAlreadyOpened(heading);
     let allLinks = items.filter(z => !!z.link).map(z => z.link);
     let linksMinusOpened = allLinks.filter(link => !alreadyOpened.includes(link));
-    let allDone = false;
     if (linksMinusOpened.length == 0) {
         linksMinusOpened = allLinks;
         alreadyOpened = [];
-        allDone = true;
     }
     let index = Math.floor(Math.random() * linksMinusOpened.length);
     let link = linksMinusOpened[index];
     alreadyOpened.push(link);
+    let storageKeyName = getStorageKeyName(heading);
     sessionStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
-    return [link, allDone];
+    return [link, alreadyOpened.length];
 }
 
 app.component('search-box', {

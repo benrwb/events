@@ -1,12 +1,24 @@
 import { LinkItem } from "./types/app";
 
-export function pickRandomLink(items: LinkItem[], heading: string): [string, boolean] {
+function getStorageKeyName(heading: string) {
+    return "linksAlreadyOpened_" + heading;;
+}
 
-    let storageKeyName = "linksAlreadyOpened_" + heading;
-
-    // Get "links already opened" from sessionStorage
+function getLinksAlreadyOpened(heading: string): string[] {
+    let storageKeyName = getStorageKeyName(heading);
     let str = sessionStorage.getItem(storageKeyName);
     let alreadyOpened = (str == null) ? [] : JSON.parse(str);
+    return alreadyOpened;
+}
+
+export function getNumLinksOpened(heading: string) {
+    return getLinksAlreadyOpened(heading).length;
+}
+
+export function pickRandomLink(items: LinkItem[], heading: string): [string, number] {
+
+    // Get "links already opened" from sessionStorage
+    let alreadyOpened = getLinksAlreadyOpened(heading);
 
     // Build a list of all the links
     let allLinks = items.filter(z => !!z.link).map(z => z.link);
@@ -16,11 +28,11 @@ export function pickRandomLink(items: LinkItem[], heading: string): [string, boo
 
     // If there aren't any links left (i.e. if all links have already been opened)
     // then clear the list and start again
-    let allDone = false;
+    //let allDone = false;
     if (linksMinusOpened.length == 0) {
         linksMinusOpened = allLinks;
         alreadyOpened = [];
-        allDone = true;
+        //allDone = true;
     }
 
     // Pick an item at random
@@ -30,7 +42,8 @@ export function pickRandomLink(items: LinkItem[], heading: string): [string, boo
     // Add the item to the "already opened" list
     // and save it back to sessionStorage
     alreadyOpened.push(link);
+    let storageKeyName = getStorageKeyName(heading);
     sessionStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
 
-    return [link, allDone];
+    return [link, alreadyOpened.length];
 }
