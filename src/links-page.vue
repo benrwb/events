@@ -25,7 +25,7 @@
                     <a v-if="idx > 0"
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
                     <button v-if="heading == 'Event listings' || heading == 'Venue'"
-                        @click="openRandomLink(items)"
+                        @click="openRandomLink(items, heading)"
                         class="btn btn-info">Open random link
                     </button>
                 </h1>
@@ -77,6 +77,7 @@ import { defineComponent,PropType, computed, ref, watch } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { store } from "./store";
+import { pickRandomLink } from './randomise';
 
 export default defineComponent({
     props: {
@@ -112,34 +113,36 @@ export default defineComponent({
             return _.groupBy(ordered, 'type');
         });
 
-        let countLookup = {}; // a count of how many times each link has been opened
-                              // { key: link (string), value: count (number) }
-                              // (this is to avoid opening the same link many times in a row,
-                              //  which can happen when using `Math.random()`)
+        // OLD //let countLookup = {}; // a count of how many times each link has been opened
+        // OLD //                      // { key: link (string), value: count (number) }
+        // OLD //                      // (this is to avoid opening the same link many times in a row,
+        // OLD //                      //  which can happen when using `Math.random()`)
 
-        function openRandomLink(items: LinkItem[]) {
+        function openRandomLink(items: LinkItem[], heading: string) {
             if (items.length == 0)
                 return; // nothing to do
 
-            // Ensure that `countLookup` contains an entry for each link in `items`,
-            // and find the lowest count.
-            let lowestCount = 999;
-            items.forEach(item => {
-                if (!countLookup.hasOwnProperty(item.link)) {
-                    countLookup[item.link] = 0; // add new item
-                }
-                if (countLookup[item.link] < lowestCount) {
-                    lowestCount = countLookup[item.link]; // update `lowestCount`
-                }
-            })
+            // OLD // // Ensure that `countLookup` contains an entry for each link in `items`,
+            // OLD // // and find the lowest count.
+            // OLD // let lowestCount = 999;
+            // OLD // items.forEach(item => {
+            // OLD //     if (!countLookup.hasOwnProperty(item.link)) {
+            // OLD //         countLookup[item.link] = 0; // add new item
+            // OLD //     }
+            // OLD //     if (countLookup[item.link] < lowestCount) {
+            // OLD //         lowestCount = countLookup[item.link]; // update `lowestCount`
+            // OLD //     }
+            // OLD // })
+            // OLD // 
+            // OLD // // Build a list of links which have been used `lowestCount` times,
+            // OLD // // and pick one at random
+            // OLD // let linksToSelectFrom = items
+            // OLD //     .filter(item => countLookup[item.link] == lowestCount)
+            // OLD //     .map(item => item.link);
+            // OLD // let index = Math.floor(Math.random() * linksToSelectFrom.length);
+            // OLD // let link = linksToSelectFrom[index];
 
-            // Build a list of links which have been used `lowestCount` times,
-            // and pick one at random
-            let linksToSelectFrom = items
-                .filter(item => countLookup[item.link] == lowestCount)
-                .map(item => item.link);
-            let index = Math.floor(Math.random() * linksToSelectFrom.length);
-            let link = linksToSelectFrom[index];
+            let link = pickRandomLink(items, heading);
 
             // Open the link
             if (store.openLinksInNewWindow) {
@@ -149,7 +152,7 @@ export default defineComponent({
             }
 
             // Update count
-            countLookup[link]++;
+            // OLD //countLookup[link]++;
         }
 
         watch(() => store.openLinksInNewWindow, (newVal) => {
@@ -165,3 +168,5 @@ export default defineComponent({
         return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }
 });
+
+</script>

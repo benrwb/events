@@ -760,7 +760,7 @@ app.component('links-page', {
 +"                    <a v-if=\"idx > 0\"\n"
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
 +"                    <button v-if=\"heading == 'Event listings' || heading == 'Venue'\"\n"
-+"                        @click=\"openRandomLink(items)\"\n"
++"                        @click=\"openRandomLink(items, heading)\"\n"
 +"                        class=\"btn btn-info\">Open random link\n"
 +"                    </button>\n"
 +"                </h1>\n"
@@ -833,30 +833,15 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
-        let countLookup = {}; // a count of how many times each link has been opened
-        function openRandomLink(items) {
+        function openRandomLink(items, heading) {
             if (items.length == 0)
                 return; // nothing to do
-            let lowestCount = 999;
-            items.forEach(item => {
-                if (!countLookup.hasOwnProperty(item.link)) {
-                    countLookup[item.link] = 0; // add new item
-                }
-                if (countLookup[item.link] < lowestCount) {
-                    lowestCount = countLookup[item.link]; // update `lowestCount`
-                }
-            })
-            let linksToSelectFrom = items
-                .filter(item => countLookup[item.link] == lowestCount)
-                .map(item => item.link);
-            let index = Math.floor(Math.random() * linksToSelectFrom.length);
-            let link = linksToSelectFrom[index];
+            let link = pickRandomLink(items, heading);
             if (store.openLinksInNewWindow) {
                 window.open(link);    
             } else {
                 window.location.href = link;
             }
-            countLookup[link]++;
         }
         watch(() => store.openLinksInNewWindow, (newVal) => {
             if (newVal)
@@ -867,6 +852,23 @@ app.component('links-page', {
         return { addLink, editEvent, groupedLinks, store, openRandomLink };
     }
 });
+function pickRandomLink(items, heading) {
+    let storageKeyName = "linksAlreadyOpened_" + heading;
+    let str = sessionStorage.getItem(storageKeyName);
+    let alreadyOpened = (str == null) ? [] : JSON.parse(str);
+    let allLinks = items.filter(z => !!z.link).map(z => z.link);
+    let linksMinusOpened = allLinks.filter(link => !alreadyOpened.includes(link));
+    if (linksMinusOpened.length == 0) {
+        linksMinusOpened = allLinks;
+        alreadyOpened = [];
+    }
+    let index = Math.floor(Math.random() * linksMinusOpened.length);
+    let link = linksMinusOpened[index];
+    alreadyOpened.push(link);
+    sessionStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
+    return link;
+}
+
 app.component('search-box', {
     template: "    <div v-bind:class=\"{ 'input-group': !!modelValue }\">\n"
 +"        <input type=\"text\" class=\"form-control\" placeholder=\"Search\" \n"
