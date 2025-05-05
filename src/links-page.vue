@@ -26,7 +26,8 @@
                        style="float: right" href="#">↑</a><!-- link to go back to top -->
                     <button v-if="heading == 'Event listings' || heading == 'Venue'"
                         @click="openRandomLink(items, heading)"
-                        class="btn btn-info">Open random link
+                        v-bind:class="allLinksOpened.includes(heading) ? 'btn-default' : 'btn-info'"
+                        class="btn">Open random link
                     </button>
                 </h1>
                 <h5 v-if="heading == 'Venue'"
@@ -73,7 +74,7 @@
 
 <script lang="ts">
 
-import { defineComponent,PropType, computed, ref, watch } from 'vue';
+import { defineComponent,PropType, computed, ref, watch, Ref } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { store } from "./store";
@@ -118,6 +119,8 @@ export default defineComponent({
         // OLD //                      // (this is to avoid opening the same link many times in a row,
         // OLD //                      //  which can happen when using `Math.random()`)
 
+        const allLinksOpened = ref([]) as Ref<string[]>;
+
         function openRandomLink(items: LinkItem[], heading: string) {
             if (items.length == 0)
                 return; // nothing to do
@@ -142,8 +145,11 @@ export default defineComponent({
             // OLD // let index = Math.floor(Math.random() * linksToSelectFrom.length);
             // OLD // let link = linksToSelectFrom[index];
 
-            let link = pickRandomLink(items, heading);
+            let [link, allDone] = pickRandomLink(items, heading);
 
+            if (allDone && !allLinksOpened.value.includes(heading))
+                allLinksOpened.value.push(heading); // change colour of button
+                                                    // to indicate that all links have been opened
             // Open the link
             if (store.openLinksInNewWindow) {
                 window.open(link);    
@@ -165,7 +171,8 @@ export default defineComponent({
                 localStorage.setItem("events_openLinksInSameWindow", "yes");
         });
 
-        return { addLink, editEvent, groupedLinks, store, openRandomLink };
+        return { addLink, editEvent, groupedLinks, store, 
+            openRandomLink, allLinksOpened };
     }
 });
 

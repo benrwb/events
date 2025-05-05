@@ -761,7 +761,8 @@ app.component('links-page', {
 +"                       style=\"float: right\" href=\"#\">↑</a><!-- link to go back to top -->\n"
 +"                    <button v-if=\"heading == 'Event listings' || heading == 'Venue'\"\n"
 +"                        @click=\"openRandomLink(items, heading)\"\n"
-+"                        class=\"btn btn-info\">Open random link\n"
++"                        v-bind:class=\"allLinksOpened.includes(heading) ? 'btn-default' : 'btn-info'\"\n"
++"                        class=\"btn\">Open random link\n"
 +"                    </button>\n"
 +"                </h1>\n"
 +"                <h5 v-if=\"heading == 'Venue'\"\n"
@@ -833,10 +834,13 @@ app.component('links-page', {
             ]);
             return _.groupBy(ordered, 'type');
         });
+        const allLinksOpened = ref([]);
         function openRandomLink(items, heading) {
             if (items.length == 0)
                 return; // nothing to do
-            let link = pickRandomLink(items, heading);
+            let [link, allDone] = pickRandomLink(items, heading);
+            if (allDone && !allLinksOpened.value.includes(heading))
+                allLinksOpened.value.push(heading); // change colour of button
             if (store.openLinksInNewWindow) {
                 window.open(link);    
             } else {
@@ -849,7 +853,8 @@ app.component('links-page', {
             else 
                 localStorage.setItem("events_openLinksInSameWindow", "yes");
         });
-        return { addLink, editEvent, groupedLinks, store, openRandomLink };
+        return { addLink, editEvent, groupedLinks, store, 
+            openRandomLink, allLinksOpened };
     }
 });
 function pickRandomLink(items, heading) {
@@ -858,15 +863,17 @@ function pickRandomLink(items, heading) {
     let alreadyOpened = (str == null) ? [] : JSON.parse(str);
     let allLinks = items.filter(z => !!z.link).map(z => z.link);
     let linksMinusOpened = allLinks.filter(link => !alreadyOpened.includes(link));
+    let allDone = false;
     if (linksMinusOpened.length == 0) {
         linksMinusOpened = allLinks;
         alreadyOpened = [];
+        allDone = true;
     }
     let index = Math.floor(Math.random() * linksMinusOpened.length);
     let link = linksMinusOpened[index];
     alreadyOpened.push(link);
     sessionStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
-    return link;
+    return [link, allDone];
 }
 
 app.component('search-box', {
