@@ -805,6 +805,9 @@ app.component('links-page', {
 +"        <label>\n"
 +"            <input type=\"checkbox\" v-model=\"store.openLinksInNewWindow\"> Open links in new window\n"
 +"        </label>\n"
++"        <button class=\"btn btn-default btn-sm\" \n"
++"                style=\"margin-left: 10px\"\n"
++"                @click=\"clearLinks\">Clear opened links</button>\n"
 +"        <br /><br />\n"
 +"    </div>\n",
     props: {
@@ -851,6 +854,14 @@ app.component('links-page', {
                 window.location.href = link;
             }
         }
+        function clearLinks() {
+            if (confirm("Are you sure you want to clear the list of opened links?")) {
+                for (let key in numLinksOpened.value) { // for each heading
+                    clearLinksFromStorage(key);
+                    numLinksOpened.value[key] = 0; // update progress bar
+                }
+            }
+        }
         watch(() => store.openLinksInNewWindow, (newVal) => {
             if (newVal)
                 localStorage.removeItem("events_openLinksInSameWindow");
@@ -858,7 +869,7 @@ app.component('links-page', {
                 localStorage.setItem("events_openLinksInSameWindow", "yes");
         });
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, numLinksOpened };
+            openRandomLink, numLinksOpened, clearLinks };
     }
 });
 function getStorageKeyName(heading) {
@@ -866,7 +877,7 @@ function getStorageKeyName(heading) {
 }
 function getLinksAlreadyOpened(heading) {
     let storageKeyName = getStorageKeyName(heading);
-    let str = sessionStorage.getItem(storageKeyName);
+    let str = localStorage.getItem(storageKeyName);
     let alreadyOpened = (str == null) ? [] : JSON.parse(str);
     return alreadyOpened;
 }
@@ -885,8 +896,12 @@ function pickRandomLink(items, heading) {
     let link = linksMinusOpened[index];
     alreadyOpened.push(link);
     let storageKeyName = getStorageKeyName(heading);
-    sessionStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
+    localStorage.setItem(storageKeyName, JSON.stringify(alreadyOpened));
     return [link, alreadyOpened.length];
+}
+function clearLinksFromStorage(heading) {
+    let storageKeyName = getStorageKeyName(heading);
+    localStorage.removeItem(storageKeyName);
 }
 
 app.component('search-box', {

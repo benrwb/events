@@ -70,6 +70,9 @@
         <label>
             <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
         </label>
+        <button class="btn btn-default btn-sm" 
+                style="margin-left: 10px"
+                @click="clearLinks">Clear opened links</button>
         <br /><br />
     </div>
 </template>
@@ -80,7 +83,7 @@ import { defineComponent,PropType, computed, ref, watch, Ref } from 'vue';
 import { LinkItem, LinksWithHeadings } from './types/app';
 import * as _ from "lodash";
 import { store } from "./store";
-import { pickRandomLink, getNumLinksOpened } from './randomise';
+import { pickRandomLink, getNumLinksOpened, clearLinksFromStorage } from './randomise';
 
 export default defineComponent({
     props: {
@@ -164,6 +167,15 @@ export default defineComponent({
             // Update count
             // OLD //countLookup[link]++;
         }
+        
+        function clearLinks() {
+            if (confirm("Are you sure you want to clear the list of opened links?")) {
+                for (let key in numLinksOpened.value) { // for each heading
+                    clearLinksFromStorage(key);
+                    numLinksOpened.value[key] = 0; // update progress bar
+                }
+            }
+        }
 
         watch(() => store.openLinksInNewWindow, (newVal) => {
             // Note the checkbox value and localStorage are opposites ('New' vs 'Same').
@@ -176,7 +188,7 @@ export default defineComponent({
         });
 
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, numLinksOpened };
+            openRandomLink, numLinksOpened, clearLinks };
     }
 });
 
