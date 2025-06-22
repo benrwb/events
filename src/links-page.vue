@@ -28,7 +28,8 @@
                         <button @click="openRandomLink(items, heading)"
                                 class="btn btn-info">Open random link
                         </button>
-                        <progress style="width: 100px; vertical-align: middle;"
+                        <progress v-if="numLinksOpened[heading] > 0"
+                                  style="width: 100px; vertical-align: middle;"
                                   :max="items.length" :value="numLinksOpened[heading]"></progress>
                     </template>
                 </h1>
@@ -70,7 +71,7 @@
         <label>
             <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
         </label>
-        <button class="btn btn-default btn-sm" 
+        <button class="btn btn-danger btn-sm pull-right" 
                 style="margin-left: 10px"
                 @click="clearLinks">Clear opened links</button>
         <br /><br />
