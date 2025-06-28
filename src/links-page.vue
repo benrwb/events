@@ -68,13 +68,15 @@
             </div><!-- /panel-heading -->
         </div>
 
-        <label>
-            <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
-        </label>
-        <button class="btn btn-danger btn-sm pull-right" 
-                style="margin-left: 10px"
-                @click="clearLinks">Clear opened links</button>
-        <br /><br />
+        <div v-if="!store.search">
+            <label>
+                <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
+            </label>
+            <button class="btn btn-danger btn-sm pull-right" 
+                    style="margin-left: 10px"
+                    @click="clearLinks">Clear opened links</button>
+            <br /><br />
+        </div>
     </div>
 </template>
 

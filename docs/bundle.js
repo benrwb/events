@@ -803,13 +803,15 @@ app.component('links-page', {
 +"            </div><!-- /panel-heading -->\n"
 +"        </div>\n"
 +"\n"
-+"        <label>\n"
-+"            <input type=\"checkbox\" v-model=\"store.openLinksInNewWindow\"> Open links in new window\n"
-+"        </label>\n"
-+"        <button class=\"btn btn-danger btn-sm pull-right\" \n"
-+"                style=\"margin-left: 10px\"\n"
-+"                @click=\"clearLinks\">Clear opened links</button>\n"
-+"        <br /><br />\n"
++"        <div v-if=\"!store.search\">\n"
++"            <label>\n"
++"                <input type=\"checkbox\" v-model=\"store.openLinksInNewWindow\"> Open links in new window\n"
++"            </label>\n"
++"            <button class=\"btn btn-danger btn-sm pull-right\" \n"
++"                    style=\"margin-left: 10px\"\n"
++"                    @click=\"clearLinks\">Clear opened links</button>\n"
++"            <br /><br />\n"
++"        </div>\n"
 +"    </div>\n",
     props: {
         dropboxData: Array,
