@@ -807,7 +807,8 @@ app.component('links-page', {
 +"            <label>\n"
 +"                <input type=\"checkbox\" v-model=\"store.openLinksInNewWindow\"> Open links in new window\n"
 +"            </label>\n"
-+"            <button class=\"btn btn-danger btn-sm pull-right\" \n"
++"            <button v-if=\"totalLinksOpened > 0\"\n"
++"                    class=\"btn btn-danger btn-sm pull-right\" \n"
 +"                    style=\"margin-left: 10px\"\n"
 +"                    @click=\"clearLinks\">Clear opened links</button>\n"
 +"            <br /><br />\n"
@@ -846,6 +847,9 @@ app.component('links-page', {
             "Venue": getNumLinksOpened("Venue"),
             "Event listings": getNumLinksOpened("Event listings")
         });
+        const totalLinksOpened = computed(() =>
+            Object.values(numLinksOpened.value).reduce((a, b) => a + b, 0) // sum values
+        );
         function openRandomLink(items, heading) {
             if (items.length == 0)
                 return; // nothing to do
@@ -872,7 +876,7 @@ app.component('links-page', {
                 localStorage.setItem("events_openLinksInSameWindow", "yes");
         });
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, numLinksOpened, clearLinks };
+            openRandomLink, numLinksOpened, clearLinks, totalLinksOpened };
     }
 });
 function getStorageKeyName(heading) {

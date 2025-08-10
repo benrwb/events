@@ -72,7 +72,8 @@
             <label>
                 <input type="checkbox" v-model="store.openLinksInNewWindow"> Open links in new window
             </label>
-            <button class="btn btn-danger btn-sm pull-right" 
+            <button v-if="totalLinksOpened > 0"
+                    class="btn btn-danger btn-sm pull-right" 
                     style="margin-left: 10px"
                     @click="clearLinks">Clear opened links</button>
             <br /><br />
@@ -131,6 +132,10 @@ export default defineComponent({
             "Venue": getNumLinksOpened("Venue"),
             "Event listings": getNumLinksOpened("Event listings")
         });
+
+        const totalLinksOpened = computed(() =>
+            Object.values(numLinksOpened.value).reduce((a, b) => a + b, 0) // sum values
+        );
 
         function openRandomLink(items: LinkItem[], heading: string) {
             if (items.length == 0)
@@ -191,7 +196,7 @@ export default defineComponent({
         });
 
         return { addLink, editEvent, groupedLinks, store, 
-            openRandomLink, numLinksOpened, clearLinks };
+            openRandomLink, numLinksOpened, clearLinks, totalLinksOpened };
     }
 });
 
