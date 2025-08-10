@@ -1003,7 +1003,6 @@ const store = reactive({
         "Didn't go": "🙁"
     },
     linkTypes: {
-        "Ticket sales": "🎫",
         "Event listings": "📰",
         "Venue": "🏛",
         "Restaurants": "🍽️",

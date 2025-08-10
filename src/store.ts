@@ -25,7 +25,7 @@ export const store = reactive({
     },
 
     linkTypes: {
-        "Ticket sales": "🎫",
+        //"Ticket sales": "🎫",
         "Event listings": "📰",
         "Venue": "🏛",
         "Restaurants": "🍽️",
