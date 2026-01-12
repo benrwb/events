@@ -19,6 +19,7 @@ export const store = reactive({
         "": "",
         "Going": "✔",
         "Interested": "⭐",
+        "Unlikely": "⬇️",
         "Need to book": "🎟",
         "Went":"🙂",
         "Didn't go": "🙁"

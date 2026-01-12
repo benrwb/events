@@ -998,6 +998,7 @@ const store = reactive({
         "": "",
         "Going": "✔",
         "Interested": "⭐",
+        "Unlikely": "⬇️",
         "Need to book": "🎟",
         "Went":"🙂",
         "Didn't go": "🙁"
@@ -1145,7 +1146,7 @@ app.component('timeline-page', {
             this.$emit('open-editor', copy);
         },
         isCollapsed: function(item) { 
-            return item.status == "Interested";
+            return item.status == "Interested" || item.status == "Unlikely";
         },
         howSoon: function(date) {
             var eventDate = moment.utc(date);

@@ -166,7 +166,7 @@ export default defineComponent({
             this.$emit('open-editor', copy);
         },
         isCollapsed: function(item) { 
-            return item.status == "Interested";
+            return item.status == "Interested" || item.status == "Unlikely";
         },
         howSoon: function(date: string) {
             // NOTE: Using UTC for date comparisons, to avoid problems caused by 
@@ -332,3 +332,5 @@ export default defineComponent({
         }
     }
 });
+
+</script>
