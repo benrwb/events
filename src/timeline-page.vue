@@ -29,11 +29,17 @@
 </style>
 <template>
     <div>
-        <label v-if="!ideasOnly && needToBookCount > 0"
+        <!-- <label v-if="!ideasOnly && needToBookCount > 0"
               class="pull-right">
               <input type="checkbox" v-model="showNeedToBookOnly" />
             Need to book <span class="badge">{{ needToBookCount }}</span>
-        </label>
+        </label> -->
+        <div v-if="!ideasOnly" class="pull-right">
+            Level of detail:
+            <button class="btn" :class="levelOfDetail == 3 ? 'btn-info'    : 'btn-default'" @click="levelOfDetail = 3">3</button>
+            <button class="btn" :class="levelOfDetail == 2 ? 'btn-primary' : 'btn-default'" @click="levelOfDetail = 2">2</button>
+            <button class="btn" :class="levelOfDetail == 1 ? 'btn-danger'  : 'btn-default'" @click="levelOfDetail = 1">1</button>
+        </div>
         <button class="btn btn-success" 
                 v-on:click="addEvent">
             Add Event
@@ -150,6 +156,7 @@ export default defineComponent({
     data: function() {
         return {
             showNeedToBookOnly: false,
+            levelOfDetail: 2,
             store: store
         }
     },
@@ -319,9 +326,19 @@ export default defineComponent({
                 filteredTimeline = filteredTimeline.filter(item =>
                     item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
                     && !!item.date);
-                if (this.showNeedToBookOnly) {
-                    filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
+                //if (this.showNeedToBookOnly) {
+                //    filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
+                //}
+
+                if (this.levelOfDetail == 1) {
+                    // "Need to book" only
+                    filteredTimeline = filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
                 }
+                else if (this.levelOfDetail == 2) {
+                    // Exclude "Unlikely"
+                    filteredTimeline = filteredTimeline = filteredTimeline.filter(item => item.status != "Unlikely");
+                }
+               
                 var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return this.groupBySchoolHolidays(orderedTimeline);
             }
