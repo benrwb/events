@@ -1031,7 +1031,7 @@ app.component('timeline-page', {
 +"            Need to book <span class=\"badge\">{{ needToBookCount }}</span>\n"
 +"        </label> -->\n"
 +"        <div v-if=\"!ideasOnly\" class=\"pull-right\">\n"
-+"            Level of detail:\n"
++"            <small>Level of detail: </small>\n"
 +"            <button class=\"btn\" :class=\"levelOfDetail == 3 ? 'btn-info'    : 'btn-default'\" @click=\"levelOfDetail = 3\">3</button>\n"
 +"            <button class=\"btn\" :class=\"levelOfDetail == 2 ? 'btn-primary' : 'btn-default'\" @click=\"levelOfDetail = 2\">2</button>\n"
 +"            <button class=\"btn\" :class=\"levelOfDetail == 1 ? 'btn-danger'  : 'btn-default'\" @click=\"levelOfDetail = 1\">1</button>\n"

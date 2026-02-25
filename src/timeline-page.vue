@@ -35,7 +35,7 @@
             Need to book <span class="badge">{{ needToBookCount }}</span>
         </label> -->
         <div v-if="!ideasOnly" class="pull-right">
-            Level of detail:
+            <small>Level of detail: </small>
             <button class="btn" :class="levelOfDetail == 3 ? 'btn-info'    : 'btn-default'" @click="levelOfDetail = 3">3</button>
             <button class="btn" :class="levelOfDetail == 2 ? 'btn-primary' : 'btn-default'" @click="levelOfDetail = 2">2</button>
             <button class="btn" :class="levelOfDetail == 1 ? 'btn-danger'  : 'btn-default'" @click="levelOfDetail = 1">1</button>
