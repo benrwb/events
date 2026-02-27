@@ -35,7 +35,7 @@
             Need to book <span class="badge">{{ needToBookCount }}</span>
         </label> -->
         <div v-if="!ideasOnly" class="pull-right">
-            <small>Level of detail: </small>
+            <small class="text-muted">Level of detail: </small>
             <div class="btn-group" role="group">
                 <!-- Buttons 1 and 3 change colour when clicked, Button 2 stays the same colour but has "active" class applied. -->
                 <button :class="levelOfDetail == 3 ? 'btn-info'    : 'btn-default'" class="btn" @click="levelOfDetail = 3">3</button>

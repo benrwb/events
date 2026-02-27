@@ -1031,7 +1031,7 @@ app.component('timeline-page', {
 +"            Need to book <span class=\"badge\">{{ needToBookCount }}</span>\n"
 +"        </label> -->\n"
 +"        <div v-if=\"!ideasOnly\" class=\"pull-right\">\n"
-+"            <small>Level of detail: </small>\n"
++"            <small class=\"text-muted\">Level of detail: </small>\n"
 +"            <div class=\"btn-group\" role=\"group\">\n"
 +"                <!-- Buttons 1 and 3 change colour when clicked, Button 2 stays the same colour but has \"active\" class applied. -->\n"
 +"                <button :class=\"levelOfDetail == 3 ? 'btn-info'    : 'btn-default'\" class=\"btn\" @click=\"levelOfDetail = 3\">3</button>\n"
