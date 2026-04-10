@@ -38,9 +38,9 @@
             <small class="text-muted">Level of detail: </small>
             <div class="btn-group" role="group">
                 <!-- Buttons 1 and 3 change colour when clicked, Button 2 stays the same colour but has "active" class applied. -->
-                <button :class="levelOfDetail == 3 ? 'btn-info'    : 'btn-default'" class="btn" @click="levelOfDetail = 3">3</button>
-                <button :class="levelOfDetail == 2 ? 'active' : ''"     class="btn-default btn" @click="levelOfDetail = 2">2</button>
                 <button :class="levelOfDetail == 1 ? 'btn-danger'  : 'btn-default'" class="btn" @click="levelOfDetail = 1">1</button>
+                <button :class="levelOfDetail == 2 ? 'active' : ''"     class="btn-default btn" @click="levelOfDetail = 2">2</button>
+                <button :class="levelOfDetail == 3 ? 'btn-info'    : 'btn-default'" class="btn" @click="levelOfDetail = 3">3</button>
             </div>
         </div>
         <button class="btn btn-success" 
