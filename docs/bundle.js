@@ -8,6 +8,7 @@ const reactive = Vue.reactive;
 const onMounted = Vue.onMounted;
 const onBeforeUnmount = Vue.onBeforeUnmount;
 const defineComponent = Vue.defineComponent;
+const readonly = Vue.readonly;
     app.component('app-main', {
     template: "<div>\n"
 +"\n"
@@ -49,13 +50,13 @@ const defineComponent = Vue.defineComponent;
 +"\n"
 +"        <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\"\n"
 +"                       v-bind:ideas-only=\"activeTab == 'ideas'\"\n"
-+"                       v-bind:timeline=\"dropboxData\"\n"
++"                       v-bind:timeline=\"timelineItems\"\n"
 +"                       v-bind:item-being-updated=\"itemBeingUpdated\"\n"
 +"                       v-on:open-editor=\"openEditor\">\n"
 +"        </timeline-page>\n"
 +"\n"
 +"        <links-page v-show=\"activeTab == 'links'\"\n"
-+"                    v-bind:dropbox-data=\"dropboxData\"\n"
++"                    v-bind:dropbox-data=\"timelineItems\"\n"
 +"                    v-bind:item-being-updated=\"itemBeingUpdated\"\n"
 +"                    v-on:open-editor=\"openLinkEditor\">\n"
 +"        </links-page>\n"
@@ -82,16 +83,17 @@ const defineComponent = Vue.defineComponent;
             const previousScrollPosition = ref(0); // to restore scroll position when editor closed
             const connectedToDropbox = ref(false);
             const dropboxSyncStatus = ref("");
-            const dropboxData = ref([]);
             const currentTime = ref(new Date().toISOString());
             const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
             const dropboxRef = ref(null);
             const editorRef = ref(null);
             const linkeditorRef = ref(null);
+            const timelineStore = useTimelineStore(); // will automatically save to localStorage
+            const timelineItems = timelineStore.items; // passed to template (ref will be unwrapped)
             onMounted(() => {
                 dropboxRef.value.loadData(function(initialData) {
                     connectedToDropbox.value = true; // show navbar & "Add event" button
-                    dropboxData.value = initialData;
+                    timelineStore.replaceTimeline(initialData);
                 });
                 setInterval(function() {
                     currentTime.value = new Date().toISOString()
@@ -113,12 +115,12 @@ const defineComponent = Vue.defineComponent;
                 if (item.id == "") {
                     item.id = uuidv4();
                     dropboxRef.value.addItem(item, function(newData) {
-                        dropboxData.value = newData;
+                        timelineStore.replaceTimeline(newData);
                     });
                 } else {
-                    itemBeingUpdated.value = item.id;
+                    itemBeingUpdated.value = item.id; // fade out item
                     dropboxRef.value.editItem(item, function(newData) {
-                        dropboxData.value = newData;
+                        timelineStore.replaceTimeline(newData);
                         itemBeingUpdated.value = "";
                     });
                 }
@@ -140,7 +142,7 @@ const defineComponent = Vue.defineComponent;
             return {
                 dropboxSyncStatus, connectedToDropbox,
                 activeTab, currentTime, 
-                dropboxData, itemBeingUpdated, 
+                itemBeingUpdated, timelineItems, //dropboxData,
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
                 formatDate: _formatDate
@@ -1021,6 +1023,38 @@ watch(() => store.openLinksInNewWindow, (newVal) => {
     else 
         localStorage.setItem("events_openLinksInSameWindow", "yes");
 });
+
+const STORAGE_KEY = 'eventsTimelineData';
+const _timeline_items = ref(loadInitialData());
+function loadInitialData() {
+    try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (err) {
+        console.error('Error loading timeline from localStorage:', err);
+        return [];
+    }
+}
+watch(
+    _timeline_items,
+    (newItems) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
+        } catch (err) {
+            console.error('Error saving timeline to localStorage:', err);
+        }
+    },
+    { deep: true }
+);
+function useTimelineStore() {
+    function replaceTimeline(newItems) {
+        _timeline_items.value = newItems;
+    }
+    return {
+        items: readonly(_timeline_items),
+        replaceTimeline,
+    };
+}
 
 app.component('timeline-page', {
     template: "    <div>\n"

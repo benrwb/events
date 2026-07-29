@@ -48,13 +48,13 @@
 
         <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
                        v-bind:ideas-only="activeTab == 'ideas'"
-                       v-bind:timeline="dropboxData"
+                       v-bind:timeline="timelineItems"
                        v-bind:item-being-updated="itemBeingUpdated"
                        v-on:open-editor="openEditor">
         </timeline-page>
 
         <links-page v-show="activeTab == 'links'"
-                    v-bind:dropbox-data="dropboxData"
+                    v-bind:dropbox-data="timelineItems"
                     v-bind:item-being-updated="itemBeingUpdated"
                     v-on:open-editor="openLinkEditor">
         </links-page>
@@ -82,6 +82,7 @@
     import DropboxSync from './dropbox-sync.vue';
     import EditorDialog from './editor-dialog.vue';
     import LinkEditor from './link-editor.vue';
+    import { useTimelineStore } from './store2';
     
     export default defineComponent({
         setup() {
@@ -92,7 +93,6 @@
             const previousScrollPosition = ref(0); // to restore scroll position when editor closed
             const connectedToDropbox = ref(false);
             const dropboxSyncStatus = ref("");
-            const dropboxData = ref([]);
             const currentTime = ref(new Date().toISOString());
             const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
 
@@ -100,10 +100,14 @@
             const editorRef = ref(null) as Ref<InstanceType<typeof EditorDialog>>;
             const linkeditorRef = ref(null) as Ref<InstanceType<typeof LinkEditor>>;
 
+            const timelineStore = useTimelineStore(); // will automatically save to localStorage
+            const timelineItems = timelineStore.items; // passed to template (ref will be unwrapped)
+
             onMounted(() => {
                 dropboxRef.value.loadData(function(initialData) {
                     connectedToDropbox.value = true; // show navbar & "Add event" button
-                    dropboxData.value = initialData;
+                    timelineStore.replaceTimeline(initialData);
+                    //dropboxData.value = initialData;
                 });
 
                 setInterval(function() {
@@ -130,14 +134,16 @@
                     // add new item
                     item.id = uuidv4();
                     dropboxRef.value.addItem(item, function(newData) {
-                        dropboxData.value = newData;
+                        timelineStore.replaceTimeline(newData);
+                        //dropboxData.value = newData;
                     });
                 } else {
                     // edit existing item
                     ////Vue.set(this.dropboxData, this.dropboxData.findIndex(z => z.id === item.id), item); // replace item in array
-                    itemBeingUpdated.value = item.id;
+                    itemBeingUpdated.value = item.id; // fade out item
                     dropboxRef.value.editItem(item, function(newData) {
-                        dropboxData.value = newData;
+                        timelineStore.replaceTimeline(newData);
+                        //dropboxData.value = newData;
                         itemBeingUpdated.value = "";
                     });
                 }
@@ -165,7 +171,7 @@
             return {
                 dropboxSyncStatus, connectedToDropbox,
                 activeTab, currentTime, 
-                dropboxData, itemBeingUpdated, 
+                itemBeingUpdated, timelineItems, //dropboxData,
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
                 formatDate: _formatDate
