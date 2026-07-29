@@ -185,16 +185,6 @@ export default defineComponent({
             }
         }
 
-        watch(() => store.openLinksInNewWindow, (newVal) => {
-            // Note the checkbox value and localStorage are opposites ('New' vs 'Same').
-            // This is because the default localStorage value is `false` (missing value)
-            // whereas we want the default checkbox value to be `true` (open in new).
-            if (newVal)
-                localStorage.removeItem("events_openLinksInSameWindow");
-            else 
-                localStorage.setItem("events_openLinksInSameWindow", "yes");
-        });
-
         return { addLink, editEvent, groupedLinks, store, 
             openRandomLink, numLinksOpened, clearLinks, totalLinksOpened };
     }

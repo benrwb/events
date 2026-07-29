@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 
 export const store = reactive({
 
@@ -36,8 +36,6 @@ export const store = reactive({
         //"Other": "💡"
     },
 
-    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow"), // note opposite name ('Same' vs 'New')
-
     convertMarkdownToHtml: function (text) {
         // https://github.com/showdownjs/showdown/wiki/Showdown-options
         var converter = new showdown.Converter({ 
@@ -50,5 +48,17 @@ export const store = reactive({
             simplifiedAutoLink: true
         });
         return converter.makeHtml(text);
-    }
+    },
+
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
+});
+
+watch(() => store.openLinksInNewWindow, (newVal) => {
+    // Note the checkbox value and localStorage are opposites ('New' vs 'Same').
+    // This is because the default localStorage value is `false` (missing value)
+    // whereas we want the default checkbox value to be `true` (open in new).
+    if (newVal)
+        localStorage.removeItem("events_openLinksInSameWindow");
+    else 
+        localStorage.setItem("events_openLinksInSameWindow", "yes");
 });

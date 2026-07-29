@@ -869,12 +869,6 @@ app.component('links-page', {
                 }
             }
         }
-        watch(() => store.openLinksInNewWindow, (newVal) => {
-            if (newVal)
-                localStorage.removeItem("events_openLinksInSameWindow");
-            else 
-                localStorage.setItem("events_openLinksInSameWindow", "yes");
-        });
         return { addLink, editEvent, groupedLinks, store, 
             openRandomLink, numLinksOpened, clearLinks, totalLinksOpened };
     }
@@ -1010,7 +1004,6 @@ const store = reactive({
         "Holidays": "🌞",
         "Transport": "🚇",
     },
-    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow"), // note opposite name ('Same' vs 'New')
     convertMarkdownToHtml: function (text) {
         var converter = new showdown.Converter({ 
             tables: true, // enable support for tables
@@ -1020,7 +1013,14 @@ const store = reactive({
             simplifiedAutoLink: true
         });
         return converter.makeHtml(text);
-    }
+    },
+    openLinksInNewWindow: !localStorage.getItem("events_openLinksInSameWindow") // note opposite name ('Same' vs 'New')
+});
+watch(() => store.openLinksInNewWindow, (newVal) => {
+    if (newVal)
+        localStorage.removeItem("events_openLinksInSameWindow");
+    else 
+        localStorage.setItem("events_openLinksInSameWindow", "yes");
 });
 
 app.component('timeline-page', {
