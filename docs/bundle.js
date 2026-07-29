@@ -14,7 +14,7 @@ const defineComponent = Vue.defineComponent;
 +"    <div v-show=\"!!dropboxSyncStatus\"\n"
 +"        class=\"alert alert-warning syncdiv\">Dropbox sync: {{ dropboxSyncStatus }}</div>\n"
 +"\n"
-+"    <dropbox-sync ref=\"dropbox\"\n"
++"    <dropbox-sync ref=\"dropboxRef\"\n"
 +"                  filename=\"json/events.json\"\n"
 +"                  v-on:sync-status-change=\"dropboxSyncStatus = $event\">\n"
 +"    </dropbox-sync>\n"
@@ -61,13 +61,13 @@ const defineComponent = Vue.defineComponent;
 +"        </links-page>\n"
 +"\n"
 +"        <editor-dialog v-show=\"activeTab == 'editor'\"\n"
-+"                       ref=\"editor\"\n"
++"                       ref=\"editorRef\"\n"
 +"                       v-on:save=\"updateItem($event, true)\"\n"
 +"                       v-on:close=\"closeEditor\">\n"
 +"        </editor-dialog>\n"
 +"\n"
 +"        <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
-+"                     ref=\"linkeditor\"\n"
++"                     ref=\"linkeditorRef\"\n"
 +"                     v-on:save=\"updateItem($event, true)\"\n"
 +"                     v-on:close=\"closeEditor\">\n"
 +"        </link-editor>\n"
@@ -75,77 +75,76 @@ const defineComponent = Vue.defineComponent;
 +"    </div><!-- v-show=\"connectedToDropbox\"-->\n"
 +"\n"
 +"</div>\n",
-        data: function() {
+        setup() {
             window.location.hash = ""; // clear hash
-            return {
-                activeTab: "timeline",
-                previousTab: "", // to restore previously-active tab when editor closed
-                previousScrollPosition: 0, // to restore scroll position when editor closed
-                connectedToDropbox: false,
-                dropboxSyncStatus: "",
-                dropboxData: [],
-                currentTime: new Date().toISOString(),
-                itemBeingUpdated: '' // id (guid) of item currently being saved
-            }
-        },
-        mounted: function() {
-            var self = this;
-            var dropbox = this.$refs.dropbox;
-            dropbox.loadData(function(dropboxData) {
-                self.connectedToDropbox = true; // show navbar & "Add event" button
-                self.dropboxData = dropboxData;
+            const activeTab = ref("timeline");
+            const previousTab = ref(""); // to restore previously-active tab when editor closed
+            const previousScrollPosition = ref(0); // to restore scroll position when editor closed
+            const connectedToDropbox = ref(false);
+            const dropboxSyncStatus = ref("");
+            const dropboxData = ref([]);
+            const currentTime = ref(new Date().toISOString());
+            const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
+            const dropboxRef = ref(null);
+            const editorRef = ref(null);
+            const linkeditorRef = ref(null);
+            onMounted(() => {
+                dropboxRef.value.loadData(function(initialData) {
+                    connectedToDropbox.value = true; // show navbar & "Add event" button
+                    dropboxData.value = initialData;
+                });
+                setInterval(function() {
+                    currentTime.value = new Date().toISOString()
+                }, 60000); // update currentTime every minute
             });
-            setInterval(function() {
-                self.currentTime = new Date().toISOString()
-            }, 60000); // update currentTime every minute
-        },
-        methods: {
-            openEditor: function (item) {
-                this.previousTab = this.activeTab;
-                this.previousScrollPosition = document.documentElement.scrollTop;
-                this.activeTab = "editor";
-                var editor = this.$refs.editor;
-                editor.openDialog(item);
-            },
-            openLinkEditor: function (item) {
-                this.previousTab = this.activeTab;
-                this.previousScrollPosition = document.documentElement.scrollTop;
-                this.activeTab = "linkeditor";
-                var linkeditor = this.$refs.linkeditor;
-                linkeditor.openDialog(item);
-            },
-            updateItem: function (item, shouldCloseEditor) {
-                var self = this;
-                var dropbox = this.$refs.dropbox;
+            function openEditor(item) {
+                previousTab.value = activeTab.value;
+                previousScrollPosition.value = document.documentElement.scrollTop;
+                activeTab.value = "editor";
+                editorRef.value.openDialog(item);
+            }
+            function openLinkEditor(item) {
+                previousTab.value = activeTab.value;
+                previousScrollPosition.value = document.documentElement.scrollTop;
+                activeTab.value = "linkeditor";
+                linkeditorRef.value.openDialog(item);
+            }
+            function updateItem(item, shouldCloseEditor) {
                 if (item.id == "") {
-                    item.id = this.uuidv4();
-                    dropbox.addItem(item, function(dropboxData) {
-                        self.dropboxData = dropboxData;
+                    item.id = uuidv4();
+                    dropboxRef.value.addItem(item, function(newData) {
+                        dropboxData.value = newData;
                     });
                 } else {
-                    this.itemBeingUpdated = item.id;
-                    dropbox.editItem(item, function(dropboxData) {
-                        self.dropboxData = dropboxData;
-                        self.itemBeingUpdated = '';
+                    itemBeingUpdated.value = item.id;
+                    dropboxRef.value.editItem(item, function(newData) {
+                        dropboxData.value = newData;
+                        itemBeingUpdated.value = "";
                     });
                 }
                 if (shouldCloseEditor) {
-                    this.closeEditor();
+                    closeEditor();
                 }
-            },
-            closeEditor: function () {
-                this.activeTab = this.previousTab;
-                var self = this;
-                nextTick(function () {
-                    document.documentElement.scrollTop = self.previousScrollPosition;
+            }
+            function closeEditor() {
+                activeTab.value = previousTab.value;
+                nextTick(() => {
+                    document.documentElement.scrollTop = previousScrollPosition.value;
                 });
-            },
-            uuidv4: function () {
+            }
+            function uuidv4() {
                 return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );
-            },
-            formatDate: _formatDate
+            }
+            return {
+                dropboxSyncStatus, connectedToDropbox,
+                activeTab, currentTime, 
+                dropboxData, itemBeingUpdated, 
+                openEditor, openLinkEditor, updateItem, closeEditor,
+                dropboxRef, editorRef, linkeditorRef,
+                formatDate: _formatDate
+            };
         }
     });
                 {   // this is wrapped in a block because there might be more than 
