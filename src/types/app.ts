@@ -1,5 +1,6 @@
 export interface BaseItem {
     id: string; // uuid
+    lastUpdate: number; // added when saving
     category: "Event" | "Link";
     type: string;
     name: string;
@@ -25,3 +26,6 @@ export interface TimelineWithHeadings {
 export interface LinksWithHeadings {
     [key: string]: LinkItem[];
 }
+
+// Union type for items handled by the store
+export type AppItem = TimelineItem | LinkItem;

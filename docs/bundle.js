@@ -17,10 +17,10 @@ const readonly = Vue.readonly;
 +"\n"
 +"    <dropbox-sync ref=\"dropboxRef\"\n"
 +"                  filename=\"json/events.json\"\n"
-+"                  v-on:sync-status-change=\"dropboxSyncStatus = $event\">\n"
++"                  @sync-status-change=\"dropboxSyncStatus = $event\">\n"
 +"    </dropbox-sync>\n"
 +"\n"
-+"    <div v-show=\"connectedToDropbox\">\n"
++"    <div v-show=\"isLoaded\">\n"
 +"        \n"
 +"        <div v-show=\"activeTab != 'editor' && activeTab != 'linkeditor'\">\n"
 +"            <nav class=\"navbar navbar-default\">\n"
@@ -73,7 +73,7 @@ const readonly = Vue.readonly;
 +"                     v-on:close=\"closeEditor\">\n"
 +"        </link-editor>\n"
 +"\n"
-+"    </div><!-- v-show=\"connectedToDropbox\"-->\n"
++"    </div><!-- v-show=\"isLoaded\"-->\n"
 +"\n"
 +"</div>\n",
         setup() {
@@ -81,7 +81,7 @@ const readonly = Vue.readonly;
             const activeTab = ref("timeline");
             const previousTab = ref(""); // to restore previously-active tab when editor closed
             const previousScrollPosition = ref(0); // to restore scroll position when editor closed
-            const connectedToDropbox = ref(false);
+            const isLoaded = ref(false);
             const dropboxSyncStatus = ref("");
             const currentTime = ref(new Date().toISOString());
             const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
@@ -90,14 +90,17 @@ const readonly = Vue.readonly;
             const linkeditorRef = ref(null);
             const timelineStore = useTimelineStore(); // will automatically save to localStorage
             const timelineItems = timelineStore.items; // passed to template (ref will be unwrapped)
-            onMounted(() => {
-                dropboxRef.value.loadData(function(initialData) {
-                    connectedToDropbox.value = true; // show navbar & "Add event" button
-                    timelineStore.replaceTimeline(initialData);
+            function startDropboxSync() {
+                dropboxRef.value.syncWithDropbox(timelineItems.value, mergedData => {
+                    timelineStore.replaceTimeline(mergedData);
                 });
+            }
+            onMounted(() => {
+                startDropboxSync();
                 setInterval(function() {
                     currentTime.value = new Date().toISOString()
                 }, 60000); // update currentTime every minute
+                isLoaded.value = true; // show page
             });
             function openEditor(item) {
                 previousTab.value = activeTab.value;
@@ -112,18 +115,14 @@ const readonly = Vue.readonly;
                 linkeditorRef.value.openDialog(item);
             }
             function updateItem(item, shouldCloseEditor) {
+                item.lastUpdate = secondsSinceEpoch(); // used when syncing
                 if (item.id == "") {
-                    item.id = uuidv4();
-                    dropboxRef.value.addItem(item, function(newData) {
-                        timelineStore.replaceTimeline(newData);
-                    });
+                    item.id = crypto.randomUUID();
+                    timelineStore.addItem(item);
                 } else {
-                    itemBeingUpdated.value = item.id; // fade out item
-                    dropboxRef.value.editItem(item, function(newData) {
-                        timelineStore.replaceTimeline(newData);
-                        itemBeingUpdated.value = "";
-                    });
+                    timelineStore.updateItem(item);
                 }
+                startDropboxSync();
                 if (shouldCloseEditor) {
                     closeEditor();
                 }
@@ -134,13 +133,11 @@ const readonly = Vue.readonly;
                     document.documentElement.scrollTop = previousScrollPosition.value;
                 });
             }
-            function uuidv4() {
-                return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-                );
+            function secondsSinceEpoch() {
+                return Math.round(new Date().getTime() / 1000);
             }
             return {
-                dropboxSyncStatus, connectedToDropbox,
+                dropboxSyncStatus, isLoaded, //connectedToDropbox,
                 activeTab, currentTime, 
                 itemBeingUpdated, timelineItems, //dropboxData,
                 openEditor, openLinkEditor, updateItem, closeEditor,
@@ -254,67 +251,53 @@ app.component('dropbox-sync', {
             dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
             setSyncStatus("Please refresh the page to continue");
         }
-        function loadData(onComplete) { // called by parent component
+        async function syncWithDropbox(dataToSync, mergeCompleteCallback) { // called by parent component
             if (!dropboxAccessToken.value) return;
             setSyncStatus("Loading");
-            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
-            dbx.filesDownload({ path: '/' + props.filename })
-                .then(function(data) {
-                    var reader = new FileReader();
-                    reader.addEventListener("loadend", function() {
-                        var dropboxData = JSON.parse(reader.result);
-                        setSyncStatus("");
-                        if (onComplete)
-                            onComplete(dropboxData);
-                    });
-                    reader.readAsText(data.fileBlob);
-                })
-                .catch(function(error) {
-                    console.error(error);
-                    alert("Failed to download " + props.filename + " from Dropbox - " + error.message);
-                    setSyncStatus("Error");
+            try {
+                const dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+                const downloadRes = await dbx.filesDownload({ path: '/' + props.filename });
+                const jsonText = await downloadRes.fileBlob.text();
+                const dropboxData = JSON.parse(jsonText);
+                setSyncStatus("Merging");
+                const mergedData = mergeEventsData(dataToSync, dropboxData);
+                if (mergeCompleteCallback)
+                    mergeCompleteCallback(mergedData);
+                setSyncStatus("Saving");
+                await dbx.filesUpload({
+                    path: '/' + props.filename,
+                    contents: JSON.stringify(mergedData, null, 2), // pretty print JSON (2 spaces)
+                    mode: { '.tag': 'overwrite' },
                 });
-        }
-        function saveData(dropboxData, onComplete) {
-            if (!dropboxAccessToken.value) return;
-            setSyncStatus("Saving");
-            var dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
-            dbx.filesUpload({ 
-                path: '/' + props.filename, 
-                contents: JSON.stringify(dropboxData, null, 2), // pretty print JSON (2 spaces)
-                mode: { '.tag': 'overwrite' }
-            })
-            .then(function(response) {
                 setSyncStatus("");
-                if (onComplete)
-                    onComplete(dropboxData);
-            })
-            .catch(function(error) {
-                console.error(error);
-                alert("Failed to upload " + props.filename + " to Dropbox - " + error.message);
+            } catch (error/*: any*/) {
+                console.error('Dropbox sync failed:', error);
+                alert(`Dropbox sync failed for ${props.filename} - ${error?.message || error}`);
                 setSyncStatus("Error");
-            });
+            }
         }
-        function secondsSinceEpoch() {
-            return Math.round(new Date().getTime() / 1000);
+        function mergeEventsData(localItems, remoteItems) {
+            const mergedMap = new Map();
+            for (const item of localItems) {
+                mergedMap.set(item.id, item);
+            }
+            for (const remoteItem of remoteItems) {
+                const localItem = mergedMap.get(remoteItem.id);
+                if (!localItem) {
+                    mergedMap.set(remoteItem.id, remoteItem);
+                } else {
+                    if (remoteItem.lastUpdate >= localItem.lastUpdate) {
+                        mergedMap.set(remoteItem.id, remoteItem);
+                    }
+                }
+            }
+            const mergedArray = Array.from(mergedMap.values());
+            return mergedArray;
         }
-        function addItem(itemToAdd, onComplete) { // called by parent component
-            loadData(function(dropboxData) {
-                itemToAdd.lastUpdate = secondsSinceEpoch();
-                dropboxData.push(itemToAdd);
-                saveData(dropboxData, onComplete); // save updated data
-            });
-        }
-        function editItem(itemToEdit, onComplete) { // called by parent component
-            loadData(function(dropboxData) {
-                itemToEdit.lastUpdate = secondsSinceEpoch();
-                var idx = dropboxData.findIndex(z => z.id === itemToEdit.id);
-                dropboxData[idx] = itemToEdit; // replace item
-                saveData(dropboxData, onComplete); // save updated data
-            });
-        }
-        return { editAccessToken, dropboxAccessToken, saveAccessToken,
-            loadData, addItem, editItem }; // `loadData`, `addItem`, and `editItem` are called by parent component
+        return { 
+            editAccessToken, dropboxAccessToken, saveAccessToken,
+            syncWithDropbox
+        }; // `syncWithDropbox` is called by parent component
     }
 });
 app.component('editor-dialog', {
@@ -1047,11 +1030,22 @@ watch(
     { deep: true }
 );
 function useTimelineStore() {
+    function addItem(newItem) {
+        _timeline_items.value.push(newItem);
+    }
+    function updateItem(updatedItem) {
+        const index = _timeline_items.value.findIndex((i) => i.id === updatedItem.id);
+        if (index !== -1) {
+            _timeline_items.value[index] = updatedItem;
+        }
+    }
     function replaceTimeline(newItems) {
         _timeline_items.value = newItems;
     }
     return {
         items: readonly(_timeline_items),
+        addItem,
+        updateItem,
         replaceTimeline,
     };
 }
