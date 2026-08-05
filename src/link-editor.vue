@@ -64,7 +64,8 @@
                             v-on:click="close">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
-                            v-on:click="save">Save changes</button>
+                            :disabled="dropboxSyncInProgress"
+                            @click="save">Save changes</button>
                 </div>
             <!-- </div>
         </div> -->
@@ -78,6 +79,9 @@ import { LinkItem } from './types/app';
 import { store } from "./store";
 
 export default defineComponent({
+    props: {
+        dropboxSyncInProgress: Boolean
+    },
     setup: function(props, context) {
 
         function new_linkItem(): LinkItem {

@@ -153,7 +153,8 @@
                             v-on:click="close">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
-                            v-on:click="save">Save changes</button>
+                            :disabled="dropboxSyncInProgress"
+                            @click="save">Save changes</button>
                 </div>
             <!-- </div>
         </div>
@@ -172,6 +173,9 @@ import { store } from "./store";
 export default defineComponent({
     components: {
         bootstrapDatepicker
+    },
+    props: {
+        dropboxSyncInProgress: Boolean
     },
     data: function() {
         return {

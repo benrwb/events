@@ -45,8 +45,7 @@
                  v-bind:key="item.id"
                  class="panel panel-default"
                  v-on:click="editEvent(item.id, $event)"
-                 style="cursor: pointer"
-                 v-bind:class="{ 'faded': item.id == itemBeingUpdated }">
+                 style="cursor: pointer">
 
                 <div class="panel-heading">
                     <div>
@@ -91,8 +90,7 @@ import { pickRandomLink, getNumLinksOpened, clearLinksFromStorage } from './rand
 
 export default defineComponent({
     props: {
-        dropboxData: Array as PropType<LinkItem[]>,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        dropboxData: Array as PropType<LinkItem[]>
     },
     setup: function (props, context) {
 

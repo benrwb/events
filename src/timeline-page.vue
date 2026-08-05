@@ -78,7 +78,6 @@
                                     'panel-default': item.status == 'Interested',
                                     'panel-danger': item.status == 'Need to book',
                                     'panel-warning': !item.status,
-                                    'faded': item.id == itemBeingUpdated,
                                     'same-date': nextItemIsSameDate(item, items) }">
                 <div class="panel-heading">
                     <div v-if="isCollapsed(item) && item.date"
@@ -153,8 +152,7 @@ export default defineComponent({
     },
     props: {
         timeline: Array as PropType<TimelineItem[]>,
-        itemBeingUpdated: String, // id (guid) of item currently being saved
-        ideasOnly: Boolean,
+        ideasOnly: Boolean
     },
     data: function() {
         return {

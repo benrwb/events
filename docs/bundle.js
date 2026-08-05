@@ -12,68 +12,66 @@ const readonly = Vue.readonly;
     app.component('app-main', {
     template: "<div>\n"
 +"\n"
-+"    <div v-show=\"!!dropboxSyncStatus\"\n"
-+"        class=\"alert alert-warning syncdiv\">Dropbox sync: {{ dropboxSyncStatus }}</div>\n"
++"    <div v-show=\"activeTab != 'editor' && activeTab != 'linkeditor'\">\n"
++"        <nav class=\"navbar navbar-default\">\n"
++"            <div class=\"container-fluid\">\n"
++"                <p class=\"navbar-text pull-right\">\n"
++"                    {{ formatDate(currentTime, 'dddd D MMMM') }}\n"
++"                </p>\n"
++"                <div class=\"navbar-header\">\n"
++"                    <a class=\"navbar-brand\" href=\"#\">\n"
++"                        <span class=\"glyphicon glyphicon-home\"></span>\n"
++"                        <span class=\"glyphicon glyphicon-arrow-right\"></span>\n"
++"                        Events\n"
++"                    </a>\n"
++"                    <!-- <button class=\"btn btn-success navbar-btn\" \n"
++"                            v-on:click=\"addEvent\">\n"
++"                        Add Event\n"
++"                    </button> -->\n"
++"                </div>\n"
++"            </div><!-- /.container-fluid -->\n"
++"        </nav>\n"
 +"\n"
-+"    <dropbox-sync ref=\"dropboxRef\"\n"
-+"                  filename=\"json/events.json\"\n"
-+"                  @sync-status-change=\"dropboxSyncStatus = $event\">\n"
-+"    </dropbox-sync>\n"
-+"\n"
-+"    <div v-show=\"isLoaded\">\n"
-+"        \n"
-+"        <div v-show=\"activeTab != 'editor' && activeTab != 'linkeditor'\">\n"
-+"            <nav class=\"navbar navbar-default\">\n"
-+"                <div class=\"container-fluid\">\n"
-+"                    <p class=\"navbar-text pull-right\">\n"
-+"                        {{ formatDate(currentTime, 'dddd D MMMM') }}\n"
-+"                    </p>\n"
-+"                    <div class=\"navbar-header\">\n"
-+"                        <a class=\"navbar-brand\" href=\"#\">\n"
-+"                            <span class=\"glyphicon glyphicon-home\"></span>\n"
-+"                            <span class=\"glyphicon glyphicon-arrow-right\"></span>\n"
-+"                            Events\n"
-+"                        </a>\n"
-+"                        <!-- <button class=\"btn btn-success navbar-btn\" \n"
-+"                                v-on:click=\"addEvent\">\n"
-+"                            Add Event\n"
-+"                        </button> -->\n"
-+"                    </div>\n"
-+"                </div><!-- /.container-fluid -->\n"
-+"            </nav>\n"
-+"            <ul class=\"nav nav-tabs\">\n"
-+"                <bootstrap-nav code=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
-+"                <bootstrap-nav code=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
-+"                <bootstrap-nav code=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
-+"            </ul>\n"
++"        <div class=\"dropbox-container-div\">\n"
++"            <dropbox-sync ref=\"dropboxRef\"\n"
++"                          filename=\"json/events.json\"\n"
++"                          @sync-in-progress=\"dropboxSyncInProgress = $event\"\n"
++"                          @start-sync=\"startDropboxSync\">\n"
++"            </dropbox-sync>\n"
 +"        </div>\n"
 +"\n"
-+"        <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\"\n"
-+"                       v-bind:ideas-only=\"activeTab == 'ideas'\"\n"
-+"                       v-bind:timeline=\"timelineItems\"\n"
-+"                       v-bind:item-being-updated=\"itemBeingUpdated\"\n"
-+"                       v-on:open-editor=\"openEditor\">\n"
-+"        </timeline-page>\n"
++"        <ul class=\"nav nav-tabs\">\n"
++"            <bootstrap-nav code=\"timeline\" v-model=\"activeTab\">Timeline</bootstrap-nav>\n"
++"            <bootstrap-nav code=\"links\"    v-model=\"activeTab\">Links</bootstrap-nav>\n"
++"            <bootstrap-nav code=\"ideas\"    v-model=\"activeTab\">Ideas</bootstrap-nav>\n"
++"        </ul>\n"
++"    </div>\n"
 +"\n"
-+"        <links-page v-show=\"activeTab == 'links'\"\n"
-+"                    v-bind:dropbox-data=\"timelineItems\"\n"
-+"                    v-bind:item-being-updated=\"itemBeingUpdated\"\n"
-+"                    v-on:open-editor=\"openLinkEditor\">\n"
-+"        </links-page>\n"
++"    <timeline-page v-show=\"activeTab == 'timeline' || activeTab == 'ideas'\"\n"
++"                   :ideas-only=\"activeTab == 'ideas'\"\n"
++"                   :timeline=\"timelineItems\"\n"
++"                   @open-editor=\"openEditor\">\n"
++"    </timeline-page>\n"
 +"\n"
-+"        <editor-dialog v-show=\"activeTab == 'editor'\"\n"
-+"                       ref=\"editorRef\"\n"
-+"                       v-on:save=\"updateItem($event, true)\"\n"
-+"                       v-on:close=\"closeEditor\">\n"
-+"        </editor-dialog>\n"
++"    <links-page v-show=\"activeTab == 'links'\"\n"
++"                :dropbox-data=\"timelineItems\"\n"
++"                @open-editor=\"openLinkEditor\">\n"
++"    </links-page>\n"
 +"\n"
-+"        <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
-+"                     ref=\"linkeditorRef\"\n"
-+"                     v-on:save=\"updateItem($event, true)\"\n"
-+"                     v-on:close=\"closeEditor\">\n"
-+"        </link-editor>\n"
++"    <editor-dialog v-show=\"activeTab == 'editor'\"\n"
++"                   ref=\"editorRef\"\n"
++"                   @save=\"updateItem($event, true)\"\n"
++"                   @close=\"closeEditor\"\n"
++"                   :dropbox-sync-in-progress >\n"
++"    </editor-dialog>\n"
 +"\n"
-+"    </div><!-- v-show=\"isLoaded\"-->\n"
++"    <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
++"                 ref=\"linkeditorRef\"\n"
++"                 @save=\"updateItem($event, true)\"\n"
++"                 @close=\"closeEditor\"\n"
++"                 :dropbox-sync-in-progress >\n"
++"    </link-editor>\n"
++"\n"
 +"\n"
 +"</div>\n",
         setup() {
@@ -81,10 +79,8 @@ const readonly = Vue.readonly;
             const activeTab = ref("timeline");
             const previousTab = ref(""); // to restore previously-active tab when editor closed
             const previousScrollPosition = ref(0); // to restore scroll position when editor closed
-            const isLoaded = ref(false);
-            const dropboxSyncStatus = ref("");
+            const dropboxSyncInProgress = ref(false);
             const currentTime = ref(new Date().toISOString());
-            const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
             const dropboxRef = ref(null);
             const editorRef = ref(null);
             const linkeditorRef = ref(null);
@@ -100,7 +96,6 @@ const readonly = Vue.readonly;
                 setInterval(function() {
                     currentTime.value = new Date().toISOString()
                 }, 60000); // update currentTime every minute
-                isLoaded.value = true; // show page
             });
             function openEditor(item) {
                 previousTab.value = activeTab.value;
@@ -137,12 +132,13 @@ const readonly = Vue.readonly;
                 return Math.round(new Date().getTime() / 1000);
             }
             return {
-                dropboxSyncStatus, isLoaded, //connectedToDropbox,
+                dropboxSyncInProgress,
                 activeTab, currentTime, 
-                itemBeingUpdated, timelineItems, //dropboxData,
+                timelineItems, //dropboxData,
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
-                formatDate: _formatDate
+                formatDate: _formatDate,
+                startDropboxSync
             };
         }
     });
@@ -150,13 +146,18 @@ const readonly = Vue.readonly;
                     // one component with styles, in which case we will have 
                     // multiple 'componentStyles' variables and don't want them to clash!
                     const componentStyles = document.createElement('style');
-                    componentStyles.textContent = `    .syncdiv {
-        position: fixed;
-        top: 5px;
-        left: 50%;
-        transform: translate(-50%, 0);
-        z-index: 1; /* display in front of navbar */
-    }`;
+                    componentStyles.textContent = `
+/* Mobile & desktop: right-align the div */
+.dropbox-container-div {
+    text-align: right;
+}
+
+/* Desktop: float the div */
+@media (min-width: 768px) {
+    .dropbox-container-div {
+        float: right;
+    }
+}`;
                     document.head.appendChild(componentStyles);
                 }
 app.component('bootstrap-datepicker', {
@@ -224,56 +225,62 @@ function _formatDate(datestr, dateformat) {
 }
 
 app.component('dropbox-sync', {
-    template: "   <div>\n"
-+"        <!-- <div v-show=\"dropboxSyncStatus\">\n"
-+"            Dropbox sync status: {{ dropboxSyncStatus }}\n"
-+"        </div> -->\n"
+    template: "    <span class=\"text-muted\">Dropbox:</span> {{ message }}\n"
++"    \n"
++"    <progress v-if=\"syncInProgress\" style=\"vertical-align: text-bottom;\"></progress>\n"
++"\n"
++"    <span v-show=\"!accessToken\" class=\"form-inline\">\n"
++"        Missing <a target=\"_blank\" href=\"https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder\">access token</a>\n"
++"        &nbsp;<input type=\"text\" v-model=\"editAccessToken\" class=\"form-control\" />\n"
++"        <button class=\"btn btn-default\" @click=\"saveAccessToken\">Set</button>\n"
++"    </span>\n"
 +"        \n"
-+"        <div v-show=\"!dropboxAccessToken\">\n"
-+"            Dropbox <a target=\"_blank\" href=\"https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder\">access token</a>\n"
-+"            <input type=\"text\" v-model=\"editAccessToken\" class=\"form-control\" />\n"
-+"            <button class=\"btn btn-default\" v-on:click=\"saveAccessToken\">Set</button>\n"
-+"        </div>\n"
-+"    </div>\n",
++"    <button v-if=\"accessToken && !syncInProgress\"\n"
++"            class=\"btn btn-default btn-xs\"\n"
++"            @click=\"$emit('start-sync')\">🔄️</button>\n",
     props: {
         filename: String, // user needs to create this file manually, initial contents should be an empty array []
     },
+    emits: [
+        'start-sync', 
+        'sync-in-progress'
+    ],
     setup: function (props, context) {
         const editAccessToken = ref("");
-        const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
-        const dropboxSyncStatus = ref("");
-        function setSyncStatus(newStatus) {
-            dropboxSyncStatus.value = newStatus;
-            context.emit("sync-status-change", newStatus);
-        }
+        const accessToken = ref(localStorage["dropboxAccessToken"] || "");
+        const message = ref("");
+        const syncInProgress = ref(false);
         function saveAccessToken() {
             localStorage["dropboxAccessToken"] = editAccessToken.value;
-            dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
-            setSyncStatus("Please refresh the page to continue");
+            accessToken.value = editAccessToken.value; // hide "enter access token" controls
+            context.emit('start-sync');
         }
         async function syncWithDropbox(dataToSync, mergeCompleteCallback) { // called by parent component
-            if (!dropboxAccessToken.value) return;
-            setSyncStatus("Loading");
+            if (!accessToken.value) return;
+            if (syncInProgress.value) return; // don't allow multiple simultaneous syncs
+            syncInProgress.value = true;
+            message.value = "Loading";
             try {
-                const dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+                const dbx = new Dropbox.Dropbox({ accessToken: accessToken.value });
                 const downloadRes = await dbx.filesDownload({ path: '/' + props.filename });
                 const jsonText = await downloadRes.fileBlob.text();
                 const dropboxData = JSON.parse(jsonText);
-                setSyncStatus("Merging");
                 const mergedData = mergeEventsData(dataToSync, dropboxData);
                 if (mergeCompleteCallback)
                     mergeCompleteCallback(mergedData);
-                setSyncStatus("Saving");
+                message.value = "Saving";
                 await dbx.filesUpload({
                     path: '/' + props.filename,
                     contents: JSON.stringify(mergedData, null, 2), // pretty print JSON (2 spaces)
                     mode: { '.tag': 'overwrite' },
                 });
-                setSyncStatus("");
+                message.value = "";
             } catch (error/*: any*/) {
                 console.error('Dropbox sync failed:', error);
                 alert(`Dropbox sync failed for ${props.filename} - ${error?.message || error}`);
-                setSyncStatus("Error");
+                message.value = "Error";
+            } finally {
+                syncInProgress.value = false;
             }
         }
         function mergeEventsData(localItems, remoteItems) {
@@ -294,9 +301,12 @@ app.component('dropbox-sync', {
             const mergedArray = Array.from(mergedMap.values());
             return mergedArray;
         }
+        watch(syncInProgress, newValue => {
+            context.emit("sync-in-progress", newValue);
+        })
         return { 
-            editAccessToken, dropboxAccessToken, saveAccessToken,
-            syncWithDropbox
+            editAccessToken, accessToken, saveAccessToken,
+            syncWithDropbox, message, syncInProgress
         }; // `syncWithDropbox` is called by parent component
     }
 });
@@ -450,12 +460,16 @@ app.component('editor-dialog', {
 +"                            v-on:click=\"close\">Close</button>\n"
 +"                    <button type=\"button\" \n"
 +"                            class=\"btn btn-primary\"\n"
-+"                            v-on:click=\"save\">Save changes</button>\n"
++"                            :disabled=\"dropboxSyncInProgress\"\n"
++"                            @click=\"save\">Save changes</button>\n"
 +"                </div>\n"
 +"            <!-- </div>\n"
 +"        </div>\n"
 +"    </div> -->\n"
 +"</div>\n",
+    props: {
+        dropboxSyncInProgress: Boolean
+    },
     data: function() {
         return {
             dbitem: new_timelineItem(),
@@ -681,11 +695,15 @@ app.component('link-editor', {
 +"                            v-on:click=\"close\">Close</button>\n"
 +"                    <button type=\"button\" \n"
 +"                            class=\"btn btn-primary\"\n"
-+"                            v-on:click=\"save\">Save changes</button>\n"
++"                            :disabled=\"dropboxSyncInProgress\"\n"
++"                            @click=\"save\">Save changes</button>\n"
 +"                </div>\n"
 +"            <!-- </div>\n"
 +"        </div> -->\n"
 +"    </div> \n",
+    props: {
+        dropboxSyncInProgress: Boolean
+    },
     setup: function(props, context) {
         function new_linkItem() {
             return {
@@ -764,8 +782,7 @@ app.component('links-page', {
 +"                 v-bind:key=\"item.id\"\n"
 +"                 class=\"panel panel-default\"\n"
 +"                 v-on:click=\"editEvent(item.id, $event)\"\n"
-+"                 style=\"cursor: pointer\"\n"
-+"                 v-bind:class=\"{ 'faded': item.id == itemBeingUpdated }\">\n"
++"                 style=\"cursor: pointer\">\n"
 +"\n"
 +"                <div class=\"panel-heading\">\n"
 +"                    <div>\n"
@@ -799,8 +816,7 @@ app.component('links-page', {
 +"        </div>\n"
 +"    </div>\n",
     props: {
-        dropboxData: Array,
-        itemBeingUpdated: String // id (guid) of item currently being saved
+        dropboxData: Array
     },
     setup: function (props, context) {
         function addLink() {
@@ -1101,7 +1117,6 @@ app.component('timeline-page', {
 +"                                    'panel-default': item.status == 'Interested',\n"
 +"                                    'panel-danger': item.status == 'Need to book',\n"
 +"                                    'panel-warning': !item.status,\n"
-+"                                    'faded': item.id == itemBeingUpdated,\n"
 +"                                    'same-date': nextItemIsSameDate(item, items) }\">\n"
 +"                <div class=\"panel-heading\">\n"
 +"                    <div v-if=\"isCollapsed(item) && item.date\"\n"
@@ -1160,8 +1175,7 @@ app.component('timeline-page', {
 +"    </div>\n",
     props: {
         timeline: Array,
-        itemBeingUpdated: String, // id (guid) of item currently being saved
-        ideasOnly: Boolean,
+        ideasOnly: Boolean
     },
     data: function() {
         return {

@@ -1,19 +1,21 @@
 <template>
-   <div>
-        <!-- <div v-show="dropboxSyncStatus">
-            Dropbox sync status: {{ dropboxSyncStatus }}
-        </div> -->
+    <span class="text-muted">Dropbox:</span> {{ message }}
+    
+    <progress v-if="syncInProgress" style="vertical-align: text-bottom;"></progress>
+
+    <span v-show="!accessToken" class="form-inline">
+        Missing <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
+        &nbsp;<input type="text" v-model="editAccessToken" class="form-control" />
+        <button class="btn btn-default" @click="saveAccessToken">Set</button>
+    </span>
         
-        <div v-show="!dropboxAccessToken">
-            Dropbox <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
-            <input type="text" v-model="editAccessToken" class="form-control" />
-            <button class="btn btn-default" v-on:click="saveAccessToken">Set</button>
-        </div>
-    </div>
+    <button v-if="accessToken && !syncInProgress"
+            class="btn btn-default btn-xs"
+            @click="$emit('start-sync')">🔄️</button>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, nextTick, ref, watch } from 'vue';
 import { AppItem } from './types/app';
 
 type MergeCompleteCallback = (mergedItems: AppItem[]) => void;
@@ -22,31 +24,35 @@ export default defineComponent({
     props: {
         filename: String, // user needs to create this file manually, initial contents should be an empty array []
     },
+    emits: [
+        'start-sync', 
+        'sync-in-progress'
+    ],
     setup: function (props, context) {
 
         const editAccessToken = ref("");
-        const dropboxAccessToken = ref(localStorage["dropboxAccessToken"] || "");
-        const dropboxSyncStatus = ref("");
+        const accessToken = ref(localStorage["dropboxAccessToken"] || "");
+        const message = ref("");
+        const syncInProgress = ref(false);
         //const dropboxLastSyncTimestamp = ref(null);
 
-        function setSyncStatus(newStatus: string) {
-            dropboxSyncStatus.value = newStatus;
-            context.emit("sync-status-change", newStatus);
-        }
 
         function saveAccessToken() {
             localStorage["dropboxAccessToken"] = editAccessToken.value;
-            dropboxAccessToken.value = editAccessToken.value; // hide "enter access token" controls
-            setSyncStatus("Please refresh the page to continue");
+            accessToken.value = editAccessToken.value; // hide "enter access token" controls
+            context.emit('start-sync');
         }
 
 
         async function syncWithDropbox(dataToSync: readonly AppItem[], mergeCompleteCallback: MergeCompleteCallback) { // called by parent component
-            if (!dropboxAccessToken.value) return;
-            setSyncStatus("Loading");
+            if (!accessToken.value) return;
+            if (syncInProgress.value) return; // don't allow multiple simultaneous syncs
+
+            syncInProgress.value = true;
+            message.value = "Loading";
             try {
                 // See https://dropbox.github.io/dropbox-sdk-js/Dropbox.html#filesDownload__anchor
-                const dbx = new Dropbox.Dropbox({ accessToken: dropboxAccessToken.value });
+                const dbx = new Dropbox.Dropbox({ accessToken: accessToken.value });
 
                 // STAGE 1: Download existing data from Dropbox
                 const downloadRes = await dbx.filesDownload({ path: '/' + props.filename });
@@ -58,7 +64,6 @@ export default defineComponent({
                 const dropboxData = JSON.parse(jsonText);
                 
                 // STAGE 2: Merge local data with remote data
-                setSyncStatus("Merging");
                 const mergedData = mergeEventsData(dataToSync, dropboxData);
 
                 // Send merged data back to parent component
@@ -67,18 +72,20 @@ export default defineComponent({
 
                 // STAGE 3: Save merged data back to Dropbox
                 // See https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
-                setSyncStatus("Saving");
+                message.value = "Saving";
                 await dbx.filesUpload({
                     path: '/' + props.filename,
                     contents: JSON.stringify(mergedData, null, 2), // pretty print JSON (2 spaces)
                     mode: { '.tag': 'overwrite' },
                 });
-                setSyncStatus("");
+                message.value = "";
 
             } catch (error/*: any*/) {
                 console.error('Dropbox sync failed:', error);
                 alert(`Dropbox sync failed for ${props.filename} - ${error?.message || error}`);
-                setSyncStatus("Error");
+                message.value = "Error";
+            } finally {
+                syncInProgress.value = false;
             }
         }
 
@@ -116,10 +123,13 @@ export default defineComponent({
             return mergedArray;
         }
         
+        watch(syncInProgress, newValue => {
+            context.emit("sync-in-progress", newValue);
+        })
         
         return { 
-            editAccessToken, dropboxAccessToken, saveAccessToken,
-            syncWithDropbox
+            editAccessToken, accessToken, saveAccessToken,
+            syncWithDropbox, message, syncInProgress
         }; // `syncWithDropbox` is called by parent component
     }
 });

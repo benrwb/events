@@ -1,77 +1,81 @@
 <style>
-    .syncdiv {
-        position: fixed;
-        top: 5px;
-        left: 50%;
-        transform: translate(-50%, 0);
-        z-index: 1; /* display in front of navbar */
+
+/* Mobile & desktop: right-align the div */
+.dropbox-container-div {
+    text-align: right;
+}
+
+/* Desktop: float the div */
+@media (min-width: 768px) {
+    .dropbox-container-div {
+        float: right;
     }
+}
 </style>
+
 <template>
 <div>
 
-    <div v-show="!!dropboxSyncStatus"
-        class="alert alert-warning syncdiv">Dropbox sync: {{ dropboxSyncStatus }}</div>
+    <div v-show="activeTab != 'editor' && activeTab != 'linkeditor'">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <p class="navbar-text pull-right">
+                    {{ formatDate(currentTime, 'dddd D MMMM') }}
+                </p>
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <span class="glyphicon glyphicon-home"></span>
+                        <span class="glyphicon glyphicon-arrow-right"></span>
+                        Events
+                    </a>
+                    <!-- <button class="btn btn-success navbar-btn" 
+                            v-on:click="addEvent">
+                        Add Event
+                    </button> -->
+                </div>
+            </div><!-- /.container-fluid -->
+        </nav>
 
-    <dropbox-sync ref="dropboxRef"
-                  filename="json/events.json"
-                  @sync-status-change="dropboxSyncStatus = $event">
-    </dropbox-sync>
-
-    <div v-show="isLoaded">
-        
-        <div v-show="activeTab != 'editor' && activeTab != 'linkeditor'">
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <p class="navbar-text pull-right">
-                        {{ formatDate(currentTime, 'dddd D MMMM') }}
-                    </p>
-                    <div class="navbar-header">
-                        <a class="navbar-brand" href="#">
-                            <span class="glyphicon glyphicon-home"></span>
-                            <span class="glyphicon glyphicon-arrow-right"></span>
-                            Events
-                        </a>
-                        <!-- <button class="btn btn-success navbar-btn" 
-                                v-on:click="addEvent">
-                            Add Event
-                        </button> -->
-                    </div>
-                </div><!-- /.container-fluid -->
-            </nav>
-            <ul class="nav nav-tabs">
-                <bootstrap-nav code="timeline" v-model="activeTab">Timeline</bootstrap-nav>
-                <bootstrap-nav code="links"    v-model="activeTab">Links</bootstrap-nav>
-                <bootstrap-nav code="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
-            </ul>
+        <div class="dropbox-container-div">
+            <dropbox-sync ref="dropboxRef"
+                          filename="json/events.json"
+                          @sync-in-progress="dropboxSyncInProgress = $event"
+                          @start-sync="startDropboxSync">
+            </dropbox-sync>
         </div>
 
-        <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
-                       v-bind:ideas-only="activeTab == 'ideas'"
-                       v-bind:timeline="timelineItems"
-                       v-bind:item-being-updated="itemBeingUpdated"
-                       v-on:open-editor="openEditor">
-        </timeline-page>
+        <ul class="nav nav-tabs">
+            <bootstrap-nav code="timeline" v-model="activeTab">Timeline</bootstrap-nav>
+            <bootstrap-nav code="links"    v-model="activeTab">Links</bootstrap-nav>
+            <bootstrap-nav code="ideas"    v-model="activeTab">Ideas</bootstrap-nav>
+        </ul>
+    </div>
 
-        <links-page v-show="activeTab == 'links'"
-                    v-bind:dropbox-data="timelineItems"
-                    v-bind:item-being-updated="itemBeingUpdated"
-                    v-on:open-editor="openLinkEditor">
-        </links-page>
+    <timeline-page v-show="activeTab == 'timeline' || activeTab == 'ideas'"
+                   :ideas-only="activeTab == 'ideas'"
+                   :timeline="timelineItems"
+                   @open-editor="openEditor">
+    </timeline-page>
 
-        <editor-dialog v-show="activeTab == 'editor'"
-                       ref="editorRef"
-                       v-on:save="updateItem($event, true)"
-                       v-on:close="closeEditor">
-        </editor-dialog>
+    <links-page v-show="activeTab == 'links'"
+                :dropbox-data="timelineItems"
+                @open-editor="openLinkEditor">
+    </links-page>
 
-        <link-editor v-show="activeTab == 'linkeditor'"
-                     ref="linkeditorRef"
-                     v-on:save="updateItem($event, true)"
-                     v-on:close="closeEditor">
-        </link-editor>
+    <editor-dialog v-show="activeTab == 'editor'"
+                   ref="editorRef"
+                   @save="updateItem($event, true)"
+                   @close="closeEditor"
+                   :dropbox-sync-in-progress >
+    </editor-dialog>
 
-    </div><!-- v-show="isLoaded"-->
+    <link-editor v-show="activeTab == 'linkeditor'"
+                 ref="linkeditorRef"
+                 @save="updateItem($event, true)"
+                 @close="closeEditor"
+                 :dropbox-sync-in-progress >
+    </link-editor>
+
 
 </div>
 </template>
@@ -92,10 +96,8 @@
             const activeTab = ref("timeline");
             const previousTab = ref(""); // to restore previously-active tab when editor closed
             const previousScrollPosition = ref(0); // to restore scroll position when editor closed
-            const isLoaded = ref(false);
-            const dropboxSyncStatus = ref("");
+            const dropboxSyncInProgress = ref(false);
             const currentTime = ref(new Date().toISOString());
-            const itemBeingUpdated = ref(""); // id (guid) of item currently being saved
 
             const dropboxRef = ref(null) as Ref<InstanceType<typeof DropboxSync>>;
             const editorRef = ref(null) as Ref<InstanceType<typeof EditorDialog>>;
@@ -107,9 +109,6 @@
             function startDropboxSync() {
                 dropboxRef.value.syncWithDropbox(timelineItems.value, mergedData => {
                     timelineStore.replaceTimeline(mergedData);
-                    // POSSIBLE TODO: DISABLE ALL 'SAVE' BUTTONS WHILE DROPBOX SYNC IS IN PROGRESS
-                    // (to avoid having multiple sync's running at once)
-                    // (also remove `itemBeingUpdated`, as it's no longer used)
                 });
             }
 
@@ -119,8 +118,6 @@
                 setInterval(function() {
                     currentTime.value = new Date().toISOString()
                 }, 60000); // update currentTime every minute
-
-                isLoaded.value = true; // show page
             });
 
             function openEditor(item) {
@@ -167,12 +164,13 @@
             }
 
             return {
-                dropboxSyncStatus, isLoaded, //connectedToDropbox,
+                dropboxSyncInProgress,
                 activeTab, currentTime, 
-                itemBeingUpdated, timelineItems, //dropboxData,
+                timelineItems, //dropboxData,
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
-                formatDate: _formatDate
+                formatDate: _formatDate,
+                startDropboxSync
             };
         }
     });
