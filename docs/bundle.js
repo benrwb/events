@@ -13,7 +13,7 @@ const readonly = Vue.readonly;
     template: "<div>\n"
 +"\n"
 +"    <div v-show=\"activeTab != 'editor' && activeTab != 'linkeditor'\">\n"
-+"        <nav class=\"navbar navbar-default\">\n"
++"        <nav class=\"navbar navbar-default reduce-bottom-margin-on-mobile\">\n"
 +"            <div class=\"container-fluid\">\n"
 +"                <p class=\"navbar-text pull-right\">\n"
 +"                    {{ formatDate(currentTime, 'dddd D MMMM') }}\n"
@@ -147,15 +147,19 @@ const readonly = Vue.readonly;
                     // multiple 'componentStyles' variables and don't want them to clash!
                     const componentStyles = document.createElement('style');
                     componentStyles.textContent = `
-/* Mobile & desktop: right-align the div */
+/* === STYLES FOR DROPBOX SYNC DIV === */
+/* DEFAULT (Desktop): Float right and align text */
 .dropbox-container-div {
     text-align: right;
+    float: right;
 }
-
-/* Desktop: float the div */
-@media (min-width: 768px) {
+/* CONDITIONAL (Mobile: 768px and under): Remove the float */
+@media (max-width: 768px) {
     .dropbox-container-div {
-        float: right;
+        float: none; /* Reverts the float so it stacks normally on mobile */
+    }
+    .navbar.reduce-bottom-margin-on-mobile {
+        margin-bottom: 5px; /* Reduce spacing between navbar and dropbox sync div */
     }
 }`;
                     document.head.appendChild(componentStyles);
@@ -225,19 +229,23 @@ function _formatDate(datestr, dateformat) {
 }
 
 app.component('dropbox-sync', {
-    template: "    <span class=\"text-muted\">Dropbox:</span> {{ message }}\n"
+    template: "    <span class=\"text-muted\">Dropbox:</span>&nbsp;{{ message }}\n"
 +"    \n"
-+"    <progress v-if=\"syncInProgress\" style=\"vertical-align: text-bottom;\"></progress>\n"
++"    <progress v-if=\"syncInProgress\" style=\"vertical-align: text-bottom; width: 50px\"></progress>\n"
 +"\n"
 +"    <span v-show=\"!accessToken\" class=\"form-inline\">\n"
 +"        Missing <a target=\"_blank\" href=\"https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder\">access token</a>\n"
 +"        &nbsp;<input type=\"text\" v-model=\"editAccessToken\" class=\"form-control\" />\n"
 +"        <button class=\"btn btn-default\" @click=\"saveAccessToken\">Set</button>\n"
 +"    </span>\n"
-+"        \n"
++"\n"
++"    <!-- button is floated so the div height doesn't change \n"
++"         when the button is shown/hidden -->\n"
 +"    <button v-if=\"accessToken && !syncInProgress\"\n"
++"            style=\"float: right\"\n"
 +"            class=\"btn btn-default btn-xs\"\n"
-+"            @click=\"$emit('start-sync')\">🔄️</button>\n",
++"            @click=\"$emit('start-sync')\">🔄️</button>\n"
++"    \n",
     props: {
         filename: String, // user needs to create this file manually, initial contents should be an empty array []
     },

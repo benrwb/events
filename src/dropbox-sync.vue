@@ -1,17 +1,21 @@
 <template>
-    <span class="text-muted">Dropbox:</span> {{ message }}
+    <span class="text-muted">Dropbox:</span>&nbsp;{{ message }}
     
-    <progress v-if="syncInProgress" style="vertical-align: text-bottom;"></progress>
+    <progress v-if="syncInProgress" style="vertical-align: text-bottom; width: 50px"></progress>
 
     <span v-show="!accessToken" class="form-inline">
         Missing <a target="_blank" href="https://dropbox.github.io/dropbox-api-v2-explorer/#files_list_folder">access token</a>
         &nbsp;<input type="text" v-model="editAccessToken" class="form-control" />
         <button class="btn btn-default" @click="saveAccessToken">Set</button>
     </span>
-        
+
+    <!-- button is floated so the div height doesn't change 
+         when the button is shown/hidden -->
     <button v-if="accessToken && !syncInProgress"
+            style="float: right"
             class="btn btn-default btn-xs"
             @click="$emit('start-sync')">🔄️</button>
+    
 </template>
 
 <script lang="ts">

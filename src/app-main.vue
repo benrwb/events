@@ -1,14 +1,18 @@
 <style>
 
-/* Mobile & desktop: right-align the div */
+/* === STYLES FOR DROPBOX SYNC DIV === */
+/* DEFAULT (Desktop): Float right and align text */
 .dropbox-container-div {
     text-align: right;
+    float: right;
 }
-
-/* Desktop: float the div */
-@media (min-width: 768px) {
+/* CONDITIONAL (Mobile: 768px and under): Remove the float */
+@media (max-width: 768px) {
     .dropbox-container-div {
-        float: right;
+        float: none; /* Reverts the float so it stacks normally on mobile */
+    }
+    .navbar.reduce-bottom-margin-on-mobile {
+        margin-bottom: 5px; /* Reduce spacing between navbar and dropbox sync div */
     }
 }
 </style>
@@ -17,7 +21,7 @@
 <div>
 
     <div v-show="activeTab != 'editor' && activeTab != 'linkeditor'">
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default reduce-bottom-margin-on-mobile">
             <div class="container-fluid">
                 <p class="navbar-text pull-right">
                     {{ formatDate(currentTime, 'dddd D MMMM') }}
