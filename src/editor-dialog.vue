@@ -212,7 +212,7 @@ export default defineComponent({
             //}
         },
         deleteItem: function () {
-            if (prompt("Are you sure you want to delete this item?\n\nType YES in the box below to confirm") == "YES") {
+            if (prompt("Are you sure you want to delete this item? (Type 'YES')") == "YES") {
                 this.$emit('delete', this.dbitem.id);
             }
         }
