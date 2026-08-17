@@ -68,14 +68,15 @@
 
     <editor-dialog v-show="activeTab == 'editor'"
                    ref="editorRef"
-                   @save="updateItem($event, true)"
+                   @save="updateItem($event)"
                    @close="closeEditor"
+                   @delete="deleteItem($event)"
                    :dropbox-sync-in-progress >
     </editor-dialog>
 
     <link-editor v-show="activeTab == 'linkeditor'"
                  ref="linkeditorRef"
-                 @save="updateItem($event, true)"
+                 @save="updateItem($event)"
                  @close="closeEditor"
                  :dropbox-sync-in-progress >
     </link-editor>
@@ -86,7 +87,7 @@
 
 <script lang="ts">
     import { defineComponent, nextTick, ref, onMounted, Ref } from 'vue';
-    import { _formatDate } from './common';
+    import { _formatDate, _secondsSinceEpoch } from './common';
     import DropboxSync from './dropbox-sync.vue';
     import EditorDialog from './editor-dialog.vue';
     import LinkEditor from './link-editor.vue';
@@ -138,8 +139,8 @@
                 linkeditorRef.value.openDialog(item);
             }
 
-            function updateItem(item: AppItem, shouldCloseEditor: boolean) {
-                item.lastUpdate = secondsSinceEpoch(); // used when syncing
+            function updateItem(item: AppItem) {
+                item.lastUpdate = _secondsSinceEpoch(); // used when syncing
                 if (item.id == "") {
                     // add new item
                     item.id = crypto.randomUUID();
@@ -149,10 +150,13 @@
                     timelineStore.updateItem(item);
                 }
                 startDropboxSync();
+                closeEditor();
+            }
 
-                if (shouldCloseEditor) {
-                    closeEditor();
-                }
+            function deleteItem(id: string) {
+                timelineStore.deleteItem(id);
+                startDropboxSync();
+                closeEditor();
             }
 
             function closeEditor() {
@@ -162,11 +166,6 @@
                 });
             }
 
-            function secondsSinceEpoch() {
-                return Math.round(new Date().getTime() / 1000);
-                // to convert this back to a date, do `new Date(value * 1000)`
-            }
-
             return {
                 dropboxSyncInProgress,
                 activeTab, currentTime, 
@@ -174,7 +173,8 @@
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
                 formatDate: _formatDate,
-                startDropboxSync
+                startDropboxSync,
+                deleteItem
             };
         }
     });

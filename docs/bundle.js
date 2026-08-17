@@ -60,14 +60,15 @@ const readonly = Vue.readonly;
 +"\n"
 +"    <editor-dialog v-show=\"activeTab == 'editor'\"\n"
 +"                   ref=\"editorRef\"\n"
-+"                   @save=\"updateItem($event, true)\"\n"
++"                   @save=\"updateItem($event)\"\n"
 +"                   @close=\"closeEditor\"\n"
++"                   @delete=\"deleteItem($event)\"\n"
 +"                   :dropbox-sync-in-progress >\n"
 +"    </editor-dialog>\n"
 +"\n"
 +"    <link-editor v-show=\"activeTab == 'linkeditor'\"\n"
 +"                 ref=\"linkeditorRef\"\n"
-+"                 @save=\"updateItem($event, true)\"\n"
++"                 @save=\"updateItem($event)\"\n"
 +"                 @close=\"closeEditor\"\n"
 +"                 :dropbox-sync-in-progress >\n"
 +"    </link-editor>\n"
@@ -109,8 +110,8 @@ const readonly = Vue.readonly;
                 activeTab.value = "linkeditor";
                 linkeditorRef.value.openDialog(item);
             }
-            function updateItem(item, shouldCloseEditor) {
-                item.lastUpdate = secondsSinceEpoch(); // used when syncing
+            function updateItem(item) {
+                item.lastUpdate = _secondsSinceEpoch(); // used when syncing
                 if (item.id == "") {
                     item.id = crypto.randomUUID();
                     timelineStore.addItem(item);
@@ -118,18 +119,18 @@ const readonly = Vue.readonly;
                     timelineStore.updateItem(item);
                 }
                 startDropboxSync();
-                if (shouldCloseEditor) {
-                    closeEditor();
-                }
+                closeEditor();
+            }
+            function deleteItem(id) {
+                timelineStore.deleteItem(id);
+                startDropboxSync();
+                closeEditor();
             }
             function closeEditor() {
                 activeTab.value = previousTab.value;
                 nextTick(() => {
                     document.documentElement.scrollTop = previousScrollPosition.value;
                 });
-            }
-            function secondsSinceEpoch() {
-                return Math.round(new Date().getTime() / 1000);
             }
             return {
                 dropboxSyncInProgress,
@@ -138,7 +139,8 @@ const readonly = Vue.readonly;
                 openEditor, openLinkEditor, updateItem, closeEditor,
                 dropboxRef, editorRef, linkeditorRef,
                 formatDate: _formatDate,
-                startDropboxSync
+                startDropboxSync,
+                deleteItem
             };
         }
     });
@@ -226,6 +228,9 @@ function _formatDate(datestr, dateformat) {
     if (!datestr) return "";
     if (!dateformat) dateformat = "DD/MM/YYYY";
     return moment(datestr).format(dateformat);
+}
+function _secondsSinceEpoch() {
+    return Math.round(new Date().getTime() / 1000);
 }
 
 app.component('dropbox-sync', {
@@ -459,13 +464,16 @@ app.component('editor-dialog', {
 +"\n"
 +"                </div><!-- /\"modal-body\" -->\n"
 +"                <div class=\"modal-footer\">\n"
++"                    <button type=\"button\" class=\"btn btn-default\" style=\"float: left\" \n"
++"                            :disabled=\"dropboxSyncInProgress\"\n"
++"                            @click=\"deleteItem\">Delete</button>\n"
 +"                    <!--<div v-show=\"activeTab == 'notes'\"\n"
 +"                         style=\"float: left\">\n"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertTodo\">⏹</button>\n"
 +"                        <button type=\"button\" class=\"btn btn-default\" v-on:click=\"insertDone\">✅</button>\n"
 +"                    </div>-->\n"
 +"                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\"\n"
-+"                            v-on:click=\"close\">Close</button>\n"
++"                            @click=\"close\">Close</button>\n"
 +"                    <button type=\"button\" \n"
 +"                            class=\"btn btn-primary\"\n"
 +"                            :disabled=\"dropboxSyncInProgress\"\n"
@@ -503,6 +511,11 @@ app.component('editor-dialog', {
         clearDate: function() {
                 this.dbitem.date = null;
         },
+        deleteItem: function () {
+            if (prompt("Are you sure you want to delete this item?\n\nType YES in the box below to confirm") == "YES") {
+                this.$emit('delete', this.dbitem.id);
+            }
+        }
     },
     computed: {
         locationIncludesName: function () {
@@ -1066,11 +1079,22 @@ function useTimelineStore() {
     function replaceTimeline(newItems) {
         _timeline_items.value = newItems;
     }
+    function deleteItem(id) {
+        const index = _timeline_items.value.findIndex((i) => i.id === id);
+        if (index !== -1) {
+            _timeline_items.value[index] = {
+                id,
+                name: "DELETE",
+                lastUpdate: _secondsSinceEpoch(), // Newer timestamp guarantees a win
+            }; // as AppItem;
+        }
+    }
     return {
         items: readonly(_timeline_items),
         addItem,
         updateItem,
         replaceTimeline,
+        deleteItem
     };
 }
 
@@ -1296,30 +1320,30 @@ app.component('timeline-page', {
     },
     computed: {
         orderedTimeline: function() {
-            let filteredTimeline = this.timeline;
+            let filteredTimeline = this.timeline.filter(item => 
+                item.category != "Link" && 
+                item.status != "Went" && 
+                item.status != "Didn't go" &&
+                item.name != "DELETE");
             if (this.store.search) {
                 filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.store.search.toLocaleLowerCase()));
             }
             if (this.ideasOnly) {
-                filteredTimeline = filteredTimeline.filter(item =>
-                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
-                    && !item.date);
-                var orderedTimeline = _.sortBy(filteredTimeline, [
+                filteredTimeline = filteredTimeline.filter(item => !item.date);
+                let orderedTimeline = _.sortBy(filteredTimeline, [
                     item => item.type == "Film" ? "!Film" : item.type, // sort by type; Films first
                     item => (item.name.includes("📌") ? "!" : "") + item.name // within each type heading, sort items in alphabetical order; pinned items at top
                 ]);
                 return _.groupBy(orderedTimeline, "type");
             } else {
-                filteredTimeline = filteredTimeline.filter(item =>
-                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
-                    && !!item.date);
+                filteredTimeline = filteredTimeline.filter(item => !!item.date);
                 if (this.levelOfDetail == 1) {
                     filteredTimeline = filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
                 }
                 else if (this.levelOfDetail == 2) {
                     filteredTimeline = filteredTimeline = filteredTimeline.filter(item => item.status != "Unlikely");
                 }
-                var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
+                let orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return this.groupBySchoolHolidays(orderedTimeline);
             }
         },

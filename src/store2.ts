@@ -1,6 +1,6 @@
 import { ref, readonly, watch } from 'vue';
 import { AppItem } from './types/app';
-
+import { _secondsSinceEpoch } from './common';
 
 const STORAGE_KEY = 'eventsTimelineData';
 
@@ -48,11 +48,23 @@ export function useTimelineStore() {
         _timeline_items.value = newItems;
     }
 
+    function deleteItem(id: string) {
+        const index = _timeline_items.value.findIndex((i) => i.id === id);
+        if (index !== -1) {
+            _timeline_items.value[index] = {
+                id,
+                name: "DELETE",
+                lastUpdate: _secondsSinceEpoch(), // Newer timestamp guarantees a win
+            }; // as AppItem;
+        }
+    }
+
     return {
         // Read-only state to prevent components mutating array without actions
         items: readonly(_timeline_items),
         addItem,
         updateItem,
         replaceTimeline,
+        deleteItem
     };
 }

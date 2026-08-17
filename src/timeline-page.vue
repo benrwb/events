@@ -308,28 +308,25 @@ export default defineComponent({
     },
     computed: {
         orderedTimeline: function(): TimelineWithHeadings {
-            let filteredTimeline = this.timeline;
+            let filteredTimeline = this.timeline.filter(item => 
+                item.category != "Link" && 
+                item.status != "Went" && 
+                item.status != "Didn't go" &&
+                item.name != "DELETE");
             if (this.store.search) {
                 filteredTimeline = filteredTimeline.filter(item => item.name.toLocaleLowerCase().includes(this.store.search.toLocaleLowerCase()));
             }
             if (this.ideasOnly) {
                 // "IDEAS" TAB
-                filteredTimeline = filteredTimeline.filter(item =>
-                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
-                    && !item.date);
-                var orderedTimeline = _.sortBy(filteredTimeline, [
+                filteredTimeline = filteredTimeline.filter(item => !item.date);
+                let orderedTimeline = _.sortBy(filteredTimeline, [
                     item => item.type == "Film" ? "!Film" : item.type, // sort by type; Films first
                     item => (item.name.includes("📌") ? "!" : "") + item.name // within each type heading, sort items in alphabetical order; pinned items at top
                 ]);
                 return _.groupBy(orderedTimeline, "type");
             } else {
                 // "TIMELINE" TAB
-                filteredTimeline = filteredTimeline.filter(item =>
-                    item.category != "Link" && item.status != "Went" && item.status != "Didn't go"
-                    && !!item.date);
-                //if (this.showNeedToBookOnly) {
-                //    filteredTimeline = filteredTimeline.filter(item => item.status == "Need to book");
-                //}
+                filteredTimeline = filteredTimeline.filter(item => !!item.date);
 
                 if (this.levelOfDetail == 1) {
                     // "Need to book" only
@@ -340,7 +337,7 @@ export default defineComponent({
                     filteredTimeline = filteredTimeline = filteredTimeline.filter(item => item.status != "Unlikely");
                 }
                
-                var orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
+                let orderedTimeline = _.orderBy(filteredTimeline, ["date"]); // date order
                 return this.groupBySchoolHolidays(orderedTimeline);
             }
         },

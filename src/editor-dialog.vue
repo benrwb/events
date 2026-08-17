@@ -144,13 +144,16 @@
 
                 </div><!-- /"modal-body" -->
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default" style="float: left" 
+                            :disabled="dropboxSyncInProgress"
+                            @click="deleteItem">Delete</button>
                     <!--<div v-show="activeTab == 'notes'"
                          style="float: left">
                         <button type="button" class="btn btn-default" v-on:click="insertTodo">⏹</button>
                         <button type="button" class="btn btn-default" v-on:click="insertDone">✅</button>
                     </div>-->
                     <button type="button" class="btn btn-default" data-dismiss="modal"
-                            v-on:click="close">Close</button>
+                            @click="close">Close</button>
                     <button type="button" 
                             class="btn btn-primary"
                             :disabled="dropboxSyncInProgress"
@@ -208,6 +211,11 @@ export default defineComponent({
                 this.dbitem.date = null;
             //}
         },
+        deleteItem: function () {
+            if (prompt("Are you sure you want to delete this item?\n\nType YES in the box below to confirm") == "YES") {
+                this.$emit('delete', this.dbitem.id);
+            }
+        }
         //insertAtCursor: function (textToInsert) {
         //    const input = this.$refs.textarea;
         //
